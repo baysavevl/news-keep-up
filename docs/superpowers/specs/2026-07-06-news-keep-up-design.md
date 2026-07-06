@@ -71,6 +71,7 @@ Each item has:
 
 ```text
 <icon> <title>
+Title VN: <Vietnamese title translation>
 Category: <category> | Topic: <topic> | Source: <source>
 Summary: <2-4 concise sentences>
 Why it matters: <role-specific reason for SWE/FDE/SA work>
@@ -142,6 +143,7 @@ For each shortlisted candidate, Gemini returns structured JSON:
   "category": "ai-engineering",
   "topic": "coding-agents",
   "icon": "AI",
+  "title_vi": "Vietnamese title translation.",
   "summary": "Short English summary.",
   "why_it_matters": "Role-specific reason.",
   "takeaway_vi": "Short Vietnamese takeaway.",

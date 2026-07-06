@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "news-keep-up"
+version = "0.1.0"
+description = "Twice-daily AI/SWE/FDE news digest delivered through Telegram."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+turso = ["libsql-experimental>=0.0.12"]
+
+[tool.setuptools]
+packages = ["news_keep_up"]

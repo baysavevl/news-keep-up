@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Latent Space",
+    "type": "rss",
+    "url": "https://www.latent.space/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "The Pragmatic Engineer",
+    "type": "rss",
+    "url": "https://newsletter.pragmaticengineer.com/feed",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Simon Willison",
+    "type": "rss",
+    "url": "https://simonw.substack.com/feed",
+    "category": "agentic-engineering",
+    "enabled": true
+  },
+  {
+    "name": "One Useful Thing",
+    "type": "rss",
+    "url": "https://www.oneusefulthing.org/feed",
+    "category": "ai-at-work",
+    "enabled": true
+  },
+  {
+    "name": "Interconnects AI",
+    "type": "rss",
+    "url": "https://www.interconnects.ai/feed",
+    "category": "ai-research",
+    "enabled": true
+  },
+  {
+    "name": "Ahead of AI",
+    "type": "rss",
+    "url": "https://magazine.sebastianraschka.com/feed",
+    "category": "ai-research",
+    "enabled": true
+  },
+  {
+    "name": "Lenny's Newsletter",
+    "type": "rss",
+    "url": "https://www.lennysnewsletter.com/feed",
+    "category": "product-strategy",
+    "enabled": true
+  },
+  {
+    "name": "OpenAI News",
+    "type": "rss",
+    "url": "https://openai.com/news/rss.xml",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "Anthropic News",
+    "type": "rss",
+    "url": "https://www.anthropic.com/news/rss.xml",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "Google AI Blog",
+    "type": "rss",
+    "url": "https://blog.google/technology/ai/rss/",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "GitHub Blog",
+    "type": "rss",
+    "url": "https://github.blog/feed/",
+    "category": "developer-tools",
+    "enabled": true
+  },
+  {
+    "name": "Vercel Blog",
+    "type": "rss",
+    "url": "https://vercel.com/blog/rss",
+    "category": "developer-tools",
+    "enabled": true
+  },
+  {
+    "name": "LangChain Blog",
+    "type": "rss",
+    "url": "https://blog.langchain.com/rss/",
+    "category": "agent-frameworks",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent&tags=story",
+    "category": "discussion",
+    "enabled": true
+  },
+  {
+    "name": "Reddit LocalLLaMA",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/LocalLLaMA/.rss",
+    "category": "discussion",
+    "enabled": true
+  },
+  {
+    "name": "Reddit Machine Learning",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/MachineLearning/.rss",
+    "category": "discussion",
+    "enabled": true
+  }
+]

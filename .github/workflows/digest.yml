@@ -1,0 +1,63 @@
+name: News Keep Up Digest
+
+on:
+  schedule:
+    # 10:00 and 16:00 Asia/Ho_Chi_Minh.
+    - cron: "0 3,9 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "Digest slot"
+        type: choice
+        required: true
+        default: "morning"
+        options:
+          - morning
+          - afternoon
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+      TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+      MAX_LLM_ITEMS_PER_RUN: ${{ vars.MAX_LLM_ITEMS_PER_RUN || '20' }}
+      MAX_LLM_CALLS_PER_DAY: ${{ vars.MAX_LLM_CALLS_PER_DAY || '40' }}
+      MAX_CANDIDATES_PER_SOURCE: ${{ vars.MAX_CANDIDATES_PER_SOURCE || '10' }}
+      MIN_RELEVANCE_SCORE: ${{ vars.MIN_RELEVANCE_SCORE || '65' }}
+      BACKFILL_LOOKBACK_DAYS: ${{ vars.BACKFILL_LOOKBACK_DAYS || '7' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: python -m pip install -e ".[turso]"
+
+      - name: Choose slot
+        id: slot
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "slot=${{ github.event.inputs.slot }}" >> "$GITHUB_OUTPUT"
+          else
+            hour_utc="$(date -u +%H)"
+            if [ "$hour_utc" = "03" ]; then
+              echo "slot=morning" >> "$GITHUB_OUTPUT"
+            else
+              echo "slot=afternoon" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Initialize database
+        run: python -m news_keep_up.main init-db
+
+      - name: Run digest
+        run: python -m news_keep_up.main run-digest --slot "${{ steps.slot.outputs.slot }}"
