@@ -39,7 +39,12 @@ jobs:
           python-version: "3.12"
 
       - name: Install package
-        run: python -m pip install -e ".[turso]"
+        shell: bash
+        run: |
+          python -m pip install -e .
+          if [ -n "$TURSO_DATABASE_URL" ]; then
+            python -m pip install 'libsql-experimental>=0.0.12'
+          fi
 
       - name: Choose slot
         id: slot
