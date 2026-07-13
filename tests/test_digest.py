@@ -5,9 +5,9 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from news_keep_up.db import connect_database, count_llm_calls_today
-from news_keep_up.digest import format_digest, run_digest, select_digest_items
-from news_keep_up.models import DigestCandidate, DigestSelection, Enrichment, Settings
+from news_keep_up.db import connect_database, count_llm_calls_today, init_db, upsert_enrichment, upsert_item
+from news_keep_up.digest import _load_digest_candidates, format_digest, run_digest, select_digest_items
+from news_keep_up.models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings
 from news_keep_up.utils import now_ict
 
 
@@ -72,6 +72,16 @@ class DigestTest(unittest.TestCase):
         self.assertNotIn("Title VN:", message)
         self.assertNotIn("Link:", message)
 
+    def test_format_uses_profile_specific_heading(self):
+        selections = [
+            select_digest_items([candidate(1, 95, "fde-industry")], 1, 5, 1)[0]
+        ]
+
+        message = format_digest("fde", selections)
+
+        self.assertIn("<b>FDE Digest</b>", message)
+        self.assertIn("FDE |", message)
+
     def test_format_escapes_html_and_hides_fallback_translation(self):
         item = candidate(1, 95, "ai-engineering")
         item = DigestCandidate(
@@ -121,6 +131,28 @@ class DigestTest(unittest.TestCase):
             conn = connect_database(settings)
 
             self.assertEqual(count_llm_calls_today(conn, now_ict().date().isoformat()), 0)
+
+    def test_old_published_items_are_not_selected_as_fresh(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=7)
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Old Feed",
+                source_kind="rss",
+                source_category="ai-engineering",
+                title="Forward deployed engineering from 2024",
+                url="https://example.com/old",
+                canonical_url="https://example.com/old",
+                summary="AI deployment pattern.",
+                published_at="2024-02-27T00:00:00+00:00",
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, item_id, enrichment(95, "ai-engineering"))
+
+            rows = _load_digest_candidates(conn, settings, {item_id})
+
+        self.assertEqual(rows, [])
 
 
 if __name__ == "__main__":

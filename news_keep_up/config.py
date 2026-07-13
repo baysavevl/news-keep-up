@@ -36,12 +36,31 @@ def _secret_env(env: Mapping[str, str], key: str) -> str:
         return ""
 
 
-def load_settings(env: Mapping[str, str] | None = None) -> Settings:
+def _profile_key(key: str, env_prefix: str) -> str:
+    prefix = env_prefix.strip().upper()
+    if not prefix:
+        return key
+    return f"{prefix}_{key}"
+
+
+def _profile_secret_env(env: Mapping[str, str], key: str, env_prefix: str) -> str:
+    if env_prefix.strip():
+        return _secret_env(env, _profile_key(key, env_prefix))
+    return _secret_env(env, key)
+
+
+def _profile_plain_env(env: Mapping[str, str], key: str, env_prefix: str) -> str:
+    if env_prefix.strip():
+        return env.get(_profile_key(key, env_prefix), "")
+    return env.get(key, "")
+
+
+def load_settings(env: Mapping[str, str] | None = None, env_prefix: str = "") -> Settings:
     values = os.environ if env is None else env
     return Settings(
         gemini_api_key=_secret_env(values, "GEMINI_API_KEY"),
-        telegram_bot_token=_secret_env(values, "TELEGRAM_BOT_TOKEN"),
-        telegram_chat_id=values.get("TELEGRAM_CHAT_ID", ""),
+        telegram_bot_token=_profile_secret_env(values, "TELEGRAM_BOT_TOKEN", env_prefix),
+        telegram_chat_id=_profile_plain_env(values, "TELEGRAM_CHAT_ID", env_prefix),
         turso_database_url=values.get("TURSO_DATABASE_URL", ""),
         turso_auth_token=values.get("TURSO_AUTH_TOKEN", ""),
         db_path=Path(values.get("DB_PATH", "data/news-keep-up.db")),

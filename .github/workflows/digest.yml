@@ -2,8 +2,8 @@ name: News Keep Up Digest
 
 on:
   schedule:
-    # 08:10, 10:10, 12:10, 14:10, 16:10, 18:10, 20:10 Asia/Ho_Chi_Minh.
-    - cron: "10 1,3,5,7,9,11,13 * * *"
+    # Hourly from 08:10 through 22:10 Asia/Ho_Chi_Minh.
+    - cron: "10 1-15 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -23,11 +23,18 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
         run: |
-          url="https://news-keep-up.vercel.app/api/digest/news"
-          if [ "$DRY_RUN" = "true" ]; then
-            url="${url}?dry_run=true"
-          fi
+          endpoints=(
+            "https://news-keep-up.vercel.app/api/digest/engineer"
+            "https://news-keep-up.vercel.app/api/digest/fde"
+          )
 
-          curl --fail --show-error --silent --max-time 120 \
-            --header "Authorization: Bearer ${CRON_SECRET}" \
-            "$url"
+          for url in "${endpoints[@]}"; do
+            if [ "$DRY_RUN" = "true" ]; then
+              url="${url}?dry_run=true"
+            fi
+
+            curl --fail --show-error --silent --max-time 120 \
+              --header "Authorization: Bearer ${CRON_SECRET}" \
+              "$url"
+            echo
+          done

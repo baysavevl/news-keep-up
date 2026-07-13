@@ -42,6 +42,16 @@ class PrefilterTest(unittest.TestCase):
         self.assertFalse(is_candidate_relevant(weak))
         self.assertTrue(is_candidate_relevant(strong))
 
+    def test_forward_deployed_engineering_item_scores_as_relevant(self):
+        candidate = item(
+            "Forward deployed engineers move enterprise AI from pilot to production",
+            "Customer-embedded engineering, evals, integrations, and workflow rollout.",
+            "fde-industry",
+        )
+
+        self.assertGreaterEqual(prefilter_score(candidate), 50)
+        self.assertTrue(is_candidate_relevant(candidate))
+
 
 if __name__ == "__main__":
     unittest.main()

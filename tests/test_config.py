@@ -47,6 +47,29 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(settings.telegram_bot_token, "tg-token")
         self.assertEqual(settings.telegram_chat_id, "123")
 
+    def test_load_settings_accepts_profile_specific_telegram_env(self):
+        settings = load_settings({
+            "GEMINI_API_KEY": "gemini-key",
+            "TELEGRAM_BOT_TOKEN": "default-token",
+            "TELEGRAM_CHAT_ID": "default-chat",
+            "FDE_TELEGRAM_BOT_TOKEN_B64": b64encode(b"fde-token").decode("ascii"),
+            "FDE_TELEGRAM_CHAT_ID": "-100123",
+        }, env_prefix="FDE")
+
+        self.assertEqual(settings.gemini_api_key, "gemini-key")
+        self.assertEqual(settings.telegram_bot_token, "fde-token")
+        self.assertEqual(settings.telegram_chat_id, "-100123")
+
+    def test_profile_specific_telegram_env_does_not_mix_default_chat(self):
+        settings = load_settings({
+            "TELEGRAM_BOT_TOKEN": "default-token",
+            "TELEGRAM_CHAT_ID": "default-chat",
+            "FDE_TELEGRAM_BOT_TOKEN_B64": b64encode(b"fde-token").decode("ascii"),
+        }, env_prefix="FDE")
+
+        self.assertEqual(settings.telegram_bot_token, "fde-token")
+        self.assertEqual(settings.telegram_chat_id, "")
+
     def test_load_sources_filters_disabled_sources(self):
         with tempfile.TemporaryDirectory() as tmp:
             source_path = Path(tmp) / "sources.json"
@@ -72,6 +95,13 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(len(sources), 1)
         self.assertEqual(sources[0].name, "Latent Space")
         self.assertEqual(sources[0].kind, "rss")
+
+    def test_fde_sources_include_at_least_50_trusted_enabled_sources(self):
+        sources = load_sources("config/fde_sources.json")
+
+        self.assertGreaterEqual(len(sources), 50)
+        self.assertTrue(all(source.enabled for source in sources))
+        self.assertTrue(all(source.category.startswith(("fde", "ai", "enterprise", "field", "discussion")) for source in sources))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from html import escape
 from typing import Iterable
 
@@ -24,6 +24,15 @@ from .telegram import send_telegram_message
 from .utils import ICT, now_ict
 
 USER_AGENT = "news-keep-up/0.1 (+https://github.com/baysavevl/news-keep-up)"
+
+DIGEST_TITLES = {
+    "engineer": "Engineer Digest",
+    "fde": "FDE Digest",
+}
+
+DIGEST_SLOT_LABELS = {
+    "fde": "FDE",
+}
 
 
 def select_digest_items(
@@ -69,11 +78,12 @@ def format_digest(slot: str, selections: list[DigestSelection], now: datetime | 
         current = current.replace(tzinfo=ICT)
     else:
         current = current.astimezone(ICT)
-    slot_label = slot.replace("-", " ").title()
+    digest_title = DIGEST_TITLES.get(slot, "AI/FDE/SWE Digest")
+    slot_label = DIGEST_SLOT_LABELS.get(slot, slot.replace("-", " ").title())
     fresh_count = sum(1 for selection in selections if not selection.candidate.is_backfill)
     backfill_count = sum(1 for selection in selections if selection.candidate.is_backfill)
     lines = [
-        "<b>AI/FDE/SWE Digest</b>",
+        f"<b>{escape(digest_title)}</b>",
         f"{escape(slot_label)} | {current.strftime('%d %b %Y %H:%M')} ICT",
         f"{fresh_count} fresh, {backfill_count} backfill",
         "",
@@ -172,7 +182,8 @@ def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources_path) -
 
 
 def _load_digest_candidates(conn, settings: Settings, current_item_ids: set[int]) -> list[DigestCandidate]:
-    cutoff = (now_ict() - timedelta(days=settings.backfill_lookback_days)).isoformat()
+    fetched_cutoff = (now_ict() - timedelta(days=settings.backfill_lookback_days)).isoformat()
+    published_cutoff = (now_ict() - timedelta(days=settings.backfill_lookback_days)).astimezone(timezone.utc).isoformat()
     rows = conn.execute(
         """SELECT i.id, i.title, i.url, i.source_name, i.source_category, i.published_at, i.fetched_at,
                   e.model, e.relevance_score, e.category, e.topic, e.icon, e.title_vi,
@@ -182,9 +193,10 @@ def _load_digest_candidates(conn, settings: Settings, current_item_ids: set[int]
            WHERE e.should_send = 1
              AND e.relevance_score >= ?
              AND (i.fetched_at IS NULL OR i.fetched_at = '' OR i.fetched_at >= ?)
+             AND (i.published_at IS NULL OR i.published_at = '' OR i.published_at >= ?)
              AND NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)
            ORDER BY e.relevance_score DESC, i.published_at DESC""",
-        (settings.min_relevance_score, cutoff),
+        (settings.min_relevance_score, fetched_cutoff, published_cutoff),
     ).fetchall()
     candidates: list[DigestCandidate] = []
     for row in rows:

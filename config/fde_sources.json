@@ -1,0 +1,436 @@
+[
+  {
+    "name": "Seattle Data Guy",
+    "type": "rss",
+    "url": "https://seattledataguy.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "AI Action Letter",
+    "type": "rss",
+    "url": "https://abhijayvuyyuru.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Next Play",
+    "type": "rss",
+    "url": "https://nextplayso.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Disruptica",
+    "type": "rss",
+    "url": "https://disruptica.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Thomas Otter",
+    "type": "rss",
+    "url": "https://thomasotter.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "The AI Frontier",
+    "type": "rss",
+    "url": "https://frontierai.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Not Another CEO",
+    "type": "rss",
+    "url": "https://notanotherceo.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "The Hustling Engineer",
+    "type": "rss",
+    "url": "https://thehustlingengineer.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Aishwarya Srinivasan",
+    "type": "rss",
+    "url": "https://aishwaryasrinivasan.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Success VP",
+    "type": "rss",
+    "url": "https://successvp.substack.com/feed",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "The Pragmatic Engineer",
+    "type": "rss",
+    "url": "https://newsletter.pragmaticengineer.com/feed",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Lenny's Newsletter",
+    "type": "rss",
+    "url": "https://www.lennysnewsletter.com/feed",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Latent Space",
+    "type": "rss",
+    "url": "https://www.latent.space/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "One Useful Thing",
+    "type": "rss",
+    "url": "https://www.oneusefulthing.org/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Simon Willison",
+    "type": "rss",
+    "url": "https://simonw.substack.com/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Interconnects AI",
+    "type": "rss",
+    "url": "https://www.interconnects.ai/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Ahead of AI",
+    "type": "rss",
+    "url": "https://magazine.sebastianraschka.com/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "OpenAI News",
+    "type": "rss",
+    "url": "https://openai.com/news/rss.xml",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Anthropic Enterprise AI",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Anthropic%20enterprise%20AI&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Google AI Blog",
+    "type": "rss",
+    "url": "https://blog.google/technology/ai/rss/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Salesforce Engineering",
+    "type": "rss",
+    "url": "https://engineering.salesforce.com/feed/",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Microsoft Blog",
+    "type": "rss",
+    "url": "https://blogs.microsoft.com/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Twilio Blog",
+    "type": "rss",
+    "url": "https://www.twilio.com/blog/feed",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "AWS Machine Learning Blog",
+    "type": "rss",
+    "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "AWS News Blog",
+    "type": "rss",
+    "url": "https://aws.amazon.com/blogs/aws/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Salesforce News",
+    "type": "rss",
+    "url": "https://www.salesforce.com/news/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Palantir Blog",
+    "type": "rss",
+    "url": "https://medium.com/feed/palantir",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Databricks Blog",
+    "type": "rss",
+    "url": "https://www.databricks.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Snowflake Blog",
+    "type": "rss",
+    "url": "https://www.snowflake.com/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "InfoQ AI ML Data Engineering",
+    "type": "rss",
+    "url": "https://feed.infoq.com/ai-ml-data-eng/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Cohere Blog",
+    "type": "rss",
+    "url": "https://cohere.com/blog/rss.xml",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Mistral AI News",
+    "type": "rss",
+    "url": "https://mistral.ai/rss.xml",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "LangChain Blog",
+    "type": "rss",
+    "url": "https://www.langchain.com/blog/rss.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "LlamaIndex Blog",
+    "type": "rss",
+    "url": "https://medium.com/feed/llamaindex-blog",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Sourcegraph Blog",
+    "type": "rss",
+    "url": "https://sourcegraph.com/blog/rss.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Meta Engineering",
+    "type": "rss",
+    "url": "https://engineering.fb.com/feed/",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Arize AI Blog",
+    "type": "rss",
+    "url": "https://arize.com/feed/",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Elastic Blog",
+    "type": "rss",
+    "url": "https://www.elastic.co/blog/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Snyk Blog",
+    "type": "rss",
+    "url": "https://snyk.io/blog/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Modal Blog",
+    "type": "rss",
+    "url": "https://modal.com/blog/atom.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Replicate Blog",
+    "type": "rss",
+    "url": "https://replicate.com/blog/rss",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Vercel Blog",
+    "type": "rss",
+    "url": "https://vercel.com/blog/rss",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "GitHub Blog",
+    "type": "rss",
+    "url": "https://github.blog/feed/",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Cloudflare Blog",
+    "type": "rss",
+    "url": "https://blog.cloudflare.com/rss/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Stripe Blog",
+    "type": "rss",
+    "url": "https://stripe.com/blog/feed.rss",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Netflix TechBlog",
+    "type": "rss",
+    "url": "https://netflixtechblog.com/feed",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Datadog Engineering",
+    "type": "rss",
+    "url": "https://www.datadoghq.com/blog/engineering/index.xml",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Spotify Engineering",
+    "type": "rss",
+    "url": "https://engineering.atspotify.com/feed/",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Slack Engineering",
+    "type": "rss",
+    "url": "https://slack.engineering/feed/",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Airbnb Engineering",
+    "type": "rss",
+    "url": "https://medium.com/feed/airbnb-engineering",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Forward Deployed Engineer",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Forward%20Deployed%20Engineer%22&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Deployment Engineer",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22AI%20Deployment%20Engineer%22&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20AI%20agents&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Production RAG Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=production%20RAG%20evals&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News MCP Agent Workflows",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=MCP%20agent%20workflows&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Reddit Sales Engineers",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/salesengineers/.rss",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Reddit Experienced Devs",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/ExperiencedDevs/.rss",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Reddit DevOps",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/devops/.rss",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Reddit Machine Learning",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/MachineLearning/.rss",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Reddit LocalLLaMA",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/LocalLLaMA/.rss",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Reddit LangChain",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/LangChain/.rss",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Reddit Data Engineering",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/dataengineering/.rss",
+    "category": "discussion-fde",
+    "enabled": true
+  }
+]

@@ -7,6 +7,14 @@ from .config import load_settings
 from .db import connect_database, init_db
 from .digest import run_digest
 
+PROFILE_SOURCE_PATHS = {
+    "engineer": "config/sources.json",
+    "fde": "config/fde_sources.json",
+    "news": "config/sources.json",
+    "morning": "config/sources.json",
+    "afternoon": "config/sources.json",
+}
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="news-keep-up")
@@ -16,10 +24,10 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--db-path", help="Override local SQLite DB path")
 
     run_parser = subparsers.add_parser("run-digest", help="Fetch, enrich, select, and send a digest")
-    run_parser.add_argument("--slot", choices=["morning", "afternoon"], required=True)
+    run_parser.add_argument("--slot", choices=sorted(PROFILE_SOURCE_PATHS), required=True)
     run_parser.add_argument("--dry-run", action="store_true", help="Print digest instead of sending Telegram")
     run_parser.add_argument("--db-path", help="Override local SQLite DB path")
-    run_parser.add_argument("--sources-path", default="config/sources.json")
+    run_parser.add_argument("--sources-path", help="Override source config path")
     return parser
 
 
@@ -37,7 +45,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "run-digest":
-        message = run_digest(settings, args.slot, dry_run=args.dry_run, sources_path=args.sources_path)
+        sources_path = args.sources_path or PROFILE_SOURCE_PATHS[args.slot]
+        message = run_digest(settings, args.slot, dry_run=args.dry_run, sources_path=sources_path)
         if args.dry_run:
             print(message)
         return 0
