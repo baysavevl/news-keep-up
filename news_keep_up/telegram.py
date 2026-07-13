@@ -15,6 +15,7 @@ def send_telegram_message(text: str, settings: Settings) -> None:
     body = {
         "chat_id": settings.telegram_chat_id,
         "text": text,
+        "parse_mode": "HTML",
         "disable_web_page_preview": True,
     }
     request = urllib.request.Request(

@@ -17,7 +17,7 @@ def build_prompt(item: CandidateItem) -> str:
         "url": item.url,
     }, ensure_ascii=False)
     return (
-        "You curate a compact twice-daily digest for a software engineer, "
+        "You curate a compact recurring digest for a software engineer, "
         "forward deployed engineer, and solution architect. Score only practical, "
         "high-signal items about AI, AI agents, developer tools, architecture, "
         "and customer-facing technical work.\n\n"

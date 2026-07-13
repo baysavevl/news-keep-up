@@ -20,8 +20,7 @@ class VercelDeployConfigTest(unittest.TestCase):
         self.assertEqual(
             config["crons"],
             [
-                {"path": "/api/digest/morning", "schedule": "0 3 * * *"},
-                {"path": "/api/digest/afternoon", "schedule": "0 9 * * *"},
+                {"path": "/api/digest/news", "schedule": "10 1,3,5,7,9,11,13 * * *"},
             ],
         )
 
@@ -53,14 +52,14 @@ class VercelDigestEndpointTest(unittest.TestCase):
             patch("news_keep_up.vercel_app.run_digest", return_value="digest text") as run_digest,
         ):
             response = app.test_client().get(
-                "/api/digest/morning",
+                "/api/digest/news",
                 headers={"Authorization": "Bearer test-secret"},
             )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["slot"], "morning")
+        self.assertEqual(response.get_json()["slot"], "news")
         self.assertFalse(response.get_json()["dry_run"])
-        self.assertEqual(run_digest.call_args.args[1], "morning")
+        self.assertEqual(run_digest.call_args.args[1], "news")
         self.assertFalse(run_digest.call_args.kwargs["dry_run"])
 
 

@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request
 from .config import load_settings
 from .digest import run_digest
 
-VALID_SLOTS = {"morning", "afternoon"}
+VALID_SLOTS = {"news", "morning", "afternoon"}
 
 app = Flask(__name__)
 

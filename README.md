@@ -1,8 +1,8 @@
 # news-keep-up
 
-Automated twice-daily Telegram digest for keeping up with AI, software engineering, forward deployed engineering, solution architecture, coding agents, AI tools, and high-signal technical discussions.
+Automated Telegram digest for keeping up with AI, software engineering, forward deployed engineering, solution architecture, coding agents, AI tools, and high-signal technical discussions.
 
-The digest runs at 10:00 and 16:00 Asia/Ho_Chi_Minh via GitHub Actions. Each message sends 3-5 items when enough candidates are available.
+The digest runs every two hours at :10 from 08:10 through 20:10 Asia/Ho_Chi_Minh via Vercel Cron. Each message sends 3-5 items when enough candidates are available.
 
 ## Message Format
 
@@ -10,12 +10,11 @@ Each item is formatted for quick scanning:
 
 ```text
 1. AI English title
-Title VN: Vietnamese title translation
-Category: ai-engineering | Topic: coding-agents | Source: Latent Space
+Source: Latent Space | ai-engineering / coding-agents
 Summary: Short English summary.
-Why it matters: Role-specific reason for SWE/FDE/SA work.
-Takeaway VN: One short Vietnamese takeaway.
-Link: https://example.com/article
+Why: Role-specific reason for SWE/FDE/SA work.
+VN: One short Vietnamese takeaway.
+Read: Read
 ```
 
 Backfilled items are marked:
@@ -75,8 +74,7 @@ The workflow is in `.github/workflows/digest.yml` and is kept as a manual fallba
 
 The Vercel deployment exposes `news_keep_up.vercel_app:app` and schedules:
 
-- `/api/digest/morning` at `0 3 * * *` UTC
-- `/api/digest/afternoon` at `0 9 * * *` UTC
+- `/api/digest/news` at `10 1,3,5,7,9,11,13 * * *` UTC, equivalent to 08:10 through 20:10 ICT every two hours
 
 Configure the Vercel environment variables listed above for production. `CRON_SECRET` must be set so Vercel Cron can authenticate requests with `Authorization: Bearer $CRON_SECRET`.
 

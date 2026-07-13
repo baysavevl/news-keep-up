@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from html import escape
 from typing import Iterable
 
 from .config import DEFAULT_SOURCES_PATH, load_sources
@@ -72,7 +73,8 @@ def format_digest(slot: str, selections: list[DigestSelection], now: datetime | 
     fresh_count = sum(1 for selection in selections if not selection.candidate.is_backfill)
     backfill_count = sum(1 for selection in selections if selection.candidate.is_backfill)
     lines = [
-        f"AI/FDE/SWE Digest | {slot_label} | {current.strftime('%d %b %Y %H:%M')} ICT",
+        "<b>AI/FDE/SWE Digest</b>",
+        f"{escape(slot_label)} | {current.strftime('%d %b %Y %H:%M')} ICT",
         f"{fresh_count} fresh, {backfill_count} backfill",
         "",
     ]
@@ -84,21 +86,32 @@ def format_digest(slot: str, selections: list[DigestSelection], now: datetime | 
     for selection in selections:
         item = selection.candidate
         enrichment = item.enrichment
+        title = f"{enrichment.icon} {item.title}".strip()
         lines.extend([
-            f"{selection.position}. {enrichment.icon} {item.title}",
-            f"Title VN: {enrichment.title_vi}",
+            f"<b>{selection.position}. {escape(title)}</b>",
+            f"Source: {escape(item.source_name)} | {escape(enrichment.category)} / {escape(enrichment.topic)}",
         ])
+        translated_title = _display_title_vi(item.title, enrichment.title_vi)
+        if translated_title:
+            lines.append(f"VN title: {escape(translated_title)}")
         if item.is_backfill:
             lines.append("Backfill - still relevant")
         lines.extend([
-            f"Category: {enrichment.category} | Topic: {enrichment.topic} | Source: {item.source_name}",
-            f"Summary: {enrichment.summary}",
-            f"Why it matters: {enrichment.why_it_matters}",
-            f"Takeaway VN: {enrichment.takeaway_vi}",
-            f"Link: {item.url}",
+            f"Summary: {escape(enrichment.summary)}",
+            f"Why: {escape(enrichment.why_it_matters)}",
+            f"VN: {escape(enrichment.takeaway_vi)}",
+            f'Read: <a href="{escape(item.url, quote=True)}">Read</a>',
             "",
         ])
     return "\n".join(lines).strip()
+
+
+def _display_title_vi(title: str, title_vi: str) -> str:
+    marker = "(bản dịch tự động chưa có)"
+    cleaned = title_vi.replace(marker, "").strip()
+    if not cleaned or cleaned == title:
+        return ""
+    return cleaned
 
 
 def run_digest(

@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 from news_keep_up.db import connect_database, count_llm_calls_today
 from news_keep_up.digest import format_digest, run_digest, select_digest_items
-from news_keep_up.models import DigestCandidate, Enrichment, Settings
+from news_keep_up.models import DigestCandidate, DigestSelection, Enrichment, Settings
 from news_keep_up.utils import now_ict
 
 
@@ -55,20 +55,44 @@ class DigestTest(unittest.TestCase):
         self.assertEqual(sum(1 for s in selections if s.candidate.source_category == "discussion"), 1)
         self.assertTrue(any(s.candidate.is_backfill for s in selections))
 
-    def test_format_places_vietnamese_title_under_english_title(self):
+    def test_format_uses_compact_telegram_html(self):
         selections = [
             select_digest_items([candidate(1, 95, "ai-engineering", is_backfill=True)], 1, 5, 1)[0]
         ]
         now = datetime(2026, 7, 6, 10, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
 
-        message = format_digest("morning", selections, now=now)
+        message = format_digest("news", selections, now=now)
 
-        self.assertIn("AI/FDE/SWE Digest | Morning | 06 Jul 2026 10:00 ICT", message)
-        title_index = message.index("1. AI English title 1")
-        translated_index = message.index("Title VN: Tiêu đề 95")
-        self.assertLess(title_index, translated_index)
+        self.assertIn("<b>AI/FDE/SWE Digest</b>", message)
+        self.assertIn("News | 06 Jul 2026 10:00 ICT", message)
+        self.assertIn("<b>1. AI English title 1</b>", message)
+        self.assertIn("Source: Test Source | ai-engineering / coding-agents", message)
         self.assertIn("Backfill - still relevant", message)
-        self.assertIn("Link: https://example.com/1", message)
+        self.assertIn('<a href="https://example.com/1">Read</a>', message)
+        self.assertNotIn("Title VN:", message)
+        self.assertNotIn("Link:", message)
+
+    def test_format_escapes_html_and_hides_fallback_translation(self):
+        item = candidate(1, 95, "ai-engineering")
+        item = DigestCandidate(
+            **{
+                **item.__dict__,
+                "title": "Agent <tools> & repos",
+                "url": "https://example.com/read?x=1&y=2",
+                "enrichment": Enrichment(
+                    **{
+                        **item.enrichment.__dict__,
+                        "title_vi": "Agent <tools> & repos (bản dịch tự động chưa có)",
+                    }
+                ),
+            }
+        )
+
+        message = format_digest("news", [DigestSelection(candidate=item, position=1)])
+
+        self.assertIn("<b>1. AI Agent &lt;tools&gt; &amp; repos</b>", message)
+        self.assertIn('href="https://example.com/read?x=1&amp;y=2"', message)
+        self.assertNotIn("bản dịch tự động chưa có", message)
 
     def test_no_key_fallback_does_not_record_llm_usage(self):
         with tempfile.TemporaryDirectory() as tmp:
