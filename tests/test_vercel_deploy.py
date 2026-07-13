@@ -14,24 +14,21 @@ class VercelDeployConfigTest(unittest.TestCase):
             "news_keep_up.vercel_app:app",
         )
 
-    def test_vercel_json_declares_digest_crons(self):
+    def test_vercel_json_does_not_declare_hobby_blocked_crons(self):
         config = json.loads(Path("vercel.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(
-            config["crons"],
-            [
-                {"path": "/api/digest/news", "schedule": "10 1,3,5,7,9,11,13 * * *"},
-            ],
-        )
+        self.assertNotIn("crons", config)
 
     def test_python_runtime_is_pinned_to_github_actions_version(self):
         self.assertEqual(Path(".python-version").read_text(encoding="utf-8").strip(), "3.12")
 
-    def test_github_actions_is_manual_fallback_only(self):
+    def test_github_actions_triggers_vercel_every_two_hours(self):
         workflow = Path(".github/workflows/digest.yml").read_text(encoding="utf-8")
 
+        self.assertIn('cron: "10 1,3,5,7,9,11,13 * * *"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
-        self.assertNotIn("schedule:", workflow)
+        self.assertIn("https://news-keep-up.vercel.app/api/digest/news", workflow)
+        self.assertIn("secrets.CRON_SECRET", workflow)
 
 
 class VercelDigestEndpointTest(unittest.TestCase):

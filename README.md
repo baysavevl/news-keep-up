@@ -2,7 +2,7 @@
 
 Automated Telegram digest for keeping up with AI, software engineering, forward deployed engineering, solution architecture, coding agents, AI tools, and high-signal technical discussions.
 
-The digest runs every two hours at :10 from 08:10 through 20:10 Asia/Ho_Chi_Minh via Vercel Cron. Each message sends 3-5 items when enough candidates are available.
+The digest runs every two hours at :10 from 08:10 through 20:10 Asia/Ho_Chi_Minh. GitHub Actions owns the schedule and calls the Vercel-hosted digest endpoint. Each message sends 3-5 items when enough candidates are available.
 
 ## Message Format
 
@@ -68,15 +68,16 @@ Configure repository secrets:
 - `TURSO_DATABASE_URL`
 - `TURSO_AUTH_TOKEN`
 
-The workflow is in `.github/workflows/digest.yml` and is kept as a manual fallback. Scheduled production delivery runs through Vercel Cron.
+The workflow is in `.github/workflows/digest.yml` and runs at `10 1,3,5,7,9,11,13 * * *` UTC, equivalent to 08:10 through 20:10 ICT every two hours. It calls the Vercel endpoint with `CRON_SECRET`; the Telegram/Gemini runtime configuration remains in Vercel.
 
 ## Vercel
 
-The Vercel deployment exposes `news_keep_up.vercel_app:app` and schedules:
+The Vercel deployment exposes `news_keep_up.vercel_app:app`:
 
-- `/api/digest/news` at `10 1,3,5,7,9,11,13 * * *` UTC, equivalent to 08:10 through 20:10 ICT every two hours
+- `/api/digest/news` runs the production digest
+- `?dry_run=true` formats the digest without sending Telegram
 
-Configure the Vercel environment variables listed above for production. `CRON_SECRET` must be set so Vercel Cron can authenticate requests with `Authorization: Bearer $CRON_SECRET`.
+Configure the Vercel environment variables listed above for production. `CRON_SECRET` must be set so scheduled callers can authenticate requests with `Authorization: Bearer $CRON_SECRET`.
 
 ## Tests
 
