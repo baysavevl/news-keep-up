@@ -2,7 +2,7 @@
 
 Automated Telegram digest for keeping up with AI, software engineering, forward deployed engineering, solution architecture, coding agents, AI tools, and high-signal technical discussions.
 
-The digest runs hourly at :10 from 08:10 through 22:10 Asia/Ho_Chi_Minh. GitHub Actions owns the schedule and calls the Vercel-hosted digest endpoints. Each message sends 3-5 items when enough candidates are available.
+The digests run hourly from 08:00 through 22:00 Asia/Ho_Chi_Minh. GitHub Actions owns the schedule and calls the Vercel-hosted digest endpoints: FDE at `:20`, Engineer at `:40`.
 
 ## Profiles
 
@@ -15,12 +15,16 @@ The digest runs hourly at :10 from 08:10 through 22:10 Asia/Ho_Chi_Minh. GitHub 
 Each item is formatted for quick scanning:
 
 ```text
-1. AI English title
-Source: Latent Space | ai-engineering / coding-agents
-Summary: Short English summary.
-Why: Role-specific reason for SWE/FDE/SA work.
-VN: One short Vietnamese takeaway.
-Read: Read
+1. 🧭 English title
+🏷 Category: field-engineering / enterprise-rollout | From: Salesforce Engineering
+🔥 Popularity: Medium (70/100) | 🛡 Trust: High (91/100)
+⚖️ Importance: 88/100 | 🎯 Impact: High (96/100)
+💡 Ý chính: Key idea.
+✨ Highlights:
+• Specific highlight.
+• Role-specific impact.
+🇻🇳 VN: One short Vietnamese takeaway.
+🔗 Read: Read
 ```
 
 Backfilled items are marked:
@@ -44,6 +48,7 @@ Required for real Telegram delivery:
 
 - `GEMINI_API_KEY`
 - `CRON_SECRET`
+- `TELEGRAM_WEBHOOK_SECRET` is optional. If unset, Telegram webhooks use `CRON_SECRET` as the secret token.
 
 Telegram delivery can use either the default env vars or profile-specific env vars:
 
@@ -65,8 +70,29 @@ Cost-control defaults:
 - `MAX_LLM_ITEMS_PER_RUN=20`
 - `MAX_LLM_CALLS_PER_DAY=40`
 - `MAX_CANDIDATES_PER_SOURCE=10`
+- `SOURCE_FETCH_TIMEOUT_SECONDS=5`
+- `MAX_SOURCE_WORKERS=12`
 - `MIN_RELEVANCE_SCORE=65`
 - `BACKFILL_LOOKBACK_DAYS=7`
+
+## Telegram Commands
+
+Each profile can also receive Telegram commands through Vercel:
+
+- `/help` lists commands
+- `/latest`, `/digest`, `/today`, `/run` generate a fresh digest preview for the current chat
+- `/search keyword` searches stored news
+- `/analyze keyword` analyzes stored matches through the profile lens
+- `/sources` shows source coverage
+- `/status` shows schedule and config status
+- `/focus` explains relevance criteria
+
+Webhook endpoints:
+
+- `/api/telegram/engineer`
+- `/api/telegram/fde`
+
+Telegram must send `X-Telegram-Bot-Api-Secret-Token` matching `TELEGRAM_WEBHOOK_SECRET` or `CRON_SECRET`. Command responses are restricted to the configured profile chat ID when `ENGINEER_TELEGRAM_CHAT_ID` or `FDE_TELEGRAM_CHAT_ID` is set.
 
 ## GitHub Actions
 
@@ -74,7 +100,7 @@ Configure repository secrets:
 
 - `CRON_SECRET`
 
-The workflow is in `.github/workflows/digest.yml` and runs at `10 1-15 * * *` UTC, equivalent to hourly from 08:10 through 22:10 ICT. It calls `/api/digest/engineer` and `/api/digest/fde` with `CRON_SECRET`; the Telegram/Gemini runtime configuration remains in Vercel.
+The workflow is in `.github/workflows/digest.yml`. It runs FDE at `20 1-15 * * *` UTC and Engineer at `40 1-15 * * *` UTC, equivalent to hourly from 08:20/08:40 through 22:20/22:40 ICT. It calls `/api/digest/fde` and `/api/digest/engineer` with `CRON_SECRET`; the Telegram/Gemini runtime configuration remains in Vercel.
 
 ## Vercel
 
@@ -83,6 +109,8 @@ The Vercel deployment exposes `news_keep_up.vercel_app:app`:
 - `/api/digest/news` runs the production digest
 - `/api/digest/engineer` runs the engineer digest
 - `/api/digest/fde` runs the Forward Deployed Engineer digest
+- `/api/telegram/engineer` handles Engineer bot commands
+- `/api/telegram/fde` handles FDE bot commands
 - `?dry_run=true` formats the digest without sending Telegram
 
 Configure the Vercel environment variables listed above for production. `CRON_SECRET` must be set so scheduled callers can authenticate requests with `Authorization: Bearer $CRON_SECRET`.

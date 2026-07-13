@@ -110,6 +110,38 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertFalse(response.get_json()["delivery_configured"])
         run_digest.assert_not_called()
 
+    def test_telegram_webhook_requires_secret_header(self):
+        from news_keep_up.vercel_app import app
+
+        with patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False):
+            response = app.test_client().post(
+                "/api/telegram/fde",
+                json={"update_id": 1},
+            )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertFalse(response.get_json()["ok"])
+
+    def test_telegram_webhook_dispatches_profile_command(self):
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.load_settings") as load_settings,
+            patch("news_keep_up.vercel_app.handle_telegram_update", return_value={"ok": True, "command": "help"}) as handler,
+        ):
+            response = app.test_client().post(
+                "/api/telegram/fde",
+                headers={"X-Telegram-Bot-Api-Secret-Token": "test-secret"},
+                json={"update_id": 1},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["ok"])
+        load_settings.assert_called_once_with(env_prefix="FDE")
+        self.assertEqual(handler.call_args.kwargs["slot"], "fde")
+        self.assertEqual(handler.call_args.kwargs["sources_path"], "config/fde_sources.json")
+
 
 if __name__ == "__main__":
     unittest.main()

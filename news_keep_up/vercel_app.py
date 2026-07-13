@@ -7,6 +7,7 @@ from flask import Flask, jsonify, request
 
 from .config import load_settings
 from .digest import run_digest
+from .telegram_commands import handle_telegram_update
 
 
 @dataclass(frozen=True)
@@ -73,12 +74,51 @@ def digest_endpoint(slot: str):
     })
 
 
+@app.post("/api/telegram/<slot>")
+def telegram_webhook_endpoint(slot: str):
+    profile = DIGEST_PROFILES.get(slot)
+    if profile is None:
+        return jsonify({"ok": False, "error": "invalid telegram slot"}), 400
+
+    auth_error = _telegram_webhook_auth_error()
+    if auth_error is not None:
+        return auth_error
+
+    settings = load_settings(env_prefix=profile.env_prefix)
+    if not settings.telegram_bot_token:
+        return jsonify({"ok": False, "slot": slot, "error": "Telegram bot token is not configured"}), 500
+
+    try:
+        result = handle_telegram_update(
+            request.get_json(silent=True) or {},
+            slot=profile.slot,
+            sources_path=profile.sources_path,
+            settings=settings,
+        )
+    except Exception as exc:
+        app.logger.exception("Telegram command failed")
+        return jsonify({"ok": False, "slot": slot, "error": str(exc)}), 500
+
+    return jsonify({"slot": slot, **result})
+
+
 def _cron_auth_error():
     cron_secret = os.environ.get("CRON_SECRET", "")
     if not cron_secret:
         return jsonify({"ok": False, "error": "CRON_SECRET is not configured"}), 500
 
     if request.headers.get("Authorization", "") != f"Bearer {cron_secret}":
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+
+    return None
+
+
+def _telegram_webhook_auth_error():
+    webhook_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET") or os.environ.get("CRON_SECRET", "")
+    if not webhook_secret:
+        return jsonify({"ok": False, "error": "TELEGRAM_WEBHOOK_SECRET or CRON_SECRET is not configured"}), 500
+
+    if request.headers.get("X-Telegram-Bot-Api-Secret-Token", "") != webhook_secret:
         return jsonify({"ok": False, "error": "unauthorized"}), 401
 
     return None

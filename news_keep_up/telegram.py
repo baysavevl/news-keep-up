@@ -9,18 +9,26 @@ from .models import Settings
 TELEGRAM_MESSAGE_LIMIT = 4096
 
 
-def send_telegram_message(text: str, settings: Settings) -> None:
-    if not settings.telegram_bot_token or not settings.telegram_chat_id:
+def send_telegram_message(
+    text: str,
+    settings: Settings,
+    chat_id: str | None = None,
+    reply_to_message_id: int | None = None,
+) -> None:
+    target_chat_id = chat_id or settings.telegram_chat_id
+    if not settings.telegram_bot_token or not target_chat_id:
         raise RuntimeError("Telegram is not configured: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID are required")
 
     url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
     for chunk in _message_chunks(text):
         body = {
-            "chat_id": settings.telegram_chat_id,
+            "chat_id": target_chat_id,
             "text": chunk,
             "parse_mode": "HTML",
             "disable_web_page_preview": True,
         }
+        if reply_to_message_id is not None:
+            body["reply_to_message_id"] = reply_to_message_id
         request = urllib.request.Request(
             url,
             data=json.dumps(body).encode("utf-8"),
