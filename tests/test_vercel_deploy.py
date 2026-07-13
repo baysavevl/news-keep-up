@@ -181,6 +181,37 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertEqual(handler.call_args.kwargs["slot"], "fde")
         self.assertEqual(handler.call_args.kwargs["sources_path"], "config/fde_sources.json")
 
+    def test_avatar_admin_endpoint_requires_cron_secret(self):
+        from news_keep_up.vercel_app import app
+
+        with patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False):
+            response = app.test_client().post("/api/admin/avatar/fde")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertFalse(response.get_json()["ok"])
+
+    def test_avatar_admin_endpoint_updates_profile_chat_photo(self):
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.load_settings", return_value=Settings(
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )) as load_settings,
+            patch("news_keep_up.vercel_app.set_telegram_chat_photo") as set_photo,
+        ):
+            response = app.test_client().post(
+                "/api/admin/avatar/fde",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["ok"])
+        load_settings.assert_called_once_with(env_prefix="FDE")
+        self.assertIn("fde-avatar.png", str(set_photo.call_args.args[1]))
+
 
 if __name__ == "__main__":
     unittest.main()

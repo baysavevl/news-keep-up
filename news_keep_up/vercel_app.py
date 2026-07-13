@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from flask import Flask, Response, jsonify, request
 
 from .config import load_settings
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
+from .telegram import set_telegram_chat_photo
 from .telegram_commands import handle_telegram_update
 
 
@@ -29,6 +31,11 @@ DIGEST_PROFILES = {
 }
 
 app = Flask(__name__)
+
+AVATAR_PATHS = {
+    "engineer": Path(__file__).resolve().parent.parent / "assets" / "telegram" / "engineer-ai-avatar.png",
+    "fde": Path(__file__).resolve().parent.parent / "assets" / "telegram" / "fde-avatar.png",
+}
 
 FAVICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="news-keep-up favicon">
   <rect width="64" height="64" rx="14" fill="#0f172a"/>
@@ -125,6 +132,29 @@ def telegram_webhook_endpoint(slot: str):
         return jsonify({"ok": False, "slot": slot, "error": str(exc)}), 500
 
     return jsonify({"slot": slot, **result})
+
+
+@app.post("/api/admin/avatar/<slot>")
+def avatar_admin_endpoint(slot: str):
+    profile = DIGEST_PROFILES.get(slot)
+    if profile is None or slot not in AVATAR_PATHS:
+        return jsonify({"ok": False, "error": "invalid avatar slot"}), 400
+
+    auth_error = _cron_auth_error()
+    if auth_error is not None:
+        return auth_error
+
+    settings = load_settings(env_prefix=profile.env_prefix)
+    if not _telegram_delivery_configured(settings):
+        return jsonify({"ok": False, "slot": slot, "error": "Telegram delivery is not configured"}), 500
+
+    try:
+        set_telegram_chat_photo(settings, AVATAR_PATHS[slot])
+    except Exception as exc:
+        app.logger.exception("Telegram avatar update failed")
+        return jsonify({"ok": False, "slot": slot, "error": str(exc)}), 500
+
+    return jsonify({"ok": True, "slot": slot})
 
 
 def _cron_auth_error():

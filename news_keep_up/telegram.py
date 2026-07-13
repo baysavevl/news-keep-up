@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 import urllib.error
 import urllib.request
+import uuid
+from pathlib import Path
 
 from .models import Settings
 
@@ -45,6 +48,21 @@ def send_telegram_message(
             raise RuntimeError(f"Telegram sendMessage failed: {payload}")
 
 
+def set_telegram_chat_photo(settings: Settings, photo_path: Path | str, chat_id: str | None = None) -> None:
+    target_chat_id = chat_id or settings.telegram_chat_id
+    if not settings.telegram_bot_token or not target_chat_id:
+        raise RuntimeError("Telegram is not configured: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID are required")
+
+    path = Path(photo_path)
+    payload = _telegram_multipart_request(
+        f"https://api.telegram.org/bot{settings.telegram_bot_token}/setChatPhoto",
+        fields={"chat_id": target_chat_id},
+        files={"photo": path},
+    )
+    if not payload.get("ok"):
+        raise RuntimeError(f"Telegram setChatPhoto failed: {payload}")
+
+
 def _message_chunks(text: str, limit: int = TELEGRAM_MESSAGE_LIMIT) -> list[str]:
     if len(text) <= limit:
         return [text]
@@ -68,6 +86,46 @@ def _message_chunks(text: str, limit: int = TELEGRAM_MESSAGE_LIMIT) -> list[str]
     if current:
         chunks.append(current)
     return chunks
+
+
+def _telegram_multipart_request(
+    url: str,
+    fields: dict[str, str],
+    files: dict[str, Path],
+    timeout: int = 20,
+) -> dict:
+    boundary = f"----newskeepup{uuid.uuid4().hex}"
+    body = bytearray()
+
+    for name, value in fields.items():
+        body.extend(f"--{boundary}\r\n".encode("utf-8"))
+        body.extend(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode("utf-8"))
+        body.extend(str(value).encode("utf-8"))
+        body.extend(b"\r\n")
+
+    for name, path in files.items():
+        content_type = mimetypes.guess_type(str(path))[0] or "application/octet-stream"
+        body.extend(f"--{boundary}\r\n".encode("utf-8"))
+        body.extend(
+            f'Content-Disposition: form-data; name="{name}"; filename="{path.name}"\r\n'.encode("utf-8")
+        )
+        body.extend(f"Content-Type: {content_type}\r\n\r\n".encode("utf-8"))
+        body.extend(path.read_bytes())
+        body.extend(b"\r\n")
+
+    body.extend(f"--{boundary}--\r\n".encode("utf-8"))
+    request = urllib.request.Request(
+        url,
+        data=bytes(body),
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Telegram request failed: {exc.code} {detail}") from exc
 
 
 def _line_chunks(block: str, limit: int) -> list[str]:
