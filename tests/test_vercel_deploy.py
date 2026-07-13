@@ -36,6 +36,18 @@ class VercelDeployConfigTest(unittest.TestCase):
 
 
 class VercelDigestEndpointTest(unittest.TestCase):
+    def test_favicon_routes_return_project_icon_svg(self):
+        from news_keep_up.vercel_app import app
+
+        client = app.test_client()
+        for path in ("/favicon.svg", "/favicon.ico"):
+            response = client.get(path)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.mimetype, "image/svg+xml")
+            self.assertIn("public, max-age=86400", response.headers["Cache-Control"])
+            self.assertIn("news-keep-up favicon", response.get_data(as_text=True))
+
     def test_digest_endpoint_requires_cron_secret(self):
         from news_keep_up.vercel_app import app
 

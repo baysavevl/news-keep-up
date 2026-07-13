@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 
 from .config import load_settings
 from .digest import run_digest
@@ -27,10 +27,29 @@ DIGEST_PROFILES = {
 
 app = Flask(__name__)
 
+FAVICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="news-keep-up favicon">
+  <rect width="64" height="64" rx="14" fill="#0f172a"/>
+  <path d="M18 17h28a4 4 0 0 1 4 4v25a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4Z" fill="#f8fafc"/>
+  <path d="M22 25h20M22 33h20M22 41h13" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M44 39c4-5 4-13 0-18" stroke="#14b8a6" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M51 45c7-9 7-24 0-34" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" fill="none"/>
+</svg>
+"""
+
 
 @app.get("/")
 def health_check():
     return jsonify({"ok": True, "service": "news-keep-up"})
+
+
+@app.get("/favicon.svg")
+@app.get("/favicon.ico")
+def favicon():
+    return Response(
+        FAVICON_SVG,
+        mimetype="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 @app.get("/api/digest/<slot>")
