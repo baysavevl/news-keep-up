@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from base64 import b64decode
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -21,11 +22,25 @@ def _int_env(env: Mapping[str, str], key: str, default: int) -> int:
         return default
 
 
+def _secret_env(env: Mapping[str, str], key: str) -> str:
+    raw = env.get(key)
+    if raw:
+        return raw
+
+    encoded = env.get(f"{key}_B64")
+    if not encoded:
+        return ""
+    try:
+        return b64decode(encoded, validate=True).decode("utf-8")
+    except Exception:
+        return ""
+
+
 def load_settings(env: Mapping[str, str] | None = None) -> Settings:
     values = os.environ if env is None else env
     return Settings(
-        gemini_api_key=values.get("GEMINI_API_KEY", ""),
-        telegram_bot_token=values.get("TELEGRAM_BOT_TOKEN", ""),
+        gemini_api_key=_secret_env(values, "GEMINI_API_KEY"),
+        telegram_bot_token=_secret_env(values, "TELEGRAM_BOT_TOKEN"),
         telegram_chat_id=values.get("TELEGRAM_CHAT_ID", ""),
         turso_database_url=values.get("TURSO_DATABASE_URL", ""),
         turso_auth_token=values.get("TURSO_AUTH_TOKEN", ""),

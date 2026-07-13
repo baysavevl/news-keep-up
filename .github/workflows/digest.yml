@@ -1,9 +1,6 @@
 name: News Keep Up Digest
 
 on:
-  schedule:
-    # 10:00 and 16:00 Asia/Ho_Chi_Minh.
-    - cron: "0 3,9 * * *"
   workflow_dispatch:
     inputs:
       slot:
@@ -49,17 +46,7 @@ jobs:
       - name: Choose slot
         id: slot
         shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "slot=${{ github.event.inputs.slot }}" >> "$GITHUB_OUTPUT"
-          else
-            hour_utc="$(date -u +%H)"
-            if [ "$hour_utc" = "03" ]; then
-              echo "slot=morning" >> "$GITHUB_OUTPUT"
-            else
-              echo "slot=afternoon" >> "$GITHUB_OUTPUT"
-            fi
-          fi
+        run: echo "slot=${{ github.event.inputs.slot }}" >> "$GITHUB_OUTPUT"
 
       - name: Initialize database
         run: python -m news_keep_up.main init-db

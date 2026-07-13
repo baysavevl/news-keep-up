@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from base64 import b64encode
 from pathlib import Path
 
 from news_keep_up.config import load_settings, load_sources
@@ -34,6 +35,17 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(settings.max_llm_items_per_run, 7)
         self.assertEqual(settings.max_llm_calls_per_day, 9)
         self.assertEqual(settings.db_path, Path("/tmp/custom.db"))
+
+    def test_load_settings_accepts_base64_secret_fallbacks(self):
+        settings = load_settings({
+            "GEMINI_API_KEY_B64": b64encode(b"gemini-key").decode("ascii"),
+            "TELEGRAM_BOT_TOKEN_B64": b64encode(b"tg-token").decode("ascii"),
+            "TELEGRAM_CHAT_ID": "123",
+        })
+
+        self.assertEqual(settings.gemini_api_key, "gemini-key")
+        self.assertEqual(settings.telegram_bot_token, "tg-token")
+        self.assertEqual(settings.telegram_chat_id, "123")
 
     def test_load_sources_filters_disabled_sources(self):
         with tempfile.TemporaryDirectory() as tmp:

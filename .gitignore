@@ -1,6 +1,8 @@
 .DS_Store
 .env
+.env.local
 .venv/
+.vercel/
 __pycache__/
 *.py[cod]
 .pytest_cache/

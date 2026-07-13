@@ -7,10 +7,13 @@ name = "news-keep-up"
 version = "0.1.0"
 description = "Twice-daily AI/SWE/FDE news digest delivered through Telegram."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["flask>=3.0"]
 
 [project.optional-dependencies]
 turso = ["libsql-experimental>=0.0.12"]
 
 [tool.setuptools]
 packages = ["news_keep_up"]
+
+[tool.vercel]
+entrypoint = "news_keep_up.vercel_app:app"

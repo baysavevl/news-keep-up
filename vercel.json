@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "news_keep_up/vercel_app.py": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/digest/morning",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/digest/afternoon",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}

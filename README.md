@@ -40,6 +40,9 @@ Required for real Telegram delivery:
 - `GEMINI_API_KEY`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
+- `CRON_SECRET`
+
+On Vercel, `GEMINI_API_KEY_B64` and `TELEGRAM_BOT_TOKEN_B64` are also supported as encoded fallbacks when direct provider-shaped secret values are rejected by the env-var API. Direct vars take precedence.
 
 Optional for durable automation storage:
 
@@ -66,7 +69,16 @@ Configure repository secrets:
 - `TURSO_DATABASE_URL`
 - `TURSO_AUTH_TOKEN`
 
-The workflow is in `.github/workflows/digest.yml` and runs at `0 3,9 * * *` UTC, equivalent to 10:00 and 16:00 ICT.
+The workflow is in `.github/workflows/digest.yml` and is kept as a manual fallback. Scheduled production delivery runs through Vercel Cron.
+
+## Vercel
+
+The Vercel deployment exposes `news_keep_up.vercel_app:app` and schedules:
+
+- `/api/digest/morning` at `0 3 * * *` UTC
+- `/api/digest/afternoon` at `0 9 * * *` UTC
+
+Configure the Vercel environment variables listed above for production. `CRON_SECRET` must be set so Vercel Cron can authenticate requests with `Authorization: Bearer $CRON_SECRET`.
 
 ## Tests
 
