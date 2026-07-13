@@ -25,10 +25,13 @@ class VercelDeployConfigTest(unittest.TestCase):
     def test_github_actions_triggers_vercel_hourly_from_8_to_22_ict(self):
         workflow = Path(".github/workflows/digest.yml").read_text(encoding="utf-8")
 
-        self.assertIn('cron: "10 1-15 * * *"', workflow)
+        self.assertIn('cron: "20 1-15 * * *"', workflow)
+        self.assertIn('cron: "40 1-15 * * *"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/digest/engineer", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/digest/fde", workflow)
+        self.assertIn("github.event.schedule == '20 1-15 * * *'", workflow)
+        self.assertIn("github.event.schedule == '40 1-15 * * *'", workflow)
         self.assertIn("secrets.CRON_SECRET", workflow)
 
 

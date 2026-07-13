@@ -191,17 +191,19 @@ def is_candidate_relevant_for_slot(item: CandidateItem, slot: str) -> bool:
         return False
     if _has_direct_fde_signal(content_text):
         return prefilter_score(item) >= 30
+    has_enterprise_delivery = _has_enterprise_delivery_signal(content_text)
+    has_contextual_governance = has_enterprise_delivery and _has_agent_governance_signal(content_text)
     if item.source_category == "discussion-fde":
-        return _has_agent_governance_signal(content_text) and prefilter_score(item) >= 55
+        return has_contextual_governance and prefilter_score(item) >= 55
     if item.source_category in {"ai-engineering", "enterprise-ai", "field-engineering"}:
         return (
-            _has_enterprise_delivery_signal(content_text)
-            or _has_agent_governance_signal(content_text)
+            has_enterprise_delivery
+            or has_contextual_governance
         ) and prefilter_score(item) >= 40
     if item.source_category == "fde-industry":
         return (
-            _has_enterprise_delivery_signal(content_text)
-            or _has_agent_governance_signal(content_text)
+            has_enterprise_delivery
+            or has_contextual_governance
         ) and prefilter_score(item) >= 35
     return False
 

@@ -2,8 +2,10 @@ name: News Keep Up Digest
 
 on:
   schedule:
-    # Hourly from 08:10 through 22:10 Asia/Ho_Chi_Minh.
-    - cron: "10 1-15 * * *"
+    # FDE hourly from 08:20 through 22:20 Asia/Ho_Chi_Minh.
+    - cron: "20 1-15 * * *"
+    # Engineer hourly from 08:40 through 22:40 Asia/Ho_Chi_Minh.
+    - cron: "40 1-15 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -13,28 +15,44 @@ on:
         default: false
 
 jobs:
-  digest:
+  fde-digest:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '20 1-15 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Trigger Vercel digest
+      - name: Trigger FDE Vercel digest
         shell: bash
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
         run: |
-          endpoints=(
-            "https://news-keep-up.vercel.app/api/digest/engineer"
-            "https://news-keep-up.vercel.app/api/digest/fde"
-          )
+          url="https://news-keep-up.vercel.app/api/digest/fde"
+          if [ "$DRY_RUN" = "true" ]; then
+            url="${url}?dry_run=true"
+          fi
 
-          for url in "${endpoints[@]}"; do
-            if [ "$DRY_RUN" = "true" ]; then
-              url="${url}?dry_run=true"
-            fi
+          curl --fail --show-error --silent --max-time 120 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "$url"
+          echo
 
-            curl --fail --show-error --silent --max-time 120 \
-              --header "Authorization: Bearer ${CRON_SECRET}" \
-              "$url"
-            echo
-          done
+  engineer-digest:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '40 1-15 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger Engineer Vercel digest
+        shell: bash
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
+        run: |
+          url="https://news-keep-up.vercel.app/api/digest/engineer"
+          if [ "$DRY_RUN" = "true" ]; then
+            url="${url}?dry_run=true"
+          fi
+
+          curl --fail --show-error --silent --max-time 120 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "$url"
+          echo

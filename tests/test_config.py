@@ -18,6 +18,8 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(settings.max_candidates_per_source, 10)
         self.assertEqual(settings.min_relevance_score, 65)
         self.assertEqual(settings.backfill_lookback_days, 7)
+        self.assertEqual(settings.source_fetch_timeout_seconds, 5)
+        self.assertEqual(settings.max_source_workers, 12)
 
     def test_load_settings_accepts_env_overrides(self):
         settings = load_settings({
@@ -26,6 +28,8 @@ class ConfigTest(unittest.TestCase):
             "TELEGRAM_CHAT_ID": "123",
             "MAX_LLM_ITEMS_PER_RUN": "7",
             "MAX_LLM_CALLS_PER_DAY": "9",
+            "SOURCE_FETCH_TIMEOUT_SECONDS": "3",
+            "MAX_SOURCE_WORKERS": "4",
             "DB_PATH": "/tmp/custom.db",
         })
 
@@ -34,6 +38,8 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(settings.telegram_chat_id, "123")
         self.assertEqual(settings.max_llm_items_per_run, 7)
         self.assertEqual(settings.max_llm_calls_per_day, 9)
+        self.assertEqual(settings.source_fetch_timeout_seconds, 3)
+        self.assertEqual(settings.max_source_workers, 4)
         self.assertEqual(settings.db_path, Path("/tmp/custom.db"))
 
     def test_load_settings_accepts_base64_secret_fallbacks(self):
@@ -99,9 +105,27 @@ class ConfigTest(unittest.TestCase):
     def test_fde_sources_include_at_least_50_trusted_enabled_sources(self):
         sources = load_sources("config/fde_sources.json")
 
-        self.assertGreaterEqual(len(sources), 50)
+        self.assertGreaterEqual(len(sources), 70)
         self.assertTrue(all(source.enabled for source in sources))
         self.assertTrue(all(source.category.startswith(("fde", "ai", "enterprise", "field", "discussion")) for source in sources))
+
+    def test_engineer_sources_include_at_least_20_additional_trusted_sources(self):
+        sources = load_sources("config/sources.json")
+
+        self.assertGreaterEqual(len(sources), 36)
+        self.assertTrue(all(source.enabled for source in sources))
+        self.assertTrue(all(source.category.startswith((
+            "ai",
+            "agent",
+            "developer",
+            "discussion",
+            "product",
+            "software",
+            "systems",
+            "security",
+            "data",
+            "infra",
+        )) for source in sources))
 
 
 if __name__ == "__main__":

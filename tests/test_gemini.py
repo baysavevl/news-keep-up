@@ -27,6 +27,9 @@ class GeminiTest(unittest.TestCase):
         self.assertIn("highlights", prompt.lower())
         self.assertIn("popularity", prompt.lower())
         self.assertIn("importance", prompt.lower())
+        self.assertIn("source trust", prompt.lower())
+        self.assertIn("impact", prompt.lower())
+        self.assertIn("reject generic ai roundups", prompt.lower())
 
     def test_parse_enrichment_response_extracts_json_and_clamps_score(self):
         response = """```json

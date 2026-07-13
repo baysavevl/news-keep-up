@@ -110,5 +110,145 @@
     "url": "https://www.reddit.com/r/MachineLearning/.rss",
     "category": "discussion",
     "enabled": true
+  },
+  {
+    "name": "Martin Fowler",
+    "type": "rss",
+    "url": "https://martinfowler.com/feed.atom",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Uber Engineering",
+    "type": "rss",
+    "url": "https://www.uber.com/blog/engineering/rss/",
+    "category": "systems-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Cloudflare Blog",
+    "type": "rss",
+    "url": "https://blog.cloudflare.com/rss/",
+    "category": "infra-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Netflix TechBlog",
+    "type": "rss",
+    "url": "https://netflixtechblog.com/feed",
+    "category": "systems-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Slack Engineering",
+    "type": "rss",
+    "url": "https://slack.engineering/feed/",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Stripe Blog",
+    "type": "rss",
+    "url": "https://stripe.com/blog/feed.rss",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Datadog Engineering",
+    "type": "rss",
+    "url": "https://www.datadoghq.com/blog/engineering/index.xml",
+    "category": "systems-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Dropbox Tech",
+    "type": "rss",
+    "url": "https://dropbox.tech/feed",
+    "category": "systems-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Shopify Engineering",
+    "type": "rss",
+    "url": "https://shopify.engineering/blogs/engineering.atom",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Meta Engineering",
+    "type": "rss",
+    "url": "https://engineering.fb.com/feed/",
+    "category": "systems-engineering",
+    "enabled": true
+  },
+  {
+    "name": "AWS Architecture Blog",
+    "type": "rss",
+    "url": "https://aws.amazon.com/blogs/architecture/feed/",
+    "category": "systems-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Google Developers Blog",
+    "type": "rss",
+    "url": "https://developers.googleblog.com/en/rss.xml",
+    "category": "developer-tools",
+    "enabled": true
+  },
+  {
+    "name": "Microsoft Developer Blogs",
+    "type": "rss",
+    "url": "https://devblogs.microsoft.com/feed/",
+    "category": "developer-tools",
+    "enabled": true
+  },
+  {
+    "name": "Stack Overflow Blog",
+    "type": "rss",
+    "url": "https://stackoverflow.blog/feed/",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Thoughtworks Insights",
+    "type": "rss",
+    "url": "https://www.thoughtworks.com/insights/rss.xml",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Honeycomb Blog",
+    "type": "rss",
+    "url": "https://www.honeycomb.io/blog/rss.xml",
+    "category": "systems-engineering",
+    "enabled": true
+  },
+  {
+    "name": "GitLab Blog",
+    "type": "rss",
+    "url": "https://about.gitlab.com/atom.xml",
+    "category": "developer-tools",
+    "enabled": true
+  },
+  {
+    "name": "Snyk Blog",
+    "type": "rss",
+    "url": "https://snyk.io/blog/feed/",
+    "category": "security-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Sourcegraph Blog",
+    "type": "rss",
+    "url": "https://sourcegraph.com/blog/rss.xml",
+    "category": "developer-tools",
+    "enabled": true
+  },
+  {
+    "name": "Atlassian Engineering",
+    "type": "rss",
+    "url": "https://www.atlassian.com/blog/engineering/feed",
+    "category": "software-engineering",
+    "enabled": true
   }
 ]

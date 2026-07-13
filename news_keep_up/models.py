@@ -20,6 +20,8 @@ class Settings:
     max_candidates_per_source: int = 10
     min_relevance_score: int = 65
     backfill_lookback_days: int = 7
+    source_fetch_timeout_seconds: int = 5
+    max_source_workers: int = 12
 
 
 @dataclass(frozen=True)

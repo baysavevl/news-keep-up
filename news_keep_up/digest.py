@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from html import escape
 from typing import Iterable
@@ -17,7 +18,7 @@ from .db import (
     upsert_source,
 )
 from .gemini import GeminiClient, fallback_enrichment
-from .models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings
+from .models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings, Source
 from .prefilter import is_candidate_relevant_for_slot
 from .sources import fetch_source
 from .telegram import send_telegram_message
@@ -45,6 +46,29 @@ TOPIC_ICONS = {
     "mcp": "🔌",
     "evals": "📊",
     "fde": "🧭",
+}
+
+SOURCE_TRUST_OVERRIDES = {
+    "Anthropic News": 96,
+    "OpenAI News": 96,
+    "Google AI Blog": 94,
+    "Google Cloud Blog AI": 94,
+    "Microsoft Azure Blog AI": 93,
+    "AWS Machine Learning Blog": 93,
+    "AWS Architecture Blog": 91,
+    "Salesforce Engineering": 91,
+    "Palantir Blog": 91,
+    "The Pragmatic Engineer": 90,
+    "Martin Fowler": 89,
+    "Netflix TechBlog": 88,
+    "Stripe Blog": 88,
+    "Cloudflare Blog": 88,
+    "Datadog Engineering": 87,
+    "InfoQ AI ML Data Engineering": 86,
+    "GitHub Blog": 86,
+    "Vercel Blog": 85,
+    "LangChain Blog": 84,
+    "Lenny's Newsletter": 83,
 }
 
 
@@ -113,7 +137,8 @@ def format_digest(slot: str, selections: list[DigestSelection], now: datetime | 
         lines.extend([
             f"<b>{selection.position}. {escape(title)}</b>",
             f"🏷 Category: {escape(enrichment.category)} / {escape(enrichment.topic)} | From: {escape(item.source_name)}",
-            f"🔥 Popularity: {escape(_popularity_label(item, enrichment))} | ⚖️ Importance: {enrichment.relevance_score}/100",
+            f"🔥 Popularity: {escape(_popularity_label(item, enrichment))} | 🛡 Trust: {escape(_trust_label(item))}",
+            f"⚖️ Importance: {enrichment.relevance_score}/100 | 🎯 Impact: {escape(_impact_label(item, enrichment))}",
         ])
         translated_title = _display_title_vi(item.title, enrichment.title_vi)
         if translated_title:
@@ -170,6 +195,55 @@ def _popularity_label(item: DigestCandidate, enrichment: Enrichment) -> str:
     else:
         label = "Niche"
     return f"{label} ({score}/100)"
+
+
+def _trust_label(item: DigestCandidate) -> str:
+    score = _source_trust_score(item)
+    if score >= 85:
+        label = "High"
+    elif score >= 70:
+        label = "Medium"
+    else:
+        label = "Emerging"
+    return f"{label} ({score}/100)"
+
+
+def _source_trust_score(item: DigestCandidate) -> int:
+    if item.source_name in SOURCE_TRUST_OVERRIDES:
+        return SOURCE_TRUST_OVERRIDES[item.source_name]
+    if item.source_category.startswith("discussion"):
+        return 62
+    if item.source_category in {"fde-industry", "field-engineering"}:
+        return 78
+    if item.source_category in {"enterprise-ai", "ai-product", "developer-tools"}:
+        return 82
+    if item.source_category in {"software-engineering", "systems-engineering", "security-engineering"}:
+        return 80
+    return 72
+
+
+def _impact_label(item: DigestCandidate, enrichment: Enrichment) -> str:
+    score = _impact_score(item, enrichment)
+    if score >= 85:
+        label = "High"
+    elif score >= 70:
+        label = "Medium"
+    else:
+        label = "Niche"
+    return f"{label} ({score}/100)"
+
+
+def _impact_score(item: DigestCandidate, enrichment: Enrichment) -> int:
+    topic = enrichment.topic.lower()
+    category = enrichment.category.lower()
+    score = enrichment.relevance_score
+    if item.source_category in {"fde-industry", "enterprise-ai", "field-engineering"}:
+        score += 6
+    if any(token in topic or token in category for token in ("rollout", "deployment", "eval", "guardrail", "governance")):
+        score += 8
+    if item.source_category.startswith("discussion"):
+        score -= 4
+    return max(0, min(100, score))
 
 
 def _key_idea(summary: str) -> str:
@@ -237,12 +311,11 @@ def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources_path) -
     today = now_ict().date().isoformat()
     client = GeminiClient(settings)
 
-    for source in load_sources(sources_path):
+    sources = load_sources(sources_path)
+    for source in sources:
         upsert_source(conn, source)
-        try:
-            candidates = fetch_source(source, USER_AGENT)[:settings.max_candidates_per_source]
-        except Exception:
-            continue
+
+    for source, candidates in _fetch_candidates(sources, settings):
         for candidate in candidates:
             if not is_candidate_relevant_for_slot(candidate, slot):
                 continue
@@ -264,6 +337,32 @@ def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources_path) -
                 record_llm_usage(conn, enrichment.model, today, slot, item_id, "ok")
                 llm_calls_this_run += 1
     return current_item_ids
+
+
+def _fetch_candidates(sources: list[Source], settings: Settings) -> Iterable[tuple[Source, list[CandidateItem]]]:
+    timeout_seconds = max(1, settings.source_fetch_timeout_seconds)
+    max_workers = max(1, min(settings.max_source_workers, len(sources) or 1))
+    if max_workers == 1:
+        for source in sources:
+            try:
+                candidates = fetch_source(source, USER_AGENT, timeout_seconds)[:settings.max_candidates_per_source]
+            except Exception:
+                candidates = []
+            yield source, candidates
+        return
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(fetch_source, source, USER_AGENT, timeout_seconds): source
+            for source in sources
+        }
+        for future in as_completed(futures):
+            source = futures[future]
+            try:
+                candidates = future.result()[:settings.max_candidates_per_source]
+            except Exception:
+                candidates = []
+            yield source, candidates
 
 
 def _should_refresh_enrichment(settings: Settings, enrichment: Enrichment) -> bool:

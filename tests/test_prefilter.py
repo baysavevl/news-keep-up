@@ -63,9 +63,15 @@ class PrefilterTest(unittest.TestCase):
             "I frequently run many coding agents in parallel and lose the picture of which subagent is working.",
             "discussion-fde",
         )
+        coding_policy = item(
+            "Show HN: Policy enforcement for Claude Code, Cursor, and Codex",
+            "Runtime authorization intercepts AI agent tool calls and evaluates them against deterministic policies.",
+            "discussion-fde",
+        )
 
         self.assertFalse(is_candidate_relevant_for_slot(generic, "fde"))
         self.assertFalse(is_candidate_relevant_for_slot(generic_thread, "fde"))
+        self.assertFalse(is_candidate_relevant_for_slot(coding_policy, "fde"))
 
     def test_fde_slot_rejects_generic_tooling_and_career_threads(self):
         generic_workbench = item(
@@ -88,6 +94,21 @@ class PrefilterTest(unittest.TestCase):
         self.assertFalse(is_candidate_relevant_for_slot(job_hunt_agent, "fde"))
         self.assertFalse(is_candidate_relevant_for_slot(career_thread, "fde"))
 
+    def test_fde_slot_rejects_generic_ai_roundups_without_field_delivery_signal(self):
+        weekly_roundup = item(
+            "AWS Weekly Roundup: Claude Sonnet 5 on AWS, Amazon WorkSpaces for AI agents, AWS service availability updates",
+            "A weekly roundup about startup stories, launches, service availability, and general AWS updates.",
+            "enterprise-ai",
+        )
+        managed_agents = item(
+            "Expanding Managed Agents in Gemini API: background tasks, remote MCP and more",
+            "Managed agents feature bundle launch for developers using API background tasks.",
+            "enterprise-ai",
+        )
+
+        self.assertFalse(is_candidate_relevant_for_slot(weekly_roundup, "fde"))
+        self.assertFalse(is_candidate_relevant_for_slot(managed_agents, "fde"))
+
     def test_fde_slot_accepts_enterprise_ai_delivery_items(self):
         candidate = item(
             "Building enterprise AI agents that are autonomous and reliable",
@@ -103,14 +124,14 @@ class PrefilterTest(unittest.TestCase):
             "A customer assistant and AI SRE need different harnesses, eval plans, and rollout paths.",
             "ai-engineering",
         )
-        policy_enforcement = item(
-            "Show HN: Policy enforcement for Claude Code, Cursor, and Codex",
-            "Runtime authorization intercepts AI agent tool calls and evaluates them against deterministic policies.",
+        enterprise_governance = item(
+            "Enterprise AI agent governance for customer rollouts",
+            "Customer-facing AI agents need policy controls, audit logs, evals, and phased production rollout.",
             "discussion-fde",
         )
 
         self.assertTrue(is_candidate_relevant_for_slot(production_patterns, "fde"))
-        self.assertTrue(is_candidate_relevant_for_slot(policy_enforcement, "fde"))
+        self.assertTrue(is_candidate_relevant_for_slot(enterprise_governance, "fde"))
 
 
 if __name__ == "__main__":

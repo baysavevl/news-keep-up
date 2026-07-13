@@ -128,6 +128,18 @@ class DigestTest(unittest.TestCase):
         self.assertNotIn("Summary:", message)
         self.assertNotIn("Why:", message)
 
+    def test_format_includes_source_trust_and_impact_ranking(self):
+        selections = [
+            select_digest_items([candidate(1, 92, "fde-industry")], 1, 5, 1)[0]
+        ]
+
+        message = format_digest("fde", selections)
+
+        self.assertIn("Trust:", message)
+        self.assertIn("Impact:", message)
+        self.assertRegex(message, r"Trust: (High|Medium|Emerging) \([0-9]+/100\)")
+        self.assertRegex(message, r"Impact: (High|Medium|Niche) \([0-9]+/100\)")
+
     def test_format_drops_feed_footer_fragments_from_highlights(self):
         item = candidate(1, 95, "ai-engineering")
         item = DigestCandidate(
@@ -196,6 +208,27 @@ class DigestTest(unittest.TestCase):
             conn = connect_database(settings)
 
             self.assertEqual(count_llm_calls_today(conn, now_ict().date().isoformat()), 0)
+
+    def test_run_digest_uses_configured_source_fetch_timeout(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text(json.dumps([{
+                "name": "Local Feed",
+                "type": "rss",
+                "url": "https://example.com/feed.xml",
+                "category": "ai-engineering",
+                "enabled": True,
+            }]), encoding="utf-8")
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                source_fetch_timeout_seconds=2,
+                max_source_workers=1,
+            )
+
+            with patch("news_keep_up.digest.fetch_source", return_value=[]) as fetch:
+                run_digest(settings, "engineer", dry_run=True, sources_path=sources_path)
+
+        self.assertEqual(fetch.call_args.args[2], 2)
 
     def test_cached_fallback_is_refreshed_when_model_key_is_available(self):
         with tempfile.TemporaryDirectory() as tmp:

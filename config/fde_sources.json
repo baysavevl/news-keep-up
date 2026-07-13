@@ -432,5 +432,145 @@
     "url": "https://www.reddit.com/r/dataengineering/.rss",
     "category": "discussion-fde",
     "enabled": true
+  },
+  {
+    "name": "Microsoft Azure Blog AI",
+    "type": "rss",
+    "url": "https://azure.microsoft.com/en-us/blog/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Google Cloud Blog AI",
+    "type": "rss",
+    "url": "https://cloud.google.com/blog/products/ai-machine-learning/rss",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "NVIDIA Technical Blog",
+    "type": "rss",
+    "url": "https://developer.nvidia.com/blog/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "IBM Research Blog",
+    "type": "rss",
+    "url": "https://research.ibm.com/blog/rss.xml",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "AWS Architecture Blog",
+    "type": "rss",
+    "url": "https://aws.amazon.com/blogs/architecture/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Thoughtworks Insights",
+    "type": "rss",
+    "url": "https://www.thoughtworks.com/insights/rss.xml",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Atlassian Engineering",
+    "type": "rss",
+    "url": "https://www.atlassian.com/blog/engineering/feed",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Microsoft Developer Blogs",
+    "type": "rss",
+    "url": "https://devblogs.microsoft.com/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise AI Deployment",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20AI%20deployment&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Governance",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20governance&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20evals%20production&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Production AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=production%20AI%20agents&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Engineering AI",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20engineering%20AI&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Solutions Engineering AI",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=solutions%20engineering%20AI&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Rollout Enterprise",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20rollout%20enterprise&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Workflows Enterprise",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20workflows%20enterprise&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Guardrails Enterprise",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20guardrails%20enterprise&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLMOps Enterprise",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLMOps%20enterprise&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Applied AI Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=applied%20AI%20engineering&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Customer Support Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20customer%20support%20agents&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
   }
 ]

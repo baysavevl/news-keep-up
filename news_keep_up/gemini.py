@@ -24,12 +24,15 @@ def build_prompt(item: CandidateItem) -> str:
         "prioritize customer deployment, enterprise workflow integration, evals, "
         "guardrails, stakeholder rollout, and product feedback loops. Reject generic "
         "AI infrastructure or coding-agent posts unless they clearly affect field "
-        "engineering or enterprise deployment work.\n\n"
+        "engineering or enterprise deployment work. For FDE, reject generic AI roundups, "
+        "API launches, model news, cloud service updates, and coding-agent tools unless "
+        "the item includes customer rollout, field delivery, production governance, "
+        "or enterprise implementation impact.\n\n"
         "Write for a Telegram scan: concrete, opinionated, and non-generic.\n"
         "- summary must start with the key idea, then include 1-2 specific highlights.\n"
-        "- why_it_matters must explain the importance for SWE/FDE/solution architect work.\n"
+        "- why_it_matters must explain impact for SWE/FDE/solution architect work.\n"
         "- relevance_score is the importance score.\n"
-        "- use category/topic that can be displayed beside popularity and importance.\n"
+        "- use category/topic that can be displayed beside popularity, source trust, importance, and impact.\n"
         "- icon should be a short emoji-like signal or compact label for the item.\n\n"
         "Return JSON only with this exact shape:\n"
         "{\n"
@@ -39,7 +42,7 @@ def build_prompt(item: CandidateItem) -> str:
         '  "icon": "🤖",\n'
         '  "title_vi": "Vietnamese title translation",\n'
         '  "summary": "Key idea sentence. Highlight sentence with concrete detail. Optional second highlight.",\n'
-        '  "why_it_matters": "Importance: why this matters for SWE/FDE/solution architect work.",\n'
+        '  "why_it_matters": "Impact: why this matters for SWE/FDE/solution architect work.",\n'
         '  "takeaway_vi": "One short Vietnamese takeaway.",\n'
         '  "should_send": true\n'
         "}\n\n"
