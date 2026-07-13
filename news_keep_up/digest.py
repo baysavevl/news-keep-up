@@ -18,7 +18,7 @@ from .db import (
 )
 from .gemini import GeminiClient, fallback_enrichment
 from .models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings
-from .prefilter import is_candidate_relevant
+from .prefilter import is_candidate_relevant_for_slot
 from .sources import fetch_source
 from .telegram import send_telegram_message
 from .utils import ICT, now_ict
@@ -32,6 +32,19 @@ DIGEST_TITLES = {
 
 DIGEST_SLOT_LABELS = {
     "fde": "FDE",
+}
+
+DIGEST_SELECTION_POLICIES = {
+    "fde": (8, 8, 2),
+}
+
+TOPIC_ICONS = {
+    "coding-agents": "🤖",
+    "ai-tools": "🛠️",
+    "rag": "📚",
+    "mcp": "🔌",
+    "evals": "📊",
+    "fde": "🧭",
 }
 
 
@@ -52,11 +65,11 @@ def select_digest_items(
         nonlocal discussion_count
         if row.item_id in selected_ids or len(selected) >= max_items:
             return False
-        if row.source_category == "discussion" and discussion_count >= discussion_limit:
+        if _is_discussion_category(row.source_category) and discussion_count >= discussion_limit:
             return False
         selected.append(row)
         selected_ids.add(row.item_id)
-        if row.source_category == "discussion":
+        if _is_discussion_category(row.source_category):
             discussion_count += 1
         return True
 
@@ -96,21 +109,25 @@ def format_digest(slot: str, selections: list[DigestSelection], now: datetime | 
     for selection in selections:
         item = selection.candidate
         enrichment = item.enrichment
-        title = f"{enrichment.icon} {item.title}".strip()
+        title = f"{_display_icon(item, enrichment)} {item.title}".strip()
         lines.extend([
             f"<b>{selection.position}. {escape(title)}</b>",
-            f"Source: {escape(item.source_name)} | {escape(enrichment.category)} / {escape(enrichment.topic)}",
+            f"🏷 Category: {escape(enrichment.category)} / {escape(enrichment.topic)} | From: {escape(item.source_name)}",
+            f"🔥 Popularity: {escape(_popularity_label(item, enrichment))} | ⚖️ Importance: {enrichment.relevance_score}/100",
         ])
         translated_title = _display_title_vi(item.title, enrichment.title_vi)
         if translated_title:
             lines.append(f"VN title: {escape(translated_title)}")
         if item.is_backfill:
             lines.append("Backfill - still relevant")
+        highlights = _highlights(enrichment.summary, enrichment.why_it_matters)
         lines.extend([
-            f"Summary: {escape(enrichment.summary)}",
-            f"Why: {escape(enrichment.why_it_matters)}",
-            f"VN: {escape(enrichment.takeaway_vi)}",
-            f'Read: <a href="{escape(item.url, quote=True)}">Read</a>',
+            f"💡 Ý chính: {escape(_key_idea(enrichment.summary))}",
+            "✨ Highlights:",
+            f"• {escape(highlights[0])}",
+            f"• {escape(highlights[1])}",
+            f"🇻🇳 VN: {escape(enrichment.takeaway_vi)}",
+            f'🔗 Read: <a href="{escape(item.url, quote=True)}">Read</a>',
             "",
         ])
     return "\n".join(lines).strip()
@@ -124,6 +141,72 @@ def _display_title_vi(title: str, title_vi: str) -> str:
     return cleaned
 
 
+def _display_icon(item: DigestCandidate, enrichment: Enrichment) -> str:
+    raw_icon = enrichment.icon.strip()
+    if raw_icon and raw_icon.upper() not in {"AI", "FDE"}:
+        return raw_icon
+    topic = enrichment.topic.lower()
+    if item.source_category.startswith("fde"):
+        return TOPIC_ICONS["fde"]
+    for key, icon in TOPIC_ICONS.items():
+        if key in topic:
+            return icon
+    if "agent" in topic:
+        return TOPIC_ICONS["coding-agents"]
+    return "🧠"
+
+
+def _popularity_label(item: DigestCandidate, enrichment: Enrichment) -> str:
+    bonus = 0
+    if item.source_category.startswith("discussion"):
+        bonus += 8
+    if item.source_category in {"fde-industry", "enterprise-ai", "field-engineering"}:
+        bonus += 5
+    score = max(0, min(100, enrichment.relevance_score + bonus))
+    if score >= 85:
+        label = "High"
+    elif score >= 70:
+        label = "Medium"
+    else:
+        label = "Niche"
+    return f"{label} ({score}/100)"
+
+
+def _key_idea(summary: str) -> str:
+    sentences = _summary_parts(summary)
+    return sentences[0] if sentences else summary
+
+
+def _highlights(summary: str, why_it_matters: str) -> tuple[str, str]:
+    sentences = _summary_parts(summary)
+    first = sentences[1] if len(sentences) > 1 else (sentences[0] if sentences else why_it_matters)
+    second = why_it_matters
+    return (first[:280], second[:280])
+
+
+def _summary_parts(summary: str) -> list[str]:
+    normalized = " ".join(summary.split())
+    parts = [part.strip(" -•") for part in normalized.replace("; ", ". ").split(". ") if part.strip(" -•")]
+    return [part for part in parts if not _is_feed_fragment(part)][:3]
+
+
+def _is_feed_fragment(part: str) -> bool:
+    lowered = part.lower()
+    if lowered.startswith("the post ") and " appeared first" in lowered:
+        return True
+    if lowered.startswith("it lets") and (len(part) < 30 or part.endswith("..") or part.endswith("...")):
+        return True
+    return False
+
+
+def _selection_policy(slot: str) -> tuple[int, int, int]:
+    return DIGEST_SELECTION_POLICIES.get(slot, (3, 5, 1))
+
+
+def _is_discussion_category(category: str) -> bool:
+    return category == "discussion" or category.startswith("discussion-")
+
+
 def run_digest(
     settings: Settings,
     slot: str,
@@ -134,7 +217,8 @@ def run_digest(
     init_db(conn)
     current_item_ids = _fetch_store_and_enrich(conn, settings, slot, sources_path)
     rows = _load_digest_candidates(conn, settings, current_item_ids)
-    selections = select_digest_items(rows, min_items=3, max_items=5, discussion_limit=1)
+    min_items, max_items, discussion_limit = _selection_policy(slot)
+    selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
     message = format_digest(slot, selections)
     if selections and not dry_run:
         send_telegram_message(message, settings)
@@ -160,11 +244,12 @@ def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources_path) -
         except Exception:
             continue
         for candidate in candidates:
-            if not is_candidate_relevant(candidate):
+            if not is_candidate_relevant_for_slot(candidate, slot):
                 continue
             item_id, _ = upsert_item(conn, candidate)
             current_item_ids.add(item_id)
-            if get_enrichment(conn, item_id) is not None:
+            cached_enrichment = get_enrichment(conn, item_id)
+            if cached_enrichment is not None and not _should_refresh_enrichment(settings, cached_enrichment):
                 continue
 
             daily_calls = count_llm_calls_today(conn, today)
@@ -179,6 +264,10 @@ def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources_path) -
                 record_llm_usage(conn, enrichment.model, today, slot, item_id, "ok")
                 llm_calls_this_run += 1
     return current_item_ids
+
+
+def _should_refresh_enrichment(settings: Settings, enrichment: Enrichment) -> bool:
+    return bool(settings.gemini_api_key and enrichment.model.startswith("fallback:"))
 
 
 def _load_digest_candidates(conn, settings: Settings, current_item_ids: set[int]) -> list[DigestCandidate]:

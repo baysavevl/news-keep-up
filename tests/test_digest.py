@@ -3,10 +3,11 @@ import json
 import tempfile
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from news_keep_up.db import connect_database, count_llm_calls_today, init_db, upsert_enrichment, upsert_item
-from news_keep_up.digest import _load_digest_candidates, format_digest, run_digest, select_digest_items
+from news_keep_up.digest import _load_digest_candidates, _selection_policy, format_digest, run_digest, select_digest_items
 from news_keep_up.models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings
 from news_keep_up.utils import now_ict
 
@@ -41,6 +42,30 @@ def candidate(item_id: int, score: int, source_category: str, is_backfill: bool 
 
 
 class DigestTest(unittest.TestCase):
+    def test_fde_selection_policy_targets_eight_items(self):
+        self.assertEqual(_selection_policy("fde"), (8, 8, 2))
+
+    def test_fde_selection_returns_eight_items_when_available(self):
+        rows = [candidate(index, 95 - index, "fde-industry") for index in range(1, 10)]
+
+        selections = select_digest_items(rows, min_items=6, max_items=8, discussion_limit=2)
+
+        self.assertEqual(len(selections), 8)
+
+    def test_selection_caps_discussion_profile_categories(self):
+        rows = [
+            candidate(1, 95, "discussion-fde"),
+            candidate(2, 94, "discussion-fde"),
+            candidate(3, 93, "discussion-fde"),
+            candidate(4, 92, "fde-industry"),
+            candidate(5, 91, "fde-industry"),
+        ]
+
+        selections = select_digest_items(rows, min_items=3, max_items=5, discussion_limit=2)
+
+        self.assertEqual(len(selections), 4)
+        self.assertEqual(sum(1 for s in selections if s.candidate.source_category == "discussion-fde"), 2)
+
     def test_selection_caps_discussions_and_uses_backfill_to_reach_minimum(self):
         rows = [
             candidate(1, 95, "discussion"),
@@ -65,11 +90,15 @@ class DigestTest(unittest.TestCase):
 
         self.assertIn("<b>AI/FDE/SWE Digest</b>", message)
         self.assertIn("News | 06 Jul 2026 10:00 ICT", message)
-        self.assertIn("<b>1. AI English title 1</b>", message)
-        self.assertIn("Source: Test Source | ai-engineering / coding-agents", message)
+        self.assertRegex(message, r"<b>1\. .+ English title 1</b>")
+        self.assertIn("Category: ai-engineering / coding-agents | From: Test Source", message)
+        self.assertIn("Popularity:", message)
+        self.assertIn("Ý chính:", message)
+        self.assertIn("Highlights:", message)
         self.assertIn("Backfill - still relevant", message)
         self.assertIn('<a href="https://example.com/1">Read</a>', message)
         self.assertNotIn("Title VN:", message)
+        self.assertNotIn("Source:", message)
         self.assertNotIn("Link:", message)
 
     def test_format_uses_profile_specific_heading(self):
@@ -81,6 +110,42 @@ class DigestTest(unittest.TestCase):
 
         self.assertIn("<b>FDE Digest</b>", message)
         self.assertIn("FDE |", message)
+
+    def test_format_includes_richer_scan_fields(self):
+        selections = [
+            select_digest_items([candidate(1, 92, "fde-industry")], 1, 5, 1)[0]
+        ]
+
+        message = format_digest("fde", selections)
+
+        self.assertIn("Category:", message)
+        self.assertIn("Popularity:", message)
+        self.assertIn("Importance:", message)
+        self.assertIn("Ý chính:", message)
+        self.assertIn("Highlights:", message)
+        self.assertRegex(message, r"<b>1\. .+ English title 1</b>")
+        self.assertNotIn("Source:", message)
+        self.assertNotIn("Summary:", message)
+        self.assertNotIn("Why:", message)
+
+    def test_format_drops_feed_footer_fragments_from_highlights(self):
+        item = candidate(1, 95, "ai-engineering")
+        item = DigestCandidate(
+            **{
+                **item.__dict__,
+                "enrichment": Enrichment(
+                    **{
+                        **item.enrichment.__dict__,
+                        "summary": "Agents need identity and evals. It lets... The post Agents appeared first on Example.",
+                    }
+                ),
+            }
+        )
+
+        message = format_digest("fde", [DigestSelection(candidate=item, position=1)])
+
+        self.assertNotIn("It lets", message)
+        self.assertNotIn("appeared first", message)
 
     def test_format_escapes_html_and_hides_fallback_translation(self):
         item = candidate(1, 95, "ai-engineering")
@@ -100,7 +165,7 @@ class DigestTest(unittest.TestCase):
 
         message = format_digest("news", [DigestSelection(candidate=item, position=1)])
 
-        self.assertIn("<b>1. AI Agent &lt;tools&gt; &amp; repos</b>", message)
+        self.assertIn("Agent &lt;tools&gt; &amp; repos</b>", message)
         self.assertIn('href="https://example.com/read?x=1&amp;y=2"', message)
         self.assertNotIn("bản dịch tự động chưa có", message)
 
@@ -131,6 +196,43 @@ class DigestTest(unittest.TestCase):
             conn = connect_database(settings)
 
             self.assertEqual(count_llm_calls_today(conn, now_ict().date().isoformat()), 0)
+
+    def test_cached_fallback_is_refreshed_when_model_key_is_available(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            feed_path = Path(tmp) / "feed.xml"
+            feed_path.write_text("""<?xml version="1.0"?>
+            <rss version="2.0"><channel>
+              <item>
+                <title>Enterprise AI deployment playbook for FDE teams</title>
+                <link>https://example.com/fde</link>
+                <description>Customer-facing rollout, evals, guardrails, and workflow integration.</description>
+                <pubDate>Mon, 13 Jul 2026 03:00:00 GMT</pubDate>
+              </item>
+            </channel></rss>
+            """, encoding="utf-8")
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text(json.dumps([{
+                "name": "Local FDE Feed",
+                "type": "rss",
+                "url": feed_path.as_uri(),
+                "category": "fde-industry",
+                "enabled": True,
+            }]), encoding="utf-8")
+            db_path = Path(tmp) / "test.db"
+
+            run_digest(Settings(db_path=db_path, gemini_api_key=""), "fde", dry_run=True, sources_path=sources_path)
+            refreshed = enrichment(96, "fde-industry", "enterprise-rollout")
+            refreshed = Enrichment(**{**refreshed.__dict__, "model": "gemini-test", "summary": "Key idea. Concrete highlight."})
+
+            with patch("news_keep_up.digest.GeminiClient.enrich", return_value=refreshed) as enrich:
+                run_digest(Settings(db_path=db_path, gemini_api_key="key"), "fde", dry_run=True, sources_path=sources_path)
+
+            conn = connect_database(Settings(db_path=db_path))
+            row = conn.execute("SELECT model, summary FROM enrichments LIMIT 1").fetchone()
+
+        self.assertEqual(row["model"], "gemini-test")
+        self.assertEqual(row["summary"], "Key idea. Concrete highlight.")
+        self.assertTrue(enrich.called)
 
     def test_old_published_items_are_not_selected_as_fresh(self):
         with tempfile.TemporaryDirectory() as tmp:

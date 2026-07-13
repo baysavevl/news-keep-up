@@ -23,6 +23,10 @@ class GeminiTest(unittest.TestCase):
         self.assertIn("title_vi", prompt)
         self.assertIn("Vietnamese title translation", prompt)
         self.assertIn("Agentic engineering patterns", prompt)
+        self.assertIn("key idea", prompt.lower())
+        self.assertIn("highlights", prompt.lower())
+        self.assertIn("popularity", prompt.lower())
+        self.assertIn("importance", prompt.lower())
 
     def test_parse_enrichment_response_extracts_json_and_clamps_score(self):
         response = """```json

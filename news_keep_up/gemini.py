@@ -20,16 +20,26 @@ def build_prompt(item: CandidateItem) -> str:
         "You curate a compact recurring digest for a software engineer, "
         "forward deployed engineer, and solution architect. Score only practical, "
         "high-signal items about AI, AI agents, developer tools, architecture, "
-        "and customer-facing technical work.\n\n"
+        "and customer-facing technical work. For Forward Deployed Engineer topics, "
+        "prioritize customer deployment, enterprise workflow integration, evals, "
+        "guardrails, stakeholder rollout, and product feedback loops. Reject generic "
+        "AI infrastructure or coding-agent posts unless they clearly affect field "
+        "engineering or enterprise deployment work.\n\n"
+        "Write for a Telegram scan: concrete, opinionated, and non-generic.\n"
+        "- summary must start with the key idea, then include 1-2 specific highlights.\n"
+        "- why_it_matters must explain the importance for SWE/FDE/solution architect work.\n"
+        "- relevance_score is the importance score.\n"
+        "- use category/topic that can be displayed beside popularity and importance.\n"
+        "- icon should be a short emoji-like signal or compact label for the item.\n\n"
         "Return JSON only with this exact shape:\n"
         "{\n"
         '  "relevance_score": 0,\n'
         '  "category": "ai-engineering",\n'
         '  "topic": "coding-agents",\n'
-        '  "icon": "AI",\n'
+        '  "icon": "🤖",\n'
         '  "title_vi": "Vietnamese title translation",\n'
-        '  "summary": "2-4 concise English sentences.",\n'
-        '  "why_it_matters": "Why this matters for SWE/FDE/solution architect work.",\n'
+        '  "summary": "Key idea sentence. Highlight sentence with concrete detail. Optional second highlight.",\n'
+        '  "why_it_matters": "Importance: why this matters for SWE/FDE/solution architect work.",\n'
         '  "takeaway_vi": "One short Vietnamese takeaway.",\n'
         '  "should_send": true\n'
         "}\n\n"
@@ -68,11 +78,11 @@ def fallback_enrichment(item: CandidateItem, reason: str = "fallback") -> Enrich
         relevance_score=65,
         category=item.source_category or "general",
         topic=_guess_topic(item),
-        icon="AI",
+        icon=_guess_icon(item),
         title_vi=_fallback_title_vi(item),
         summary=_fallback_summary(item),
-        why_it_matters="Useful signal for AI-assisted engineering, delivery workflows, or technical customer strategy.",
-        takeaway_vi="Nên đọc để nắm nhanh ý chính và áp dụng nếu phù hợp.",
+        why_it_matters=_fallback_why(item),
+        takeaway_vi=_fallback_takeaway_vi(item),
         should_send=True,
     )
 
@@ -153,6 +163,8 @@ def _fallback_title_vi(item: CandidateItem) -> str:
 
 def _guess_topic(item: CandidateItem) -> str:
     text = f"{item.title} {item.summary}".lower()
+    if "forward deployed" in text or "customer" in text or "deployment" in text:
+        return "enterprise-rollout"
     if "agent" in text:
         return "coding-agents"
     if "rag" in text:
@@ -162,3 +174,36 @@ def _guess_topic(item: CandidateItem) -> str:
     if "tool" in text:
         return "ai-tools"
     return "ai"
+
+
+def _guess_icon(item: CandidateItem) -> str:
+    text = f"{item.title} {item.summary} {item.source_category}".lower()
+    if "forward deployed" in text or "deployment" in text or "customer" in text:
+        return "🧭"
+    if "eval" in text or "benchmark" in text:
+        return "📊"
+    if "rag" in text or "knowledge" in text:
+        return "📚"
+    if "agent" in text:
+        return "🤖"
+    return "🧠"
+
+
+def _fallback_why(item: CandidateItem) -> str:
+    text = f"{item.title} {item.summary} {item.source_category}".lower()
+    if "enterprise" in text or "customer" in text or "deployment" in text:
+        return "Shows a concrete signal for moving AI from demo to customer-facing production workflow."
+    if "eval" in text or "guardrail" in text:
+        return "Useful for deciding whether an AI workflow is safe enough to launch and maintain."
+    if "agent" in text:
+        return "Relevant to how engineering teams design, supervise, and operationalize agent workflows."
+    return "Worth scanning for architecture, delivery, or productization impact."
+
+
+def _fallback_takeaway_vi(item: CandidateItem) -> str:
+    text = f"{item.title} {item.summary} {item.source_category}".lower()
+    if "deployment" in text or "customer" in text:
+        return "Tập trung vào cách đưa AI vào workflow khách hàng thật, không chỉ demo."
+    if "eval" in text or "guardrail" in text:
+        return "Chú ý phần đo chất lượng và guardrail trước khi rollout."
+    return "Đọc nhanh để lấy ý chính và cân nhắc áp dụng vào delivery."
