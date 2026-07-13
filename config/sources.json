@@ -56,9 +56,9 @@
     "enabled": true
   },
   {
-    "name": "Anthropic News",
-    "type": "rss",
-    "url": "https://www.anthropic.com/news/rss.xml",
+    "name": "Hacker News Anthropic News",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Anthropic%20Claude&tags=story",
     "category": "ai-product",
     "enabled": true
   },
@@ -86,7 +86,7 @@
   {
     "name": "LangChain Blog",
     "type": "rss",
-    "url": "https://blog.langchain.com/rss/",
+    "url": "https://www.langchain.com/blog/rss.xml",
     "category": "agent-frameworks",
     "enabled": true
   },
@@ -98,9 +98,9 @@
     "enabled": true
   },
   {
-    "name": "Reddit LocalLLaMA",
-    "type": "rss",
-    "url": "https://www.reddit.com/r/LocalLLaMA/.rss",
+    "name": "Hacker News Local LLM",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=local%20LLM&tags=story",
     "category": "discussion",
     "enabled": true
   },
@@ -119,9 +119,9 @@
     "enabled": true
   },
   {
-    "name": "Uber Engineering",
-    "type": "rss",
-    "url": "https://www.uber.com/blog/engineering/rss/",
+    "name": "Hacker News Uber Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Uber%20engineering&tags=story",
     "category": "systems-engineering",
     "enabled": true
   },
@@ -168,9 +168,9 @@
     "enabled": true
   },
   {
-    "name": "Shopify Engineering",
-    "type": "rss",
-    "url": "https://shopify.engineering/blogs/engineering.atom",
+    "name": "Hacker News Shopify Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Shopify%20engineering&tags=story",
     "category": "software-engineering",
     "enabled": true
   },
@@ -189,9 +189,9 @@
     "enabled": true
   },
   {
-    "name": "Google Developers Blog",
-    "type": "rss",
-    "url": "https://developers.googleblog.com/en/rss.xml",
+    "name": "Hacker News Google Developers AI",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Google%20Developers%20AI&tags=story",
     "category": "developer-tools",
     "enabled": true
   },
@@ -210,16 +210,16 @@
     "enabled": true
   },
   {
-    "name": "Thoughtworks Insights",
-    "type": "rss",
-    "url": "https://www.thoughtworks.com/insights/rss.xml",
+    "name": "Hacker News Thoughtworks Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Thoughtworks%20engineering&tags=story",
     "category": "software-engineering",
     "enabled": true
   },
   {
-    "name": "Honeycomb Blog",
-    "type": "rss",
-    "url": "https://www.honeycomb.io/blog/rss.xml",
+    "name": "Hacker News Honeycomb Observability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Honeycomb%20observability&tags=story",
     "category": "systems-engineering",
     "enabled": true
   },
@@ -245,9 +245,359 @@
     "enabled": true
   },
   {
-    "name": "Atlassian Engineering",
+    "name": "Hacker News Atlassian Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Atlassian%20engineering&tags=story",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Google DeepMind Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Google%20DeepMind%20agents&tags=story",
+    "category": "ai-research",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Google Cloud AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Google%20Cloud%20AI%20agents&tags=story",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "AWS Machine Learning Blog",
     "type": "rss",
-    "url": "https://www.atlassian.com/blog/engineering/feed",
+    "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AWS Bedrock Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AWS%20Bedrock%20agents&tags=story",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Microsoft AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Microsoft%20AI%20agents&tags=story",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Azure AI Foundry",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Azure%20AI%20Foundry%20agents&tags=story",
+    "category": "agent-frameworks",
+    "enabled": true
+  },
+  {
+    "name": "NVIDIA AI Developer Blog",
+    "type": "rss",
+    "url": "https://developer.nvidia.com/blog/category/deep-learning/feed/",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hugging Face Blog",
+    "type": "rss",
+    "url": "https://huggingface.co/blog/feed.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Cohere Blog",
+    "type": "rss",
+    "url": "https://cohere.com/blog/rss.xml",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "Mistral AI News",
+    "type": "rss",
+    "url": "https://mistral.ai/rss.xml",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "LlamaIndex Blog",
+    "type": "rss",
+    "url": "https://medium.com/feed/llamaindex-blog",
+    "category": "agent-frameworks",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Pinecone RAG Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Pinecone%20RAG%20agents&tags=story",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Weaviate Blog",
+    "type": "rss",
+    "url": "https://weaviate.io/blog/rss.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Qdrant RAG Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Qdrant%20RAG%20agents&tags=story",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Arize AI Blog",
+    "type": "rss",
+    "url": "https://arize.com/feed/",
+    "category": "ai-observability",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Braintrust Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Braintrust%20evals&tags=story",
+    "category": "ai-observability",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Langfuse Observability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Langfuse%20observability&tags=story",
+    "category": "ai-observability",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Humanloop LLMOps",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Humanloop%20LLMOps&tags=story",
+    "category": "llm-ops",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Vellum AI Workflows",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Vellum%20AI%20workflows&tags=story",
+    "category": "llm-ops",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Galileo AI Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Galileo%20AI%20evals&tags=story",
+    "category": "ai-observability",
+    "enabled": true
+  },
+  {
+    "name": "Modal Blog",
+    "type": "rss",
+    "url": "https://modal.com/blog/atom.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Replicate Blog",
+    "type": "rss",
+    "url": "https://replicate.com/blog/rss",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Together AI Blog",
+    "type": "rss",
+    "url": "https://www.together.ai/blog/rss.xml",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Fireworks AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Fireworks%20AI%20agents&tags=story",
+    "category": "ai-product",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News OpenAI Cookbook Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=OpenAI%20Cookbook%20agents&tags=story",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Temporal AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Temporal%20AI%20agents&tags=story",
+    "category": "agent-orchestration",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Inngest AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Inngest%20AI%20agents&tags=story",
+    "category": "ai-automation",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Trigger.dev AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Trigger.dev%20AI%20agents&tags=story",
+    "category": "ai-automation",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Orkes AI Orchestration",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Orkes%20AI%20orchestration&tags=story",
+    "category": "agent-orchestration",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Prefect AI Workflows",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Prefect%20AI%20workflows&tags=story",
+    "category": "ai-automation",
+    "enabled": true
+  },
+  {
+    "name": "Dagster Blog",
+    "type": "rss",
+    "url": "https://dagster.io/blog/rss.xml",
+    "category": "ai-automation",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Tines AI Automation",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Tines%20AI%20automation&tags=story",
+    "category": "ai-automation",
+    "enabled": true
+  },
+  {
+    "name": "n8n Blog",
+    "type": "rss",
+    "url": "https://blog.n8n.io/rss/",
+    "category": "ai-automation",
+    "enabled": true
+  },
+  {
+    "name": "Port Agentic Workflows",
+    "type": "rss",
+    "url": "https://www.port.io/blog/rss.xml",
+    "category": "agent-orchestration",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20engineering&tags=story",
+    "category": "agentic-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Coding Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=coding%20agents&tags=story",
+    "category": "agentic-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Workflow Automation",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20workflow%20automation&tags=story",
+    "category": "ai-automation",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Orchestration",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20orchestration&tags=story",
+    "category": "agent-orchestration",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Observability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20observability&tags=story",
+    "category": "ai-observability",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20evals&tags=story",
+    "category": "llm-ops",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News RAG Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=RAG%20agents&tags=story",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Developer Productivity AI",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20developer%20productivity&tags=story",
+    "category": "agentic-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News MCP Workflows",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=MCP%20workflow&tags=story",
+    "category": "agent-orchestration",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Code Review Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20code%20review%20agent&tags=story",
+    "category": "agentic-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Production AI Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=production%20AI%20agents&tags=story",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Grab Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Grab%20engineering&tags=story",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News DoorDash Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=DoorDash%20engineering&tags=story",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Pinterest Engineering",
+    "type": "rss",
+    "url": "https://medium.com/feed/pinterest-engineering",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Canva Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Canva%20engineering&tags=story",
+    "category": "software-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Zalando Engineering",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Zalando%20engineering&tags=story",
     "category": "software-engineering",
     "enabled": true
   }

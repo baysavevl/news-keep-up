@@ -4,8 +4,9 @@ from collections import Counter
 from html import escape
 
 from .config import load_sources
-from .db import connect_database, init_db
+from .db import connect_database, init_db, mark_delivered
 from .digest import run_digest
+from .interview import run_fde_interview_guideline
 from .models import Settings
 from .telegram import send_telegram_message
 
@@ -23,11 +24,17 @@ COMMAND_ALIASES = {
     "sources": "sources",
     "status": "status",
     "focus": "focus",
+    "interview": "interview",
+    "prep": "interview",
+    "markread": "markread",
+    "read": "markread",
+    "skip": "markread",
 }
 
 SCHEDULE_LABELS = {
     "fde": "hourly at :20, 08:20-22:20 ICT",
     "engineer": "hourly at :40, 08:40-22:40 ICT",
+    "fde-interview": "every 2 hours at :35, 07:35-21:35 ICT",
 }
 
 
@@ -65,6 +72,10 @@ def handle_telegram_update(
         response = _status_text(settings, slot, sources_path)
     elif command == "focus":
         response = _focus_text(slot)
+    elif command == "interview":
+        response = _interview_text(settings, slot)
+    elif command == "markread":
+        response = _markread_text(settings, slot, args)
     else:
         response = _help_text(slot)
 
@@ -92,6 +103,8 @@ def _help_text(slot: str) -> str:
         "/today - alias for /latest",
         "/search keyword - search stored news",
         "/analyze keyword - analyze stored matches through this profile lens",
+        "/markread id|keyword|all - mark stored news as read so it will not be sent again",
+        "/interview - show the next FDE interview guideline",
         "/sources - show source coverage",
         "/status - show schedule and config status",
         "/focus - show what this bot considers relevant",
@@ -152,7 +165,7 @@ def _search_text(settings: Settings, query: str) -> str:
     lines = [f"<b>Search: {escape(query)}</b>"]
     for index, row in enumerate(rows, start=1):
         lines.append(
-            f"{index}. <b>{escape(row['title'])}</b>\n"
+            f"{index}. <b>#{int(row['id'])} {escape(row['title'])}</b>\n"
             f"Source: {escape(row['source_name'])} | Score: {int(row['relevance_score'])}/100\n"
             f"Read: <a href=\"{escape(row['url'], quote=True)}\">Read</a>"
         )
@@ -182,13 +195,81 @@ def _analysis_text(settings: Settings, slot: str, query: str) -> str:
     return "\n".join(lines)
 
 
+def _interview_text(settings: Settings, slot: str) -> str:
+    if slot != "fde":
+        return "FDE interview guidelines are available in the FDE group."
+    return run_fde_interview_guideline(settings, dry_run=True)
+
+
+def _markread_text(settings: Settings, slot: str, query: str) -> str:
+    if not query:
+        return "Usage: /markread #id, /markread keyword, or /markread all"
+
+    conn = connect_database(settings)
+    init_db(conn)
+    try:
+        rows = _markread_rows(conn, query)
+        if not rows:
+            return f"No unread stored news found for: {escape(query)}"
+        item_ids = [int(row["id"]) for row in rows]
+        mark_delivered(conn, item_ids, slot, set())
+    finally:
+        conn.close()
+
+    preview = ", ".join(f"#{int(row['id'])}" for row in rows[:8])
+    suffix = "" if len(rows) <= 8 else f" +{len(rows) - 8} more"
+    return f"Marked read: {len(rows)} item(s) for {escape(slot)}. {escape(preview + suffix)}"
+
+
+def _markread_rows(conn, query: str) -> list:
+    normalized = query.strip().lstrip("#")
+    if normalized.lower() == "all":
+        return conn.execute(
+            """SELECT i.id, i.title
+               FROM items i
+               JOIN enrichments e ON e.item_id = i.id
+               WHERE e.should_send = 1
+                 AND NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)
+               ORDER BY e.relevance_score DESC, i.published_at DESC, i.fetched_at DESC
+               LIMIT 50"""
+        ).fetchall()
+    if normalized.isdigit():
+        return conn.execute(
+            """SELECT i.id, i.title
+               FROM items i
+               JOIN enrichments e ON e.item_id = i.id
+               WHERE i.id = ?
+                 AND NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)
+               LIMIT 1""",
+            (int(normalized),),
+        ).fetchall()
+
+    pattern = f"%{normalized.lower()}%"
+    return conn.execute(
+        """SELECT i.id, i.title
+           FROM items i
+           JOIN enrichments e ON e.item_id = i.id
+           WHERE NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)
+             AND (
+                lower(i.title) LIKE ?
+                OR lower(i.summary) LIKE ?
+                OR lower(i.source_name) LIKE ?
+                OR lower(e.topic) LIKE ?
+                OR lower(e.category) LIKE ?
+             )
+           ORDER BY e.relevance_score DESC, i.published_at DESC, i.fetched_at DESC
+           LIMIT 5""",
+        (pattern, pattern, pattern, pattern, pattern),
+    ).fetchall()
+
+
 def _search_rows(settings: Settings, query: str, limit: int = 5) -> list:
     pattern = f"%{query.lower()}%"
     conn = connect_database(settings)
     init_db(conn)
     try:
         return conn.execute(
-            """SELECT i.title, i.url, i.source_name, i.source_category,
+            """SELECT i.id, i.title, i.url, i.source_name, i.source_category,
                       e.relevance_score, e.topic, e.category
                FROM items i
                JOIN enrichments e ON e.item_id = i.id

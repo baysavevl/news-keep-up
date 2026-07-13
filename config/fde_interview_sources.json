@@ -1,0 +1,212 @@
+[
+  {
+    "name": "The Pragmatic Engineer FDE",
+    "type": "rss",
+    "url": "https://newsletter.pragmaticengineer.com/feed",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Seattle Data Guy FDE",
+    "type": "rss",
+    "url": "https://seattledataguy.substack.com/feed",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "AI Action Letter FDE Roadmap",
+    "type": "rss",
+    "url": "https://abhijayvuyyuru.substack.com/feed",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Next Play FDE",
+    "type": "rss",
+    "url": "https://nextplayso.substack.com/feed",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News First Round FDE Hiring",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=First%20Round%20FDE%20hiring&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Palantir Blog",
+    "type": "rss",
+    "url": "https://medium.com/feed/palantir",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "OpenAI News",
+    "type": "rss",
+    "url": "https://openai.com/news/rss.xml",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Anthropic Applied AI Architect",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Anthropic%20Applied%20AI%20Architect&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LangChain Agent Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LangChain%20agent%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "LlamaIndex Blog",
+    "type": "rss",
+    "url": "https://medium.com/feed/llamaindex-blog",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Twilio Blog",
+    "type": "rss",
+    "url": "https://www.twilio.com/blog/feed",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LiveKit Voice Agents",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LiveKit%20voice%20agents&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Temporal Workflow Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Temporal%20workflow%20interview&tags=story",
+    "category": "system-design",
+    "enabled": true
+  },
+  {
+    "name": "Auth0 Blog",
+    "type": "rss",
+    "url": "https://auth0.com/blog/rss.xml",
+    "category": "security-integration",
+    "enabled": true
+  },
+  {
+    "name": "ByteByteGo",
+    "type": "rss",
+    "url": "https://blog.bytebytego.com/feed",
+    "category": "system-design",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Forward Deployed Engineer Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Forward%20Deployed%20Engineer%22%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Palantir FDSE Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Palantir%20FDSE%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News OpenAI FDE Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=OpenAI%20FDE%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Anthropic Applied AI Architect Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Anthropic%20Applied%20AI%20Architect%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Deployment Engineer Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20Deployment%20Engineer%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Engineering Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20engineering%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Solutions Engineer Coding Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=solutions%20engineer%20coding%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise AI Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20AI%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Case Study Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20case%20study%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Technical Deployment Lead Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=technical%20deployment%20lead%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent System Design Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20system%20design%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM App System Design Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20app%20system%20design%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Evals Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20evals%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News RAG System Design Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=RAG%20system%20design%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Tool Calling Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=tool%20calling%20interview%20LLM&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  }
+]

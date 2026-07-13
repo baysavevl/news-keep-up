@@ -289,6 +289,42 @@ class DigestTest(unittest.TestCase):
 
         self.assertEqual(rows, [])
 
+    def test_run_digest_uses_gemini_batch_review_before_selecting_items(self):
+        generic = candidate(1, 80, "ai-engineering")
+        rollout = candidate(2, 70, "fde-industry")
+        reviewed_generic = Enrichment(**{
+            **generic.enrichment.__dict__,
+            "model": "gemini-review",
+            "relevance_score": 20,
+            "summary": "Generic AI launch.",
+            "should_send": False,
+        })
+        reviewed_rollout = Enrichment(**{
+            **rollout.enrichment.__dict__,
+            "model": "gemini-review",
+            "relevance_score": 98,
+            "icon": "🧭",
+            "summary": "Key idea: customer rollout depends on eval gates. Use acceptance criteria before launch.",
+            "why_it_matters": "Impact: FDEs can turn this into a production launch gate.",
+            "takeaway_vi": "Ưu tiên eval gate trước rollout.",
+            "should_send": True,
+        })
+
+        with (
+            patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1, 2}),
+            patch("news_keep_up.digest._load_digest_candidates", return_value=[generic, rollout]),
+            patch("news_keep_up.digest.GeminiClient.review_digest_candidates", return_value={
+                1: reviewed_generic,
+                2: reviewed_rollout,
+            }) as review,
+        ):
+            message = run_digest(Settings(gemini_api_key="key"), "fde", dry_run=True)
+
+        self.assertTrue(review.called)
+        self.assertIn("English title 2", message)
+        self.assertNotIn("English title 1", message)
+        self.assertIn("98/100", message)
+
 
 if __name__ == "__main__":
     unittest.main()

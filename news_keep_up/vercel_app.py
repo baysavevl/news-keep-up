@@ -7,6 +7,7 @@ from flask import Flask, Response, jsonify, request
 
 from .config import load_settings
 from .digest import run_digest
+from .interview import run_fde_interview_guideline
 from .telegram_commands import handle_telegram_update
 
 
@@ -15,6 +16,7 @@ class DigestProfile:
     slot: str
     sources_path: str
     env_prefix: str = ""
+    mode: str = "digest"
 
 
 DIGEST_PROFILES = {
@@ -23,6 +25,7 @@ DIGEST_PROFILES = {
     "afternoon": DigestProfile("afternoon", "config/sources.json"),
     "engineer": DigestProfile("engineer", "config/sources.json", "ENGINEER"),
     "fde": DigestProfile("fde", "config/fde_sources.json", "FDE"),
+    "fde-interview": DigestProfile("fde-interview", "config/fde_interview_sources.json", "FDE", "interview"),
 }
 
 app = Flask(__name__)
@@ -74,12 +77,15 @@ def digest_endpoint(slot: str):
         })
 
     try:
-        message = run_digest(
-            settings,
-            profile.slot,
-            dry_run=dry_run,
-            sources_path=profile.sources_path,
-        )
+        if profile.mode == "interview":
+            message = run_fde_interview_guideline(settings, dry_run=dry_run)
+        else:
+            message = run_digest(
+                settings,
+                profile.slot,
+                dry_run=dry_run,
+                sources_path=profile.sources_path,
+            )
     except Exception as exc:
         app.logger.exception("Digest run failed")
         return jsonify({"ok": False, "slot": slot, "error": str(exc)}), 500

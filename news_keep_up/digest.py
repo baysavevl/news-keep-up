@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from html import escape
 from typing import Iterable
@@ -52,13 +53,21 @@ SOURCE_TRUST_OVERRIDES = {
     "Anthropic News": 96,
     "OpenAI News": 96,
     "Google AI Blog": 94,
+    "Google DeepMind Blog": 94,
+    "Google Cloud AI ML Blog": 94,
     "Google Cloud Blog AI": 94,
     "Microsoft Azure Blog AI": 93,
+    "Microsoft AI Blog": 93,
+    "Azure AI Foundry Blog": 92,
     "AWS Machine Learning Blog": 93,
+    "AWS Bedrock Blog": 92,
     "AWS Architecture Blog": 91,
+    "NVIDIA AI Developer Blog": 91,
     "Salesforce Engineering": 91,
     "Palantir Blog": 91,
     "The Pragmatic Engineer": 90,
+    "The Pragmatic Engineer FDE": 90,
+    "First Round Review": 89,
     "Martin Fowler": 89,
     "Netflix TechBlog": 88,
     "Stripe Blog": 88,
@@ -67,8 +76,21 @@ SOURCE_TRUST_OVERRIDES = {
     "InfoQ AI ML Data Engineering": 86,
     "GitHub Blog": 86,
     "Vercel Blog": 85,
+    "Hugging Face Blog": 85,
     "LangChain Blog": 84,
+    "LlamaIndex Blog": 84,
+    "Braintrust Blog": 84,
+    "Arize AI Blog": 83,
+    "Langfuse Blog": 83,
+    "Temporal Blog": 83,
     "Lenny's Newsletter": 83,
+    "Cohere Blog": 82,
+    "Mistral AI News": 82,
+    "Pinecone Blog": 82,
+    "Weaviate Blog": 82,
+    "Qdrant Blog": 82,
+    "Twilio Blog": 82,
+    "LiveKit Blog": 82,
 }
 
 
@@ -211,12 +233,24 @@ def _trust_label(item: DigestCandidate) -> str:
 def _source_trust_score(item: DigestCandidate) -> int:
     if item.source_name in SOURCE_TRUST_OVERRIDES:
         return SOURCE_TRUST_OVERRIDES[item.source_name]
+    if item.source_name.startswith("Hacker News"):
+        return 62
     if item.source_category.startswith("discussion"):
         return 62
     if item.source_category in {"fde-industry", "field-engineering"}:
         return 78
     if item.source_category in {"enterprise-ai", "ai-product", "developer-tools"}:
         return 82
+    if item.source_category in {
+        "ai-engineering",
+        "agentic-engineering",
+        "agent-frameworks",
+        "agent-orchestration",
+        "ai-automation",
+        "ai-observability",
+        "llm-ops",
+    }:
+        return 81
     if item.source_category in {"software-engineering", "systems-engineering", "security-engineering"}:
         return 80
     return 72
@@ -292,6 +326,7 @@ def run_digest(
     current_item_ids = _fetch_store_and_enrich(conn, settings, slot, sources_path)
     rows = _load_digest_candidates(conn, settings, current_item_ids)
     min_items, max_items, discussion_limit = _selection_policy(slot)
+    rows = _review_digest_candidates(conn, settings, slot, rows, max_items)
     selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
     message = format_digest(slot, selections)
     if selections and not dry_run:
@@ -303,6 +338,40 @@ def run_digest(
             {selection.candidate.item_id for selection in selections if selection.candidate.is_backfill},
         )
     return message
+
+
+def _review_digest_candidates(
+    conn,
+    settings: Settings,
+    slot: str,
+    rows: list[DigestCandidate],
+    max_items: int,
+) -> list[DigestCandidate]:
+    if not settings.gemini_api_key or not rows:
+        return rows
+    today = now_ict().date().isoformat()
+    if count_llm_calls_today(conn, today) >= settings.max_llm_calls_per_day:
+        return rows
+
+    review_window = rows[:max(max_items * 3, max_items)]
+    reviewed = GeminiClient(settings).review_digest_candidates(slot, review_window, max_items)
+    if not reviewed:
+        return rows
+
+    reviewed_rows: list[DigestCandidate] = []
+    for row in rows:
+        enrichment = reviewed.get(row.item_id)
+        if enrichment is None:
+            reviewed_rows.append(row)
+            continue
+        if not enrichment.should_send:
+            continue
+        reviewed_rows.append(replace(row, enrichment=enrichment))
+
+    if reviewed_rows:
+        model = next(iter(reviewed.values())).model
+        record_llm_usage(conn, model, today, slot, None, "review")
+    return sorted(reviewed_rows, key=_candidate_sort_key)
 
 
 def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources_path) -> set[int]:

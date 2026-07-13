@@ -2,13 +2,20 @@
 
 Automated Telegram digest for keeping up with AI, software engineering, forward deployed engineering, solution architecture, coding agents, AI tools, and high-signal technical discussions.
 
-The digests run hourly from 08:00 through 22:00 Asia/Ho_Chi_Minh. GitHub Actions owns the schedule and calls the Vercel-hosted digest endpoints: FDE at `:20`, Engineer at `:40`.
+GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
+
+- FDE news: hourly at `:20`, from 08:20 through 22:20 Asia/Ho_Chi_Minh.
+- FDE interview guideline: every 2 hours at `:35`, from 07:35 through 21:35 Asia/Ho_Chi_Minh.
+- Engineer news: hourly at `:40`, from 08:40 through 22:40 Asia/Ho_Chi_Minh.
 
 ## Profiles
 
 - `engineer`: general AI/SWE/FDE engineering digest from `config/sources.json`, delivered with `ENGINEER_TELEGRAM_*` env vars.
 - `fde`: Forward Deployed Engineer industry digest from `config/fde_sources.json`, delivered with `FDE_TELEGRAM_*` env vars.
+- `fde-interview`: compact Forward Deployed Engineer interview guideline flow using `FDE_TELEGRAM_*` env vars and `config/fde_interview_sources.json` for source coverage.
 - `news`, `morning`, and `afternoon` remain as backward-compatible aliases using `TELEGRAM_*` env vars.
+
+Engineer sources include 86 feeds/searches, with the new additions weighted toward AI agents, agent orchestration, automation, evals, LLMOps, observability, and AI-assisted engineering productivity. FDE interview sources include 30 feeds/searches around FDE interview loops, customer-facing deployment, agent system design, evals, RAG, voice agents, security, and integration design.
 
 ## Message Format
 
@@ -33,11 +40,24 @@ Backfilled items are marked:
 Backfill - still relevant
 ```
 
+Before each digest is sent, Gemini performs a final batch review over candidates to rerank by impact, remove low-signal items, and tighten the displayed emoji, category, summary, Vietnamese takeaway, and role-specific impact. If Gemini is unavailable, cached or fallback enrichment is still used so the automation keeps running.
+
+FDE interview guideline messages are intentionally shorter:
+
+```text
+🧭 FDE Interview Guideline
+🎯 Evals: Evals turn demos into deployments
+💡 A strong FDE converts customer workflows into release gates.
+🧪 Drill: Write 10 eval cases for billing, identity, timeout, and unsafe refund.
+🔗 Source: OpenAI evals
+```
+
 ## Local Setup
 
 ```bash
 python3 -m news_keep_up.main init-db
 python3 -m news_keep_up.main run-digest --slot morning --dry-run
+python3 -m news_keep_up.main run-digest --slot fde-interview --dry-run
 ```
 
 Use `python` instead of `python3` on systems where `python` points to Python 3.11+.
@@ -83,6 +103,8 @@ Each profile can also receive Telegram commands through Vercel:
 - `/latest`, `/digest`, `/today`, `/run` generate a fresh digest preview for the current chat
 - `/search keyword` searches stored news
 - `/analyze keyword` analyzes stored matches through the profile lens
+- `/markread id|keyword|all` marks stored news as read so it will not be sent again
+- `/interview` shows the next FDE interview guideline in the FDE group
 - `/sources` shows source coverage
 - `/status` shows schedule and config status
 - `/focus` explains relevance criteria
@@ -100,7 +122,7 @@ Configure repository secrets:
 
 - `CRON_SECRET`
 
-The workflow is in `.github/workflows/digest.yml`. It runs FDE at `20 1-15 * * *` UTC and Engineer at `40 1-15 * * *` UTC, equivalent to hourly from 08:20/08:40 through 22:20/22:40 ICT. It calls `/api/digest/fde` and `/api/digest/engineer` with `CRON_SECRET`; the Telegram/Gemini runtime configuration remains in Vercel.
+The workflow is in `.github/workflows/digest.yml`. It runs FDE news at `20 1-15 * * *` UTC, FDE interview guidelines at `35 0-14/2 * * *` UTC, and Engineer news at `40 1-15 * * *` UTC. It calls `/api/digest/fde`, `/api/digest/fde-interview`, and `/api/digest/engineer` with `CRON_SECRET`; the Telegram/Gemini runtime configuration remains in Vercel.
 
 ## Vercel
 
@@ -109,6 +131,7 @@ The Vercel deployment exposes `news_keep_up.vercel_app:app`:
 - `/api/digest/news` runs the production digest
 - `/api/digest/engineer` runs the engineer digest
 - `/api/digest/fde` runs the Forward Deployed Engineer digest
+- `/api/digest/fde-interview` sends the compact FDE interview guideline
 - `/api/telegram/engineer` handles Engineer bot commands
 - `/api/telegram/fde` handles FDE bot commands
 - `?dry_run=true` formats the digest without sending Telegram

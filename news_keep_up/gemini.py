@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import urllib.error
 import urllib.request
+from dataclasses import replace
+from typing import Mapping
 
-from .models import CandidateItem, Enrichment, Settings
+from .models import CandidateItem, DigestCandidate, Enrichment, Settings
 from .utils import clean_text
 
 
@@ -50,6 +52,55 @@ def build_prompt(item: CandidateItem) -> str:
     )
 
 
+def build_digest_review_prompt(slot: str, candidates: list[DigestCandidate], max_items: int) -> str:
+    profile = "Forward Deployed Engineer" if slot == "fde" else "software engineer"
+    items_json = json.dumps([
+        {
+            "item_id": item.item_id,
+            "title": item.title,
+            "source": item.source_name,
+            "source_category": item.source_category,
+            "url": item.url,
+            "current_score": item.enrichment.relevance_score,
+            "category": item.enrichment.category,
+            "topic": item.enrichment.topic,
+            "summary": item.enrichment.summary,
+            "why_it_matters": item.enrichment.why_it_matters,
+            "is_backfill": item.is_backfill,
+        }
+        for item in candidates
+    ], ensure_ascii=False)
+    return (
+        f"You are the final Gemini editor for a Telegram digest for a {profile}. "
+        f"Review this batch and rank only the best, highest-impact {max_items} items. "
+        "Prefer practical AI-agent, automation, orchestration, evals, observability, "
+        "developer productivity, and production delivery news. Use emoji, concrete "
+        "summaries, clear categories, and role-specific impact. "
+        "For Forward Deployed Engineer, reject generic AI/model/API/cloud/coding-tool news "
+        "unless it changes customer rollout, field delivery, enterprise implementation, "
+        "evals, governance, or production risk.\n\n"
+        "Return JSON only with this exact shape. Include low-impact items with "
+        "should_send=false when they should be filtered out:\n"
+        "{\n"
+        '  "items": [\n'
+        "    {\n"
+        '      "item_id": 123,\n'
+        '      "rank": 1,\n'
+        '      "relevance_score": 95,\n'
+        '      "category": "ai-engineering",\n'
+        '      "topic": "agent-orchestration",\n'
+        '      "icon": "🤖",\n'
+        '      "summary": "Key idea sentence. Specific highlight sentence.",\n'
+        '      "why_it_matters": "Impact: concise role-specific impact.",\n'
+        '      "takeaway_vi": "Một ý rút ra ngắn bằng tiếng Việt.",\n'
+        '      "should_send": true\n'
+        "    }\n"
+        "  ]\n"
+        "}\n\n"
+        f"Items:\n{items_json}"
+    )
+
+
 def parse_enrichment_response(text: str, item: CandidateItem, model: str) -> Enrichment:
     try:
         data = json.loads(_extract_json(text))
@@ -73,6 +124,43 @@ def parse_enrichment_response(text: str, item: CandidateItem, model: str) -> Enr
         takeaway_vi=takeaway,
         should_send=bool(data.get("should_send", score >= 65)),
     )
+
+
+def parse_digest_review_response(
+    text: str,
+    candidates: list[DigestCandidate],
+    model: str,
+) -> dict[int, Enrichment]:
+    try:
+        data = json.loads(_extract_json(text))
+    except (json.JSONDecodeError, ValueError, TypeError):
+        return {}
+
+    by_id = {candidate.item_id: candidate for candidate in candidates}
+    reviewed: dict[int, Enrichment] = {}
+    for row in data.get("items", []):
+        item_id = _clamp_int(row.get("item_id"), 0, 10_000_000_000, 0)
+        candidate = by_id.get(item_id)
+        if candidate is None:
+            continue
+        original = candidate.enrichment
+        score = _clamp_int(row.get("relevance_score"), 0, 100, original.relevance_score)
+        summary = clean_text(row.get("summary", "")) or original.summary
+        why = clean_text(row.get("why_it_matters", "")) or original.why_it_matters
+        takeaway = clean_text(row.get("takeaway_vi", "")) or original.takeaway_vi
+        reviewed[item_id] = replace(
+            original,
+            model=model,
+            relevance_score=score,
+            category=clean_text(row.get("category", "")) or original.category,
+            topic=clean_text(row.get("topic", "")) or original.topic,
+            icon=clean_text(row.get("icon", "")) or original.icon,
+            summary=summary,
+            why_it_matters=why,
+            takeaway_vi=takeaway,
+            should_send=bool(row.get("should_send", score >= 65)),
+        )
+    return reviewed
 
 
 def fallback_enrichment(item: CandidateItem, reason: str = "fallback") -> Enrichment:
@@ -111,14 +199,64 @@ class GeminiClient:
                 continue
         return fallback_enrichment(item, "gemini-error")
 
+    def review_digest_candidates(
+        self,
+        slot: str,
+        candidates: list[DigestCandidate],
+        max_items: int,
+    ) -> dict[int, Enrichment]:
+        if not self.settings.gemini_api_key or not candidates:
+            return {}
+
+        prompt = build_digest_review_prompt(slot, candidates, max_items)
+        for model in [self.settings.gemini_model, self.settings.gemini_fallback_model]:
+            if not model:
+                continue
+            try:
+                text = self._call_prompt(model, prompt, max_output_tokens=1800)
+                reviewed = parse_digest_review_response(text, candidates, model)
+                if reviewed:
+                    return reviewed
+            except (urllib.error.URLError, TimeoutError, KeyError, ValueError, TypeError):
+                continue
+        return {}
+
+    def review_interview_guideline(self, card: Mapping[str, str]) -> dict[str, str]:
+        if not self.settings.gemini_api_key:
+            return {}
+
+        prompt = (
+            "You are editing one Telegram message for Forward Deployed Engineer interview prep. "
+            "Keep it compact and practical. Return JSON only with icon, category, title, summary, drill, source_label.\n"
+            "Rules: summary is one short sentence, drill is one concrete practice action, no more than 22 words per field.\n\n"
+            f"Card:\n{json.dumps(dict(card), ensure_ascii=False)}"
+        )
+        for model in [self.settings.gemini_model, self.settings.gemini_fallback_model]:
+            if not model:
+                continue
+            try:
+                text = self._call_prompt(model, prompt, max_output_tokens=400)
+                data = json.loads(_extract_json(text))
+                return {
+                    key: clean_text(data.get(key, ""))
+                    for key in ("icon", "category", "title", "summary", "drill", "source_label")
+                    if clean_text(data.get(key, ""))
+                }
+            except (json.JSONDecodeError, urllib.error.URLError, TimeoutError, KeyError, ValueError, TypeError):
+                continue
+        return {}
+
     def _call_model(self, model: str, item: CandidateItem) -> str:
+        return self._call_prompt(model, build_prompt(item), max_output_tokens=600)
+
+    def _call_prompt(self, model: str, prompt: str, max_output_tokens: int) -> str:
         url = (
             "https://generativelanguage.googleapis.com/v1beta/models/"
             f"{model}:generateContent?key={self.settings.gemini_api_key}"
         )
         body = {
-            "contents": [{"role": "user", "parts": [{"text": build_prompt(item)}]}],
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 600, "topP": 0.9},
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.2, "maxOutputTokens": max_output_tokens, "topP": 0.9},
         }
         request = urllib.request.Request(
             url,

@@ -125,6 +125,7 @@ class ConfigTest(unittest.TestCase):
             "security",
             "data",
             "infra",
+            "llm",
         )) for source in sources))
 
 

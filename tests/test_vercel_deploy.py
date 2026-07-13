@@ -26,11 +26,14 @@ class VercelDeployConfigTest(unittest.TestCase):
         workflow = Path(".github/workflows/digest.yml").read_text(encoding="utf-8")
 
         self.assertIn('cron: "20 1-15 * * *"', workflow)
+        self.assertIn('cron: "35 0-14/2 * * *"', workflow)
         self.assertIn('cron: "40 1-15 * * *"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/digest/engineer", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/digest/fde", workflow)
+        self.assertIn("https://news-keep-up.vercel.app/api/digest/fde-interview", workflow)
         self.assertIn("github.event.schedule == '20 1-15 * * *'", workflow)
+        self.assertIn("github.event.schedule == '35 0-14/2 * * *'", workflow)
         self.assertIn("github.event.schedule == '40 1-15 * * *'", workflow)
         self.assertIn("secrets.CRON_SECRET", workflow)
 
@@ -102,6 +105,30 @@ class VercelDigestEndpointTest(unittest.TestCase):
         load_settings.assert_called_once_with(env_prefix="FDE")
         self.assertEqual(run_digest.call_args.args[1], "fde")
         self.assertEqual(run_digest.call_args.kwargs["sources_path"], "config/fde_sources.json")
+
+    def test_fde_interview_endpoint_uses_guideline_flow_and_fde_env_prefix(self):
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {
+                "CRON_SECRET": "test-secret",
+                "FDE_TELEGRAM_BOT_TOKEN": "token",
+                "FDE_TELEGRAM_CHAT_ID": "-100123",
+            }, clear=False),
+            patch("news_keep_up.vercel_app.load_settings") as load_settings,
+            patch("news_keep_up.vercel_app.run_fde_interview_guideline", return_value="guide text") as run_guideline,
+            patch("news_keep_up.vercel_app.run_digest") as run_digest,
+        ):
+            response = app.test_client().get(
+                "/api/digest/fde-interview",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["slot"], "fde-interview")
+        load_settings.assert_called_once_with(env_prefix="FDE")
+        run_guideline.assert_called_once()
+        run_digest.assert_not_called()
 
     def test_profile_endpoint_skips_delivery_when_telegram_chat_is_missing(self):
         from news_keep_up.models import Settings

@@ -118,8 +118,72 @@ class TelegramCommandsTest(unittest.TestCase):
 
         sent_text = send.call_args.args[0]
         self.assertIn("Search: rollout", sent_text)
+        self.assertIn("#", sent_text)
         self.assertIn("Building enterprise AI agents", sent_text)
         self.assertIn("Salesforce Engineering", sent_text)
+
+    def test_markread_command_marks_matching_items_delivered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Salesforce Engineering",
+                source_kind="rss",
+                source_category="field-engineering",
+                title="Enterprise AI rollout with eval guardrails",
+                url="https://example.com/rollout",
+                canonical_url="https://example.com/rollout",
+                summary="Customer-facing deployment teams use evals and guardrails.",
+            ))
+            upsert_enrichment(conn, item_id, Enrichment(
+                model="gemini-test",
+                relevance_score=91,
+                category="field-engineering",
+                topic="enterprise-rollout",
+                icon="🧭",
+                title_vi="",
+                summary="Key idea.",
+                why_it_matters="Impact.",
+                takeaway_vi="Takeaway.",
+                should_send=True,
+            ))
+
+            with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+                result = handle_telegram_update(
+                    update("/markread rollout"),
+                    slot="fde",
+                    sources_path="config/fde_sources.json",
+                    settings=settings,
+                )
+
+            row = conn.execute("SELECT slot FROM deliveries WHERE item_id=?", (item_id,)).fetchone()
+
+        self.assertEqual(result["command"], "markread")
+        self.assertEqual(row["slot"], "fde")
+        self.assertIn("Marked read: 1", send.call_args.args[0])
+
+    def test_interview_command_returns_fde_guideline_preview(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+
+        with (
+            patch("news_keep_up.telegram_commands.run_fde_interview_guideline", return_value="<b>FDE Interview</b>") as run,
+            patch("news_keep_up.telegram_commands.send_telegram_message") as send,
+        ):
+            result = handle_telegram_update(
+                update("/interview"),
+                slot="fde",
+                sources_path="config/fde_sources.json",
+                settings=settings,
+            )
+
+        self.assertEqual(result["command"], "interview")
+        self.assertTrue(run.call_args.kwargs["dry_run"])
+        self.assertEqual(send.call_args.args[0], "<b>FDE Interview</b>")
 
     def test_unauthorized_chat_is_ignored(self):
         settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")

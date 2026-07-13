@@ -170,7 +170,16 @@ def prefilter_score(item: CandidateItem) -> int:
         if phrase in text:
             score += weight
 
-    if item.source_category in {"ai-engineering", "agentic-engineering", "developer-tools"}:
+    if item.source_category in {
+        "ai-engineering",
+        "agentic-engineering",
+        "developer-tools",
+        "agent-frameworks",
+        "agent-orchestration",
+        "ai-automation",
+        "ai-observability",
+        "llm-ops",
+    }:
         score += 10
     if item.source_category == "discussion":
         score -= 5

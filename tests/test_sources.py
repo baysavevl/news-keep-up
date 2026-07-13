@@ -1,4 +1,7 @@
 import unittest
+import json
+from collections import Counter
+from pathlib import Path
 
 from news_keep_up.models import Source
 from news_keep_up.sources import parse_rss_or_atom
@@ -46,6 +49,34 @@ class SourcesTest(unittest.TestCase):
         self.assertEqual(items[0].canonical_url, "https://example.com/atom-post")
         self.assertEqual(items[0].published_at, "2026-07-06T09:00:00Z")
         self.assertEqual(items[0].source_category, "discussion")
+
+    def test_engineer_sources_are_expanded_toward_ai_agentic_workflows(self):
+        sources = json.loads(Path("config/sources.json").read_text(encoding="utf-8"))
+        categories = Counter(source["category"] for source in sources if source.get("enabled", True))
+        ai_categories = {
+            "ai-engineering",
+            "agentic-engineering",
+            "ai-product",
+            "ai-research",
+            "agent-frameworks",
+            "agent-orchestration",
+            "ai-automation",
+            "ai-observability",
+            "llm-ops",
+        }
+
+        self.assertGreaterEqual(len(sources), 86)
+        self.assertGreaterEqual(sum(categories[category] for category in ai_categories), 50)
+        self.assertGreaterEqual(categories["software-engineering"], 13)
+
+    def test_fde_interview_sources_cover_thirty_interview_prep_signals(self):
+        sources = json.loads(Path("config/fde_interview_sources.json").read_text(encoding="utf-8"))
+        categories = Counter(source["category"] for source in sources if source.get("enabled", True))
+
+        self.assertGreaterEqual(len(sources), 30)
+        self.assertGreaterEqual(categories["fde-interview"], 10)
+        self.assertGreaterEqual(categories["agentic-interview"], 5)
+        self.assertTrue(all(source["type"] in {"rss", "hackernews"} for source in sources))
 
 
 if __name__ == "__main__":
