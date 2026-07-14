@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.news-keep-up.scheduler-tick</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/lap14894/Library/Application Support/news-keep-up/trigger_scheduler_tick.py</string>
+    <string>--env-file</string>
+    <string>/Users/lap14894/Library/Application Support/news-keep-up/.env</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/lap14894/Library/Application Support/news-keep-up</string>
+  <key>StartInterval</key>
+  <integer>300</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/lap14894/Library/Logs/news-keep-up/scheduler-tick.launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/lap14894/Library/Logs/news-keep-up/scheduler-tick.launchd.err.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+</dict>
+</plist>

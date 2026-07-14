@@ -135,6 +135,12 @@ The workflow is in `.github/workflows/digest.yml`. It calls `/api/scheduler/tick
 
 Vercel Cron is not configured because the current Vercel Hobby plan only supports once-per-day cron cadence. The scheduler endpoint is compatible with a future Pro Vercel Cron setup by pointing a frequent cron at `/api/scheduler/tick`.
 
+## Local LaunchAgent Scheduler
+
+For a local always-on macOS agent, install `ops/launchagents/com.news-keep-up.scheduler-tick.plist` into `~/Library/LaunchAgents/`. It runs `scripts/trigger_scheduler_tick.py` every 5 minutes and calls `/api/scheduler/tick`; the app still controls exact send times and uses Turso `scheduler_runs` to avoid duplicate sends.
+
+The installed runtime copy should live under `~/Library/Application Support/news-keep-up/` with a private `.env` containing `CRON_SECRET`. Logs are written to `~/Library/Logs/news-keep-up/`.
+
 ## Vercel
 
 The Vercel deployment exposes `news_keep_up.vercel_app:app`:
