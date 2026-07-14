@@ -6,7 +6,14 @@ from pathlib import Path
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
-from news_keep_up.db import connect_database, count_llm_calls_today, init_db, upsert_enrichment, upsert_item
+from news_keep_up.db import (
+    connect_database,
+    count_llm_calls_today,
+    init_db,
+    mark_delivered,
+    upsert_enrichment,
+    upsert_item,
+)
 from news_keep_up.digest import (
     _load_digest_candidates,
     _load_digest_candidates_for_slot,
@@ -51,6 +58,9 @@ def candidate(item_id: int, score: int, source_category: str, is_backfill: bool 
 
 
 class DigestTest(unittest.TestCase):
+    def test_engineer_selection_policy_targets_five_items(self):
+        self.assertEqual(_selection_policy("engineer"), (5, 5, 1))
+
     def test_fde_selection_policy_targets_eight_items(self):
         self.assertEqual(_selection_policy("fde"), (8, 8, 2))
 
@@ -347,6 +357,70 @@ class DigestTest(unittest.TestCase):
         send.assert_called_once()
         mark.assert_not_called()
 
+    def test_engineer_digest_does_not_select_fde_only_source_from_shared_db(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "engineer_sources.json"
+            sources_path.write_text(json.dumps([{
+                "name": "Engineer AI Feed",
+                "type": "rss",
+                "url": "https://example.com/engineer.xml",
+                "category": "ai-engineering",
+                "enabled": True,
+            }]), encoding="utf-8")
+            settings = Settings(db_path=Path(tmp) / "test.db", gemini_api_key="")
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="FDE Only Feed",
+                source_kind="rss",
+                source_category="fde-industry",
+                title="Customer rollout playbook for forward deployed AI teams",
+                url="https://example.com/fde-only",
+                canonical_url="https://example.com/fde-only",
+                summary="Customer-facing AI rollout needs evals, guardrails, integration owners, and launch gates.",
+                published_at=now_ict().isoformat(),
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, item_id, enrichment(98, "fde-industry", "customer-rollout"))
+
+            with patch("news_keep_up.digest.fetch_source", return_value=[]):
+                message = run_digest(settings, "engineer", dry_run=True, sources_path=sources_path)
+
+        self.assertIn("No qualifying items found", message)
+        self.assertNotIn("Customer rollout playbook", message)
+
+    def test_engineer_digest_can_select_item_already_delivered_to_fde(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "engineer_sources.json"
+            sources_path.write_text(json.dumps([{
+                "name": "Shared AI Feed",
+                "type": "rss",
+                "url": "https://example.com/shared.xml",
+                "category": "ai-engineering",
+                "enabled": True,
+            }]), encoding="utf-8")
+            settings = Settings(db_path=Path(tmp) / "test.db", gemini_api_key="")
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Shared AI Feed",
+                source_kind="rss",
+                source_category="ai-engineering",
+                title="Agentic engineering patterns for AI teams",
+                url="https://example.com/shared-ai",
+                canonical_url="https://example.com/shared-ai",
+                summary="Coding agents, evals, and workflow automation for delivery teams.",
+                published_at=now_ict().isoformat(),
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, item_id, enrichment(96, "ai-engineering", "coding-agents"))
+            mark_delivered(conn, [item_id], "fde", set())
+
+            with patch("news_keep_up.digest.fetch_source", return_value=[]):
+                message = run_digest(settings, "engineer", dry_run=True, sources_path=sources_path)
+
+        self.assertIn("Agentic engineering patterns", message)
+
     def test_cached_fallback_is_refreshed_when_model_key_is_available(self):
         with tempfile.TemporaryDirectory() as tmp:
             feed_path = Path(tmp) / "feed.xml"
@@ -430,6 +504,36 @@ class DigestTest(unittest.TestCase):
 
         self.assertEqual(base_rows, [])
         self.assertEqual([row.item_id for row in fde_rows], [item_id])
+
+    def test_engineer_backfill_expands_to_twenty_one_days_when_still_short(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=7)
+            conn = connect_database(settings)
+            init_db(conn)
+            eighteen_days_ago = (now_ict() - timedelta(days=18)).astimezone(ZoneInfo("UTC")).isoformat()
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Engineer AI Feed",
+                source_kind="rss",
+                source_category="ai-engineering",
+                title="Agentic engineering workflow from two weeks ago",
+                url="https://example.com/agentic-backfill",
+                canonical_url="https://example.com/agentic-backfill",
+                summary="Coding agents, evals, and workflow automation remain relevant for engineering teams.",
+                published_at=eighteen_days_ago,
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, item_id, enrichment(93, "ai-engineering", "coding-agents"))
+
+            rows = _load_digest_candidates_for_slot(
+                conn,
+                settings,
+                "engineer",
+                set(),
+                allowed_source_names={"Engineer AI Feed"},
+                min_items=5,
+            )
+
+        self.assertEqual([row.item_id for row in rows], [item_id])
 
     def test_run_digest_uses_gemini_batch_review_before_selecting_items(self):
         generic = candidate(1, 80, "ai-engineering")

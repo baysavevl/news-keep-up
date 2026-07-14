@@ -39,6 +39,7 @@ DIGEST_SLOT_LABELS = {
 }
 
 DIGEST_SELECTION_POLICIES = {
+    "engineer": (5, 5, 1),
     "fde": (8, 8, 2),
 }
 
@@ -494,9 +495,17 @@ def run_digest(
 ) -> str:
     conn = connect_database(settings)
     init_db(conn)
-    current_item_ids = _fetch_store_and_enrich(conn, settings, slot, sources_path)
+    sources = load_sources(sources_path)
+    current_item_ids = _fetch_store_and_enrich(conn, settings, slot, sources)
     min_items, max_items, discussion_limit = _selection_policy(slot)
-    rows = _load_digest_candidates_for_slot(conn, settings, slot, current_item_ids, min_items=min_items)
+    rows = _load_digest_candidates_for_slot(
+        conn,
+        settings,
+        slot,
+        current_item_ids,
+        allowed_source_names={source.name for source in sources},
+        min_items=min_items,
+    )
     rows = _review_digest_candidates(conn, settings, slot, rows, max_items)
     selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
     messages = format_digest_messages(slot, selections)
@@ -551,13 +560,12 @@ def _review_digest_candidates(
     return sorted(reviewed_rows, key=_candidate_sort_key)
 
 
-def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources_path) -> set[int]:
+def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources: list[Source]) -> set[int]:
     current_item_ids: set[int] = set()
     llm_calls_this_run = 0
     today = now_ict().date().isoformat()
     client = GeminiClient(settings)
 
-    sources = load_sources(sources_path)
     for source in sources:
         upsert_source(conn, source)
 
@@ -615,22 +623,46 @@ def _should_refresh_enrichment(settings: Settings, enrichment: Enrichment) -> bo
     return bool(settings.gemini_api_key and enrichment.model.startswith("fallback:"))
 
 
-def _load_digest_candidates(conn, settings: Settings, current_item_ids: set[int]) -> list[DigestCandidate]:
+def _load_digest_candidates(
+    conn,
+    settings: Settings,
+    current_item_ids: set[int],
+    *,
+    slot: str | None = None,
+    allowed_source_names: set[str] | None = None,
+) -> list[DigestCandidate]:
     fetched_cutoff = (now_ict() - timedelta(days=settings.backfill_lookback_days)).isoformat()
     published_cutoff = (now_ict() - timedelta(days=settings.backfill_lookback_days)).astimezone(timezone.utc).isoformat()
+    if allowed_source_names is not None and not allowed_source_names:
+        return []
+
+    conditions = [
+        "e.should_send = 1",
+        "e.relevance_score >= ?",
+        "(i.fetched_at IS NULL OR i.fetched_at = '' OR i.fetched_at >= ?)",
+        "(i.published_at IS NULL OR i.published_at = '' OR i.published_at >= ?)",
+    ]
+    params: list[object] = [settings.min_relevance_score, fetched_cutoff, published_cutoff]
+    if slot is None:
+        conditions.append("NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)")
+    else:
+        conditions.append("NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id AND d.slot = ?)")
+        params.append(slot)
+    if allowed_source_names is not None:
+        ordered_source_names = sorted(allowed_source_names)
+        placeholders = ", ".join("?" for _ in ordered_source_names)
+        conditions.append(f"i.source_name IN ({placeholders})")
+        params.extend(ordered_source_names)
+
     rows = conn.execute(
-        """SELECT i.id, i.title, i.url, i.source_name, i.source_category, i.author, i.published_at, i.fetched_at,
+        f"""SELECT i.id, i.title, i.url, i.source_name, i.source_category, i.author, i.published_at, i.fetched_at,
                   e.model, e.relevance_score, e.category, e.topic, e.icon, e.title_vi,
                   e.summary, e.why_it_matters, e.takeaway_vi, e.should_send
            FROM items i
            JOIN enrichments e ON e.item_id = i.id
-           WHERE e.should_send = 1
-             AND e.relevance_score >= ?
-             AND (i.fetched_at IS NULL OR i.fetched_at = '' OR i.fetched_at >= ?)
-             AND (i.published_at IS NULL OR i.published_at = '' OR i.published_at >= ?)
-             AND NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)
+           WHERE {" AND ".join(conditions)}
            ORDER BY e.relevance_score DESC, i.published_at DESC""",
-        (settings.min_relevance_score, fetched_cutoff, published_cutoff),
+        tuple(params),
     ).fetchall()
     candidates: list[DigestCandidate] = []
     for row in rows:
@@ -667,14 +699,37 @@ def _load_digest_candidates_for_slot(
     settings: Settings,
     slot: str,
     current_item_ids: set[int],
+    *,
+    allowed_source_names: set[str] | None = None,
     min_items: int = 1,
 ) -> list[DigestCandidate]:
-    rows = _load_digest_candidates(conn, settings, current_item_ids)
-    if slot != "fde" or len(rows) >= min_items or settings.backfill_lookback_days >= 14:
+    rows = _load_digest_candidates(
+        conn,
+        settings,
+        current_item_ids,
+        slot=slot,
+        allowed_source_names=allowed_source_names,
+    )
+    if len(rows) >= min_items:
         return rows
-    expanded_settings = replace(settings, backfill_lookback_days=14)
-    expanded_rows = _load_digest_candidates(conn, expanded_settings, current_item_ids)
-    return expanded_rows if len(expanded_rows) > len(rows) else rows
+
+    best_rows = rows
+    for lookback_days in (14, 21):
+        if settings.backfill_lookback_days >= lookback_days:
+            continue
+        expanded_settings = replace(settings, backfill_lookback_days=lookback_days)
+        expanded_rows = _load_digest_candidates(
+            conn,
+            expanded_settings,
+            current_item_ids,
+            slot=slot,
+            allowed_source_names=allowed_source_names,
+        )
+        if len(expanded_rows) > len(best_rows):
+            best_rows = expanded_rows
+        if len(best_rows) >= min_items:
+            break
+    return best_rows
 
 
 def _candidate_sort_key(row: DigestCandidate) -> tuple[int, int, int, int, int, str]:
