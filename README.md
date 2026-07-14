@@ -127,17 +127,17 @@ Configure repository secrets:
 
 - `CRON_SECRET`
 
-The workflow is in `.github/workflows/digest.yml`. It calls `/api/scheduler/tick` every 5 minutes from `00:00` through `15:55` UTC. The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
+The workflow is in `.github/workflows/digest.yml`. It is a fallback scheduler that calls `/api/scheduler/tick` at `:08`, `:23`, `:38`, and `:53` from `00:00` through `15:59` UTC. The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
 
 - FDE news: hourly from `07:20` through `22:20`
 - FDE interview guidelines: every 2 hours from `07:35` through `21:35`
 - Engineer news: hourly from `07:40` through `22:40`
 
-Vercel Cron is not configured because the current Vercel Hobby plan only supports once-per-day cron cadence. The scheduler endpoint is compatible with a future Pro Vercel Cron setup by pointing a frequent cron at `/api/scheduler/tick`.
+Vercel Cron is not configured because the current Vercel Hobby plan only supports once-per-day cron cadence. On Vercel Pro, configure a frequent cron against `/api/scheduler/tick`; GitHub Actions and the local LaunchAgent can keep running as idempotent fallbacks.
 
 ## Local LaunchAgent Scheduler
 
-For a local always-on macOS agent, install `ops/launchagents/com.news-keep-up.scheduler-tick.plist` into `~/Library/LaunchAgents/`. It runs `scripts/trigger_scheduler_tick.py` every 5 minutes and calls `/api/scheduler/tick`; the app still controls exact send times and uses Turso `scheduler_runs` to avoid duplicate sends.
+For a local always-on macOS agent, install `ops/launchagents/com.news-keep-up.scheduler-tick.plist` into `~/Library/LaunchAgents/`. It runs `scripts/trigger_scheduler_tick.py` every 5 minutes and calls `/api/scheduler/tick`; the app still controls exact send times and uses Turso `scheduler_runs` to avoid duplicate sends. If a due slot has no qualifying news, the digest sends a short heartbeat message so the Telegram group still confirms scheduler and delivery health.
 
 The installed runtime copy should live under `~/Library/Application Support/news-keep-up/` with a private `.env` containing `CRON_SECRET`. Logs are written to `~/Library/Logs/news-keep-up/`.
 

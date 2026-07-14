@@ -299,6 +299,34 @@ class DigestTest(unittest.TestCase):
 
         self.assertEqual(fetch.call_args.args[2], 2)
 
+    def test_run_digest_sends_no_news_heartbeat_when_no_items(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text(json.dumps([{
+                "name": "Empty Feed",
+                "type": "rss",
+                "url": "https://example.com/feed.xml",
+                "category": "ai-engineering",
+                "enabled": True,
+            }]), encoding="utf-8")
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+
+            with (
+                patch("news_keep_up.digest.fetch_source", return_value=[]),
+                patch("news_keep_up.digest.send_telegram_message") as send,
+                patch("news_keep_up.digest.mark_delivered") as mark,
+            ):
+                message = run_digest(settings, "engineer", dry_run=False, sources_path=sources_path)
+
+        self.assertIn("Scheduler OK", message)
+        self.assertIn("No qualifying items found", message)
+        send.assert_called_once()
+        mark.assert_not_called()
+
     def test_cached_fallback_is_refreshed_when_model_key_is_available(self):
         with tempfile.TemporaryDirectory() as tmp:
             feed_path = Path(tmp) / "feed.xml"

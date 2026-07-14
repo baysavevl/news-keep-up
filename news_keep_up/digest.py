@@ -180,7 +180,11 @@ def _format_digest_chunk(
     ]
 
     if not selections:
-        lines.append("No qualifying items found.")
+        lines.extend([
+            "✅ Scheduler OK.",
+            "No qualifying items found for this slot.",
+            "Cron heartbeat: notification delivery is working, but the news filter did not find a high-signal item.",
+        ])
         return "\n".join(lines).strip()
 
     for selection in selections:
@@ -468,7 +472,11 @@ def run_digest(
     selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
     messages = format_digest_messages(slot, selections)
     message = "\n\n".join(messages)
-    if selections and not dry_run:
+    if not dry_run:
+        if not selections:
+            for chunk_message in messages:
+                send_telegram_message(chunk_message, settings)
+            return message
         for chunk, chunk_message in zip(_selection_chunks(selections, DIGEST_ITEMS_PER_MESSAGE), messages):
             send_telegram_message(chunk_message, settings)
             mark_delivered(

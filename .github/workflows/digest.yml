@@ -2,10 +2,15 @@ name: News Keep Up Digest
 
 on:
   schedule:
-    # Tick every 5 minutes from 07:00 through 22:55 Asia/Ho_Chi_Minh.
+    # Fallback tick from 07:08 through 22:53 Asia/Ho_Chi_Minh.
     # The app decides whether FDE, FDE interview, or Engineer is due.
-    - cron: "*/5 0-15 * * *"
+    # Vercel/local schedulers can run the same endpoint; Turso de-dupes slots.
+    - cron: "8,23,38,53 0-15 * * *"
   workflow_dispatch:
+
+concurrency:
+  group: news-keep-up-scheduler-tick
+  cancel-in-progress: false
 
 jobs:
   scheduler-tick:
