@@ -572,5 +572,376 @@
     "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20customer%20support%20agents&tags=story",
     "category": "discussion-fde",
     "enabled": true
+  },
+  {
+    "name": "Enterprise AI Weekly",
+    "type": "rss",
+    "url": "https://enterpriseaiweekly.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Barrett Restore",
+    "type": "rss",
+    "url": "https://barrettrestore.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "AI Regeneration",
+    "type": "rss",
+    "url": "https://airegeneration.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Product Impact Pod",
+    "type": "rss",
+    "url": "https://productimpactpod.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Hilary An",
+    "type": "rss",
+    "url": "https://hilaryan.substack.com/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Pratik Pakodas",
+    "type": "rss",
+    "url": "https://pakodas.substack.com/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "BowTied Raptor",
+    "type": "rss",
+    "url": "https://bowtiedraptor.substack.com/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Hands On AI Engineering",
+    "type": "rss",
+    "url": "https://aieworks.substack.com/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Gambill Data Engineering",
+    "type": "rss",
+    "url": "https://gambilldataengineering.substack.com/feed",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Martin Fowler",
+    "type": "rss",
+    "url": "https://martinfowler.com/feed.atom",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Lilian Weng",
+    "type": "rss",
+    "url": "https://lilianweng.github.io/index.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Chip Huyen",
+    "type": "rss",
+    "url": "https://huyenchip.com/feed.xml",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Maarten Grootendorst",
+    "type": "rss",
+    "url": "https://newsletter.maartengrootendorst.com/feed",
+    "category": "ai-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Zapier Engineering",
+    "type": "rss",
+    "url": "https://zapier.com/engineering/rss",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Grab Engineering",
+    "type": "rss",
+    "url": "https://engineering.grab.com/feed.xml",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Pinterest Engineering Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/pinterest-engineering",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "PayPal Tech Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/paypal-tech",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Walmart Global Tech Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/walmartglobaltech",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Dagster Blog",
+    "type": "rss",
+    "url": "https://dagster.io/blog/rss.xml",
+    "category": "field-engineering",
+    "enabled": true
+  },
+  {
+    "name": "Vick's Picks",
+    "type": "rss",
+    "url": "https://vick.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Ben Sykes Enterprise AI",
+    "type": "rss",
+    "url": "https://bsykes.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Forward Feed",
+    "type": "rss",
+    "url": "https://danielp1.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Enterprise Context Management",
+    "type": "rss",
+    "url": "https://enterprisecontextmanagement.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "AI Realized Now",
+    "type": "rss",
+    "url": "https://airealizednow.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Oliver Patel",
+    "type": "rss",
+    "url": "https://oliverpatel.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "PV Tech",
+    "type": "rss",
+    "url": "https://pvtech.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Thoroughly Intrigued",
+    "type": "rss",
+    "url": "https://thoroughlyintrigued.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Kunal Kushwaha",
+    "type": "rss",
+    "url": "https://techwithkunal.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Anthony Maio",
+    "type": "rss",
+    "url": "https://anthonymaio.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Operational AI",
+    "type": "rss",
+    "url": "https://marcosnewsletter.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Linas's Newsletter",
+    "type": "rss",
+    "url": "https://linas.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Klaudia Gu",
+    "type": "rss",
+    "url": "https://klaudiagu.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "a16z Substack",
+    "type": "rss",
+    "url": "https://a16z.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "The AI Economy",
+    "type": "rss",
+    "url": "https://theaieconomy.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Wangari Newsletter",
+    "type": "rss",
+    "url": "https://newsletter.wangari.global/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Hands On AI Agent Mastery",
+    "type": "rss",
+    "url": "https://aiamastery.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Jakob Nielsen",
+    "type": "rss",
+    "url": "https://jakobnielsenphd.substack.com/feed",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Het Trivedi Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@het.trivedi05",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Bagheshri Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@bagheshri",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Rany ElHousieny Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@ranyel",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Generative AI Revolution Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/generative-ai-revolution-ai-native-transformation",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Sridhar Cloud Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@sridharcloud",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Ajay Kumar Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@trivajay259",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Ravindra Satyanarayana Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@ravisat",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Amy Mahdy Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@amyrmahdy",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "Prasanna Vaidya Medium",
+    "type": "rss",
+    "url": "https://medium.com/feed/@prasannavaidya",
+    "category": "fde-industry",
+    "enabled": true
+  },
+  {
+    "name": "AWS APN Blog",
+    "type": "rss",
+    "url": "https://aws.amazon.com/blogs/apn/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "AWS Startups Blog",
+    "type": "rss",
+    "url": "https://aws.amazon.com/blogs/startups/feed/",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "About Amazon AWS News",
+    "type": "rss",
+    "url": "https://www.aboutamazon.com/news/aws/rss",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "AI Supremacy",
+    "type": "rss",
+    "url": "https://aisupremacy.substack.com/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Last Week in AI",
+    "type": "rss",
+    "url": "https://lastweekin.ai/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "Understanding AI",
+    "type": "rss",
+    "url": "https://www.understandingai.org/feed",
+    "category": "enterprise-ai",
+    "enabled": true
+  },
+  {
+    "name": "The Gradient",
+    "type": "rss",
+    "url": "https://thegradient.pub/rss/",
+    "category": "ai-engineering",
+    "enabled": true
   }
 ]

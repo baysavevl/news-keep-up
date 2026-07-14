@@ -1,7 +1,7 @@
 import unittest
 import json
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from news_keep_up.db import connect_database, count_llm_calls_today, init_db, upsert_enrichment, upsert_item
 from news_keep_up.digest import (
     _load_digest_candidates,
+    _load_digest_candidates_for_slot,
     _selection_policy,
     format_digest,
     format_digest_messages,
@@ -204,6 +205,25 @@ class DigestTest(unittest.TestCase):
         self.assertNotIn("It lets", message)
         self.assertNotIn("appeared first", message)
 
+    def test_format_drops_medium_continue_reading_fragments(self):
+        item = candidate(1, 95, "fde-industry")
+        item = DigestCandidate(
+            **{
+                **item.__dict__,
+                "enrichment": Enrichment(
+                    **{
+                        **item.enrichment.__dict__,
+                        "summary": "Forward deployed teams need discovery gates. Continue reading on Medium »",
+                    }
+                ),
+            }
+        )
+
+        message = format_digest("fde", [DigestSelection(candidate=item, position=1)])
+
+        self.assertNotIn("Continue reading", message)
+        self.assertIn("discovery gates", message)
+
     def test_format_replaces_title_repeated_highlights_with_role_specific_bullets(self):
         title = "One Contract, Every Model: An Operating Standard for AI Coding Agents"
         item = candidate(1, 95, "ai-engineering")
@@ -385,6 +405,31 @@ class DigestTest(unittest.TestCase):
             rows = _load_digest_candidates(conn, settings, {item_id})
 
         self.assertEqual(rows, [])
+
+    def test_fde_backfill_expands_to_fourteen_days_when_recent_window_is_empty(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=7)
+            conn = connect_database(settings)
+            init_db(conn)
+            twelve_days_ago = (now_ict() - timedelta(days=12)).astimezone(ZoneInfo("UTC")).isoformat()
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="FDE Voice",
+                source_kind="rss",
+                source_category="fde-industry",
+                title="Customer rollout playbook for forward deployed AI teams",
+                url="https://example.com/fde-rollout",
+                canonical_url="https://example.com/fde-rollout",
+                summary="Customer-facing AI rollout needs evals, guardrails, integration owners, and launch gates.",
+                published_at=twelve_days_ago,
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, item_id, enrichment(95, "fde-industry", "customer-rollout"))
+
+            base_rows = _load_digest_candidates(conn, settings, set())
+            fde_rows = _load_digest_candidates_for_slot(conn, settings, "fde", set())
+
+        self.assertEqual(base_rows, [])
+        self.assertEqual([row.item_id for row in fde_rows], [item_id])
 
     def test_run_digest_uses_gemini_batch_review_before_selecting_items(self):
         generic = candidate(1, 80, "ai-engineering")

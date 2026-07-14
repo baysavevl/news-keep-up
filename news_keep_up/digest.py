@@ -95,6 +95,33 @@ SOURCE_TRUST_OVERRIDES = {
     "Qdrant Blog": 82,
     "Twilio Blog": 82,
     "LiveKit Blog": 82,
+    "AWS APN Blog": 93,
+    "AWS Startups Blog": 91,
+    "About Amazon AWS News": 92,
+    "a16z Substack": 88,
+    "Chip Huyen": 88,
+    "Lilian Weng": 89,
+    "The Gradient": 86,
+    "Understanding AI": 84,
+    "The AI Economy": 84,
+    "Enterprise Context Management": 83,
+    "AI Realized Now": 82,
+    "AI Supremacy": 82,
+    "Last Week in AI": 82,
+    "Zapier Engineering": 82,
+    "Grab Engineering": 84,
+    "Pinterest Engineering Medium": 83,
+    "PayPal Tech Medium": 82,
+    "Walmart Global Tech Medium": 82,
+    "Dagster Blog": 82,
+    "Product Impact Pod": 80,
+    "Forward Feed": 79,
+    "Operational AI": 79,
+    "Enterprise AI Weekly": 78,
+    "Ben Sykes Enterprise AI": 78,
+    "Hands On AI Agent Mastery": 78,
+    "Rany ElHousieny Medium": 76,
+    "Ajay Kumar Medium": 76,
 }
 
 
@@ -446,6 +473,8 @@ def _is_feed_fragment(part: str) -> bool:
         return True
     if lowered.startswith("it lets") and (len(part) < 30 or part.endswith("..") or part.endswith("...")):
         return True
+    if "continue reading on medium" in lowered:
+        return True
     return False
 
 
@@ -466,8 +495,8 @@ def run_digest(
     conn = connect_database(settings)
     init_db(conn)
     current_item_ids = _fetch_store_and_enrich(conn, settings, slot, sources_path)
-    rows = _load_digest_candidates(conn, settings, current_item_ids)
     min_items, max_items, discussion_limit = _selection_policy(slot)
+    rows = _load_digest_candidates_for_slot(conn, settings, slot, current_item_ids, min_items=min_items)
     rows = _review_digest_candidates(conn, settings, slot, rows, max_items)
     selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
     messages = format_digest_messages(slot, selections)
@@ -631,6 +660,21 @@ def _load_digest_candidates(conn, settings: Settings, current_item_ids: set[int]
             is_backfill=item_id not in current_item_ids,
         ))
     return candidates
+
+
+def _load_digest_candidates_for_slot(
+    conn,
+    settings: Settings,
+    slot: str,
+    current_item_ids: set[int],
+    min_items: int = 1,
+) -> list[DigestCandidate]:
+    rows = _load_digest_candidates(conn, settings, current_item_ids)
+    if slot != "fde" or len(rows) >= min_items or settings.backfill_lookback_days >= 14:
+        return rows
+    expanded_settings = replace(settings, backfill_lookback_days=14)
+    expanded_rows = _load_digest_candidates(conn, expanded_settings, current_item_ids)
+    return expanded_rows if len(expanded_rows) > len(rows) else rows
 
 
 def _candidate_sort_key(row: DigestCandidate) -> tuple[int, int, int, int, int, str]:

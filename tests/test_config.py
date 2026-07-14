@@ -109,6 +109,35 @@ class ConfigTest(unittest.TestCase):
         self.assertTrue(all(source.enabled for source in sources))
         self.assertTrue(all(source.category.startswith(("fde", "ai", "enterprise", "field", "discussion")) for source in sources))
 
+    def test_fde_sources_include_validated_trusted_voice_expansion(self):
+        sources = load_sources("config/fde_sources.json")
+        names = {source.name for source in sources}
+        expected_names = {
+            "AI Realized Now",
+            "AI Regeneration",
+            "AI Supremacy",
+            "AWS APN Blog",
+            "AWS Startups Blog",
+            "About Amazon AWS News",
+            "Anthony Maio",
+            "Barrett Restore",
+            "Ben Sykes Enterprise AI",
+            "Enterprise AI Weekly",
+            "Enterprise Context Management",
+            "Forward Feed",
+            "Generative AI Revolution Medium",
+            "Hands On AI Agent Mastery",
+            "Last Week in AI",
+            "Operational AI",
+            "Product Impact Pod",
+            "The AI Economy",
+            "The Gradient",
+            "Understanding AI",
+        }
+
+        self.assertGreaterEqual(len(names.intersection(expected_names)), len(expected_names))
+        self.assertGreaterEqual(len(sources), 120)
+
     def test_engineer_sources_include_at_least_20_additional_trusted_sources(self):
         sources = load_sources("config/sources.json")
 
