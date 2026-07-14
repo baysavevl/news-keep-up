@@ -168,6 +168,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "flask" },
+    { name = "libsql-experimental" },
 ]
 
 [package.optional-dependencies]
@@ -178,6 +179,7 @@ turso = [
 [package.metadata]
 requires-dist = [
     { name = "flask", specifier = ">=3.0" },
+    { name = "libsql-experimental", specifier = ">=0.0.12" },
     { name = "libsql-experimental", marker = "extra == 'turso'", specifier = ">=0.0.12" },
 ]
 provides-extras = ["turso"]

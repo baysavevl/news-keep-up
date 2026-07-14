@@ -7,7 +7,14 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from news_keep_up.db import connect_database, count_llm_calls_today, init_db, upsert_enrichment, upsert_item
-from news_keep_up.digest import _load_digest_candidates, _selection_policy, format_digest, run_digest, select_digest_items
+from news_keep_up.digest import (
+    _load_digest_candidates,
+    _selection_policy,
+    format_digest,
+    format_digest_messages,
+    run_digest,
+    select_digest_items,
+)
 from news_keep_up.models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings
 from news_keep_up.utils import now_ict
 
@@ -36,6 +43,7 @@ def candidate(item_id: int, score: int, source_category: str, is_backfill: bool 
         source_category=source_category,
         published_at="2026-07-06T03:00:00+00:00",
         fetched_at="2026-07-06T03:01:00+00:00",
+        author=f"Author {item_id}",
         enrichment=enrichment(score, source_category),
         is_backfill=is_backfill,
     )
@@ -80,6 +88,20 @@ class DigestTest(unittest.TestCase):
         self.assertEqual(sum(1 for s in selections if s.candidate.source_category == "discussion"), 1)
         self.assertTrue(any(s.candidate.is_backfill for s in selections))
 
+    def test_selection_prefers_newer_items_with_similar_impact(self):
+        older = candidate(1, 94, "ai-engineering")
+        newer = DigestCandidate(
+            **{
+                **candidate(2, 91, "ai-engineering").__dict__,
+                "published_at": "2026-07-13T03:00:00+00:00",
+                "fetched_at": "2026-07-13T03:01:00+00:00",
+            }
+        )
+
+        selections = select_digest_items([older, newer], min_items=1, max_items=2, discussion_limit=1)
+
+        self.assertEqual([selection.candidate.item_id for selection in selections], [2, 1])
+
     def test_format_uses_compact_telegram_html(self):
         selections = [
             select_digest_items([candidate(1, 95, "ai-engineering", is_backfill=True)], 1, 5, 1)[0]
@@ -91,14 +113,15 @@ class DigestTest(unittest.TestCase):
         self.assertIn("<b>AI/FDE/SWE Digest</b>", message)
         self.assertIn("News | 06 Jul 2026 10:00 ICT", message)
         self.assertRegex(message, r"<b>1\. .+ English title 1</b>")
-        self.assertIn("Category: ai-engineering / coding-agents | From: Test Source", message)
+        self.assertIn("Source: Test Source |", message)
+        self.assertIn("Author: Author 1", message)
+        self.assertIn("Category: ai-engineering / coding-agents", message)
         self.assertIn("Popularity:", message)
         self.assertIn("Ý chính:", message)
         self.assertIn("Highlights:", message)
         self.assertIn("Backfill - still relevant", message)
         self.assertIn('<a href="https://example.com/1">Read</a>', message)
         self.assertNotIn("Title VN:", message)
-        self.assertNotIn("Source:", message)
         self.assertNotIn("Link:", message)
 
     def test_format_uses_profile_specific_heading(self):
@@ -124,9 +147,31 @@ class DigestTest(unittest.TestCase):
         self.assertIn("Ý chính:", message)
         self.assertIn("Highlights:", message)
         self.assertRegex(message, r"<b>1\. .+ English title 1</b>")
-        self.assertNotIn("Source:", message)
+        self.assertIn("Source:", message)
         self.assertNotIn("Summary:", message)
         self.assertNotIn("Why:", message)
+
+    def test_format_places_ranking_after_separator_at_item_bottom(self):
+        message = format_digest("fde", [DigestSelection(candidate=candidate(1, 92, "fde-industry"), position=1)])
+
+        self.assertIn("\n\n-----\n🔥 Popularity:", message)
+        self.assertLess(message.index("🔗 Read:"), message.index("-----"))
+        self.assertLess(message.index("-----"), message.index("Importance:"))
+
+    def test_format_splits_digest_into_two_item_messages(self):
+        selections = [
+            DigestSelection(candidate=candidate(index, 95 - index, "fde-industry"), position=index)
+            for index in range(1, 9)
+        ]
+
+        messages = format_digest_messages("fde", selections)
+
+        self.assertEqual(len(messages), 4)
+        self.assertIn("Part 1/4", messages[0])
+        self.assertIn("Part 4/4", messages[3])
+        self.assertIn("1.", messages[0])
+        self.assertIn("2.", messages[0])
+        self.assertNotIn("3.", messages[0])
 
     def test_format_includes_source_trust_and_impact_ranking(self):
         selections = [
@@ -269,7 +314,7 @@ class DigestTest(unittest.TestCase):
 
     def test_old_published_items_are_not_selected_as_fresh(self):
         with tempfile.TemporaryDirectory() as tmp:
-            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=7)
+            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=10)
             conn = connect_database(settings)
             init_db(conn)
             item_id, _ = upsert_item(conn, CandidateItem(
@@ -324,6 +369,28 @@ class DigestTest(unittest.TestCase):
         self.assertIn("English title 2", message)
         self.assertNotIn("English title 1", message)
         self.assertIn("98/100", message)
+
+    def test_run_digest_sends_and_marks_each_message_chunk(self):
+        rows = [candidate(index, 95 - index, "fde-industry") for index in range(1, 5)]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            with (
+                patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1, 2, 3, 4}),
+                patch("news_keep_up.digest._load_digest_candidates", return_value=rows),
+                patch("news_keep_up.digest.send_telegram_message") as send,
+                patch("news_keep_up.digest.mark_delivered") as mark,
+            ):
+                run_digest(settings, "fde", dry_run=False)
+
+        self.assertEqual(send.call_count, 2)
+        self.assertEqual(mark.call_count, 2)
+        self.assertEqual(mark.call_args_list[0].args[1], [1, 2])
+        self.assertEqual(mark.call_args_list[1].args[1], [3, 4])
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ from pathlib import Path
 from flask import Flask, Response, jsonify, request
 
 from .config import load_settings
+from .db import connect_database, init_db, mark_delivered, row_value
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
 from .telegram import set_telegram_chat_photo
@@ -157,6 +158,28 @@ def avatar_admin_endpoint(slot: str):
     return jsonify({"ok": True, "slot": slot})
 
 
+@app.post("/api/admin/mark-delivered/<slot>")
+def mark_delivered_admin_endpoint(slot: str):
+    profile = DIGEST_PROFILES.get(slot)
+    if profile is None:
+        return jsonify({"ok": False, "error": "invalid mark-delivered slot"}), 400
+
+    auth_error = _cron_auth_error()
+    if auth_error is not None:
+        return auth_error
+
+    settings = load_settings(env_prefix=profile.env_prefix)
+    conn = connect_database(settings)
+    init_db(conn)
+    try:
+        item_ids = _undelivered_item_ids(conn, limit=200)
+        mark_delivered(conn, item_ids, slot, set())
+    finally:
+        conn.close()
+
+    return jsonify({"ok": True, "slot": slot, "marked": len(item_ids)})
+
+
 def _cron_auth_error():
     cron_secret = os.environ.get("CRON_SECRET", "")
     if not cron_secret:
@@ -181,3 +204,17 @@ def _telegram_webhook_auth_error():
 
 def _telegram_delivery_configured(settings) -> bool:
     return bool(settings.telegram_bot_token and settings.telegram_chat_id)
+
+
+def _undelivered_item_ids(conn, limit: int) -> list[int]:
+    rows = conn.execute(
+        """SELECT i.id
+           FROM items i
+           JOIN enrichments e ON e.item_id = i.id
+           WHERE e.should_send = 1
+             AND NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)
+           ORDER BY e.relevance_score DESC, i.published_at DESC, i.fetched_at DESC
+           LIMIT ?""",
+        (limit,),
+    ).fetchall()
+    return [int(row_value(row, "id", 0)) for row in rows]

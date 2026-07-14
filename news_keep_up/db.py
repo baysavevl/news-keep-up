@@ -8,6 +8,13 @@ from typing import Any
 from .models import CandidateItem, Enrichment, Settings, Source
 
 
+def row_value(row, key: str, index: int):
+    try:
+        return row[key]
+    except (TypeError, KeyError, IndexError):
+        return row[index]
+
+
 def connect_database(settings: Settings):
     if settings.turso_database_url:
         try:
@@ -74,6 +81,14 @@ def init_db(conn) -> None:
             delivered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             is_backfill INTEGER DEFAULT 0
         )""",
+        """DELETE FROM deliveries
+           WHERE id NOT IN (
+               SELECT MIN(id)
+               FROM deliveries
+               GROUP BY item_id, slot
+           )""",
+        """CREATE UNIQUE INDEX IF NOT EXISTS idx_deliveries_item_slot
+           ON deliveries(item_id, slot)""",
         """CREATE TABLE IF NOT EXISTS llm_usage (
             id INTEGER PRIMARY KEY,
             model TEXT NOT NULL,
@@ -92,40 +107,43 @@ def init_db(conn) -> None:
 def upsert_source(conn, source: Source) -> int:
     row = conn.execute("SELECT id FROM sources WHERE url=?", (source.url,)).fetchone()
     if row:
+        source_id = int(row_value(row, "id", 0))
         conn.execute(
             """UPDATE sources
                SET name=?, type=?, category=?, enabled=?
                WHERE id=?""",
-            (source.name, source.kind, source.category, int(source.enabled), row["id"]),
+            (source.name, source.kind, source.category, int(source.enabled), source_id),
         )
         conn.commit()
-        return int(row["id"])
+        return source_id
 
-    cursor = conn.execute(
+    conn.execute(
         """INSERT INTO sources (name, type, url, category, enabled)
            VALUES (?, ?, ?, ?, ?)""",
         (source.name, source.kind, source.url, source.category, int(source.enabled)),
     )
     conn.commit()
-    return int(cursor.lastrowid)
+    inserted = conn.execute("SELECT id FROM sources WHERE url=?", (source.url,)).fetchone()
+    return int(row_value(inserted, "id", 0))
 
 
 def upsert_item(conn, item: CandidateItem) -> tuple[int, bool]:
     row = conn.execute("SELECT id FROM items WHERE canonical_url=?", (item.canonical_url,)).fetchone()
     values = _item_values(item)
     if row:
+        item_id = int(row_value(row, "id", 0))
         conn.execute(
             """UPDATE items
                SET source_name=?, source_kind=?, source_category=?, title=?, url=?,
                    summary=?, content=?, author=?, published_at=?, fetched_at=?,
                    fingerprint=?, raw_json=?
                WHERE id=?""",
-            (*values, row["id"]),
+            (*values, item_id),
         )
         conn.commit()
-        return int(row["id"]), False
+        return item_id, False
 
-    cursor = conn.execute(
+    conn.execute(
         """INSERT INTO items (
                source_name, source_kind, source_category, title, url, summary, content,
                author, published_at, fetched_at, fingerprint, raw_json, canonical_url
@@ -133,7 +151,8 @@ def upsert_item(conn, item: CandidateItem) -> tuple[int, bool]:
         (*values, item.canonical_url),
     )
     conn.commit()
-    return int(cursor.lastrowid), True
+    inserted = conn.execute("SELECT id FROM items WHERE canonical_url=?", (item.canonical_url,)).fetchone()
+    return int(row_value(inserted, "id", 0)), True
 
 
 def _item_values(item: CandidateItem) -> tuple[Any, ...]:
@@ -163,16 +182,16 @@ def get_enrichment(conn, item_id: int) -> Enrichment | None:
     if not row:
         return None
     return Enrichment(
-        model=row["model"],
-        relevance_score=int(row["relevance_score"]),
-        category=row["category"],
-        topic=row["topic"],
-        icon=row["icon"],
-        title_vi=row["title_vi"],
-        summary=row["summary"],
-        why_it_matters=row["why_it_matters"],
-        takeaway_vi=row["takeaway_vi"],
-        should_send=bool(row["should_send"]),
+        model=row_value(row, "model", 0),
+        relevance_score=int(row_value(row, "relevance_score", 1)),
+        category=row_value(row, "category", 2),
+        topic=row_value(row, "topic", 3),
+        icon=row_value(row, "icon", 4),
+        title_vi=row_value(row, "title_vi", 5),
+        summary=row_value(row, "summary", 6),
+        why_it_matters=row_value(row, "why_it_matters", 7),
+        takeaway_vi=row_value(row, "takeaway_vi", 8),
+        should_send=bool(row_value(row, "should_send", 9)),
     )
 
 
@@ -213,7 +232,7 @@ def upsert_enrichment(conn, item_id: int, enrichment: Enrichment) -> None:
 def mark_delivered(conn, item_ids: list[int], slot: str, backfill_ids: set[int]) -> None:
     for item_id in item_ids:
         conn.execute(
-            """INSERT INTO deliveries (item_id, slot, is_backfill)
+            """INSERT OR IGNORE INTO deliveries (item_id, slot, is_backfill)
                VALUES (?, ?, ?)""",
             (item_id, slot, int(item_id in backfill_ids)),
         )
@@ -231,4 +250,4 @@ def record_llm_usage(conn, model: str, call_date: str, slot: str, item_id: int |
 
 def count_llm_calls_today(conn, call_date: str) -> int:
     row = conn.execute("SELECT COUNT(*) AS count FROM llm_usage WHERE call_date=?", (call_date,)).fetchone()
-    return int(row["count"] if row else 0)
+    return int(row_value(row, "count", 0) if row else 0)

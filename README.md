@@ -4,9 +4,9 @@ Automated Telegram digest for keeping up with AI, software engineering, forward 
 
 GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
 
-- FDE news: hourly at `:20`, from 08:20 through 22:20 Asia/Ho_Chi_Minh.
+- FDE news: hourly at `:20`, from 07:20 through 22:20 Asia/Ho_Chi_Minh.
 - FDE interview guideline: every 2 hours at `:35`, from 07:35 through 21:35 Asia/Ho_Chi_Minh.
-- Engineer news: hourly at `:40`, from 08:40 through 22:40 Asia/Ho_Chi_Minh.
+- Engineer news: hourly at `:40`, from 07:40 through 22:40 Asia/Ho_Chi_Minh.
 
 ## Profiles
 
@@ -23,16 +23,21 @@ Each item is formatted for quick scanning:
 
 ```text
 1. 🧭 English title
-🏷 Category: field-engineering / enterprise-rollout | From: Salesforce Engineering
-🔥 Popularity: Medium (70/100) | 🛡 Trust: High (91/100)
-⚖️ Importance: 88/100 | 🎯 Impact: High (96/100)
+📰 Source: Salesforce Engineering | ✍️ Author: Unknown
+🏷 Category: field-engineering / enterprise-rollout
 💡 Ý chính: Key idea.
 ✨ Highlights:
 • Specific highlight.
 • Role-specific impact.
 🇻🇳 VN: One short Vietnamese takeaway.
 🔗 Read: Read
+
+-----
+🔥 Popularity: Medium (70/100) | 🛡 Trust: High (91/100)
+⚖️ Importance: 88/100 | 🎯 Impact: High (96/100)
 ```
+
+Digest messages are split into two news items per Telegram message. FDE's 8-item hourly digest is delivered as 4 Telegram messages so Telegram does not break long messages awkwardly.
 
 Backfilled items are marked:
 
@@ -78,12 +83,12 @@ Telegram delivery can use either the default env vars or profile-specific env va
 
 On Vercel, `GEMINI_API_KEY_B64`, `TELEGRAM_BOT_TOKEN_B64`, `ENGINEER_TELEGRAM_BOT_TOKEN_B64`, and `FDE_TELEGRAM_BOT_TOKEN_B64` are also supported as encoded fallbacks when direct provider-shaped secret values are rejected by the env-var API. Direct vars take precedence.
 
-Optional for durable automation storage:
+Required for durable production storage and duplicate prevention across cold starts/deploys:
 
 - `TURSO_DATABASE_URL`
 - `TURSO_AUTH_TOKEN`
 
-If Turso is not configured, the app uses local SQLite at `data/news-keep-up.db`.
+If Turso is not configured, the app uses local SQLite at `data/news-keep-up.db`. On Vercel, avoid `/tmp` for production because delivered-news markers can be lost between function instances.
 
 Cost-control defaults:
 
@@ -93,7 +98,7 @@ Cost-control defaults:
 - `SOURCE_FETCH_TIMEOUT_SECONDS=5`
 - `MAX_SOURCE_WORKERS=12`
 - `MIN_RELEVANCE_SCORE=65`
-- `BACKFILL_LOOKBACK_DAYS=7`
+- `BACKFILL_LOOKBACK_DAYS=10`
 
 ## Telegram Commands
 
@@ -122,7 +127,7 @@ Configure repository secrets:
 
 - `CRON_SECRET`
 
-The workflow is in `.github/workflows/digest.yml`. It runs FDE news at `20 1-15 * * *` UTC, FDE interview guidelines at `35 0-14/2 * * *` UTC, and Engineer news at `40 1-15 * * *` UTC. It calls `/api/digest/fde`, `/api/digest/fde-interview`, and `/api/digest/engineer` with `CRON_SECRET`; the Telegram/Gemini runtime configuration remains in Vercel.
+The workflow is in `.github/workflows/digest.yml`. It runs FDE news at `20 0-15 * * *` UTC, FDE interview guidelines at `35 0-14/2 * * *` UTC, and Engineer news at `40 0-15 * * *` UTC. It calls `/api/digest/fde`, `/api/digest/fde-interview`, and `/api/digest/engineer` with `CRON_SECRET`; the Telegram/Gemini/runtime DB configuration remains in Vercel.
 
 ## Vercel
 

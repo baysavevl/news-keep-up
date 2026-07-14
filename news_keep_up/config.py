@@ -70,7 +70,7 @@ def load_settings(env: Mapping[str, str] | None = None, env_prefix: str = "") ->
         max_llm_calls_per_day=_int_env(values, "MAX_LLM_CALLS_PER_DAY", 40),
         max_candidates_per_source=_int_env(values, "MAX_CANDIDATES_PER_SOURCE", 10),
         min_relevance_score=_int_env(values, "MIN_RELEVANCE_SCORE", 65),
-        backfill_lookback_days=_int_env(values, "BACKFILL_LOOKBACK_DAYS", 7),
+        backfill_lookback_days=_int_env(values, "BACKFILL_LOOKBACK_DAYS", 10),
         source_fetch_timeout_seconds=_int_env(values, "SOURCE_FETCH_TIMEOUT_SECONDS", 5),
         max_source_workers=_int_env(values, "MAX_SOURCE_WORKERS", 12),
     )

@@ -90,10 +90,13 @@ class DatabaseTest(unittest.TestCase):
             record_llm_usage(conn, "gemini-2.5-flash-lite", "2026-07-06", "morning", item_id, "ok")
             record_llm_usage(conn, "gemini-2.5-flash-lite", "2026-07-06", "morning", item_id, "fallback")
             mark_delivered(conn, [item_id], "morning", {item_id})
+            mark_delivered(conn, [item_id], "morning", {item_id})
 
             self.assertEqual(count_llm_calls_today(conn, "2026-07-06"), 2)
             row = conn.execute("SELECT is_backfill FROM deliveries WHERE item_id=?", (item_id,)).fetchone()
             self.assertEqual(row["is_backfill"], 1)
+            count = conn.execute("SELECT COUNT(*) AS count FROM deliveries WHERE item_id=?", (item_id,)).fetchone()
+            self.assertEqual(count["count"], 1)
 
 
 if __name__ == "__main__":

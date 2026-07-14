@@ -4,7 +4,7 @@ from collections import Counter
 from html import escape
 
 from .config import load_sources
-from .db import connect_database, init_db, mark_delivered
+from .db import connect_database, init_db, mark_delivered, row_value
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
 from .models import Settings
@@ -32,8 +32,8 @@ COMMAND_ALIASES = {
 }
 
 SCHEDULE_LABELS = {
-    "fde": "hourly at :20, 08:20-22:20 ICT",
-    "engineer": "hourly at :40, 08:40-22:40 ICT",
+    "fde": "hourly at :20, 07:20-22:20 ICT",
+    "engineer": "hourly at :40, 07:40-22:40 ICT",
     "fde-interview": "every 2 hours at :35, 07:35-21:35 ICT",
 }
 
@@ -147,11 +147,13 @@ def _sources_text(sources_path: str) -> str:
 def _status_text(settings: Settings, slot: str, sources_path: str) -> str:
     sources = load_sources(sources_path)
     gemini_status = "configured" if settings.gemini_api_key else "fallback summaries"
+    db_status = "durable" if settings.turso_database_url else f"local sqlite ({settings.db_path})"
     return "\n".join([
         f"<b>Status: {escape(slot)}</b>",
         f"Schedule: {escape(SCHEDULE_LABELS.get(slot, 'manual or legacy schedule'))}",
         f"Sources: {len(sources)} enabled",
         f"Gemini: {gemini_status}",
+        f"Database: {escape(db_status)}",
         f"Chat restricted: {'yes' if settings.telegram_chat_id else 'no'}",
     ])
 
@@ -165,9 +167,9 @@ def _search_text(settings: Settings, query: str) -> str:
     lines = [f"<b>Search: {escape(query)}</b>"]
     for index, row in enumerate(rows, start=1):
         lines.append(
-            f"{index}. <b>#{int(row['id'])} {escape(row['title'])}</b>\n"
-            f"Source: {escape(row['source_name'])} | Score: {int(row['relevance_score'])}/100\n"
-            f"Read: <a href=\"{escape(row['url'], quote=True)}\">Read</a>"
+            f"{index}. <b>#{int(row_value(row, 'id', 0))} {escape(row_value(row, 'title', 1))}</b>\n"
+            f"Source: {escape(row_value(row, 'source_name', 3))} | Score: {int(row_value(row, 'relevance_score', 5))}/100\n"
+            f"Read: <a href=\"{escape(row_value(row, 'url', 2), quote=True)}\">Read</a>"
         )
     return "\n\n".join(lines)
 
@@ -188,7 +190,10 @@ def _analysis_text(settings: Settings, slot: str, query: str) -> str:
         lines.append("")
         lines.append("Recent stored matches:")
         for index, row in enumerate(rows, start=1):
-            lines.append(f"{index}. {escape(row['title'])} ({escape(row['source_name'])}, {int(row['relevance_score'])}/100)")
+            lines.append(
+                f"{index}. {escape(row_value(row, 'title', 1))} "
+                f"({escape(row_value(row, 'source_name', 3))}, {int(row_value(row, 'relevance_score', 5))}/100)"
+            )
     else:
         lines.append("")
         lines.append("No stored matches yet. Use /latest first to fetch and enrich current sources.")
@@ -211,12 +216,12 @@ def _markread_text(settings: Settings, slot: str, query: str) -> str:
         rows = _markread_rows(conn, query)
         if not rows:
             return f"No unread stored news found for: {escape(query)}"
-        item_ids = [int(row["id"]) for row in rows]
+        item_ids = [int(row_value(row, "id", 0)) for row in rows]
         mark_delivered(conn, item_ids, slot, set())
     finally:
         conn.close()
 
-    preview = ", ".join(f"#{int(row['id'])}" for row in rows[:8])
+    preview = ", ".join(f"#{int(row_value(row, 'id', 0))}" for row in rows[:8])
     suffix = "" if len(rows) <= 8 else f" +{len(rows) - 8} more"
     return f"Marked read: {len(rows)} item(s) for {escape(slot)}. {escape(preview + suffix)}"
 

@@ -22,19 +22,19 @@ class VercelDeployConfigTest(unittest.TestCase):
     def test_python_runtime_is_pinned_to_github_actions_version(self):
         self.assertEqual(Path(".python-version").read_text(encoding="utf-8").strip(), "3.12")
 
-    def test_github_actions_triggers_vercel_hourly_from_8_to_22_ict(self):
+    def test_github_actions_triggers_vercel_hourly_from_7_to_22_ict(self):
         workflow = Path(".github/workflows/digest.yml").read_text(encoding="utf-8")
 
-        self.assertIn('cron: "20 1-15 * * *"', workflow)
+        self.assertIn('cron: "20 0-15 * * *"', workflow)
         self.assertIn('cron: "35 0-14/2 * * *"', workflow)
-        self.assertIn('cron: "40 1-15 * * *"', workflow)
+        self.assertIn('cron: "40 0-15 * * *"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/digest/engineer", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/digest/fde", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/digest/fde-interview", workflow)
-        self.assertIn("github.event.schedule == '20 1-15 * * *'", workflow)
+        self.assertIn("github.event.schedule == '20 0-15 * * *'", workflow)
         self.assertIn("github.event.schedule == '35 0-14/2 * * *'", workflow)
-        self.assertIn("github.event.schedule == '40 1-15 * * *'", workflow)
+        self.assertIn("github.event.schedule == '40 0-15 * * *'", workflow)
         self.assertIn("secrets.CRON_SECRET", workflow)
 
 
@@ -211,6 +211,29 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertTrue(response.get_json()["ok"])
         load_settings.assert_called_once_with(env_prefix="FDE")
         self.assertIn("fde-avatar.png", str(set_photo.call_args.args[1]))
+
+    def test_mark_delivered_admin_endpoint_marks_stored_items(self):
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.load_settings"),
+            patch("news_keep_up.vercel_app.connect_database") as connect,
+            patch("news_keep_up.vercel_app.init_db") as init,
+            patch("news_keep_up.vercel_app._undelivered_item_ids", return_value=[1, 2, 3]),
+            patch("news_keep_up.vercel_app.mark_delivered") as mark,
+        ):
+            conn = connect.return_value
+            response = app.test_client().post(
+                "/api/admin/mark-delivered/engineer",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["marked"], 3)
+        init.assert_called_once_with(conn)
+        mark.assert_called_once_with(conn, [1, 2, 3], "engineer", set())
+        conn.close.assert_called_once()
 
 
 if __name__ == "__main__":

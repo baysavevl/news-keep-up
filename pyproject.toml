@@ -7,7 +7,7 @@ name = "news-keep-up"
 version = "0.1.0"
 description = "Twice-daily AI/SWE/FDE news digest delivered through Telegram."
 requires-python = ">=3.11"
-dependencies = ["flask>=3.0"]
+dependencies = ["flask>=3.0", "libsql-experimental>=0.0.12"]
 
 [project.optional-dependencies]
 turso = ["libsql-experimental>=0.0.12"]

@@ -17,7 +17,7 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(settings.max_llm_calls_per_day, 40)
         self.assertEqual(settings.max_candidates_per_source, 10)
         self.assertEqual(settings.min_relevance_score, 65)
-        self.assertEqual(settings.backfill_lookback_days, 7)
+        self.assertEqual(settings.backfill_lookback_days, 10)
         self.assertEqual(settings.source_fetch_timeout_seconds, 5)
         self.assertEqual(settings.max_source_workers, 12)
 
