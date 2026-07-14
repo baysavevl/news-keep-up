@@ -22,19 +22,14 @@ class VercelDeployConfigTest(unittest.TestCase):
     def test_python_runtime_is_pinned_to_github_actions_version(self):
         self.assertEqual(Path(".python-version").read_text(encoding="utf-8").strip(), "3.12")
 
-    def test_github_actions_triggers_vercel_hourly_from_7_to_22_ict(self):
+    def test_github_actions_triggers_scheduler_tick_from_7_to_22_ict(self):
         workflow = Path(".github/workflows/digest.yml").read_text(encoding="utf-8")
 
-        self.assertIn('cron: "20 0-15 * * *"', workflow)
-        self.assertIn('cron: "35 0-14/2 * * *"', workflow)
-        self.assertIn('cron: "40 0-15 * * *"', workflow)
+        self.assertIn('cron: "*/5 0-15 * * *"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
-        self.assertIn("https://news-keep-up.vercel.app/api/digest/engineer", workflow)
-        self.assertIn("https://news-keep-up.vercel.app/api/digest/fde", workflow)
-        self.assertIn("https://news-keep-up.vercel.app/api/digest/fde-interview", workflow)
-        self.assertIn("github.event.schedule == '20 0-15 * * *'", workflow)
-        self.assertIn("github.event.schedule == '35 0-14/2 * * *'", workflow)
-        self.assertIn("github.event.schedule == '40 0-15 * * *'", workflow)
+        self.assertIn("https://news-keep-up.vercel.app/api/scheduler/tick", workflow)
+        self.assertNotIn("/api/digest/fde\"", workflow)
+        self.assertNotIn("/api/digest/engineer", workflow)
         self.assertIn("secrets.CRON_SECRET", workflow)
 
 
@@ -233,6 +228,48 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertEqual(response.get_json()["marked"], 3)
         init.assert_called_once_with(conn)
         mark.assert_called_once_with(conn, [1, 2, 3], "engineer", set())
+        conn.close.assert_called_once()
+
+    def test_scheduler_tick_runs_one_due_digest_profile(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+
+        from news_keep_up.scheduler import ScheduledDigestJob
+        from news_keep_up.vercel_app import app
+
+        job = ScheduledDigestJob(
+            slot="fde",
+            scheduled_for=datetime(2026, 7, 14, 10, 20, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")),
+        )
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.load_settings"),
+            patch("news_keep_up.vercel_app.connect_database") as connect,
+            patch("news_keep_up.vercel_app.init_db") as init,
+            patch("news_keep_up.vercel_app.due_digest_jobs", return_value=[job]),
+            patch("news_keep_up.vercel_app.claim_scheduler_run", return_value=True) as claim,
+            patch("news_keep_up.vercel_app.finish_scheduler_run") as finish,
+            patch("news_keep_up.vercel_app._run_digest_profile", return_value={
+                "delivery_configured": True,
+                "message_length": 123,
+            }) as run_profile,
+        ):
+            conn = connect.return_value
+            response = app.test_client().get(
+                "/api/scheduler/tick",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["triggered"], 1)
+        self.assertEqual(payload["results"][0]["slot"], "fde")
+        init.assert_called_once_with(conn)
+        claim.assert_called_once()
+        run_profile.assert_called_once()
+        finish.assert_called_once()
+        self.assertEqual(finish.call_args.args[3], "done")
         conn.close.assert_called_once()
 
 

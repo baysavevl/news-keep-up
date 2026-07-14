@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -98,6 +99,19 @@ def init_db(conn) -> None:
             status TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )""",
+        """CREATE TABLE IF NOT EXISTS scheduler_runs (
+            id INTEGER PRIMARY KEY,
+            slot TEXT NOT NULL,
+            scheduled_for TEXT NOT NULL,
+            triggered_at TEXT NOT NULL,
+            status TEXT NOT NULL,
+            error TEXT DEFAULT '',
+            message_length INTEGER DEFAULT 0
+        )""",
+        """CREATE UNIQUE INDEX IF NOT EXISTS idx_scheduler_runs_slot_scheduled
+           ON scheduler_runs(slot, scheduled_for)""",
+        """CREATE INDEX IF NOT EXISTS idx_scheduler_runs_status
+           ON scheduler_runs(status, scheduled_for)""",
     ]
     for statement in statements:
         conn.execute(statement)
@@ -251,3 +265,71 @@ def record_llm_usage(conn, model: str, call_date: str, slot: str, item_id: int |
 def count_llm_calls_today(conn, call_date: str) -> int:
     row = conn.execute("SELECT COUNT(*) AS count FROM llm_usage WHERE call_date=?", (call_date,)).fetchone()
     return int(row_value(row, "count", 0) if row else 0)
+
+
+def claim_scheduler_run(
+    conn,
+    slot: str,
+    scheduled_for: str,
+    triggered_at: str,
+    stale_after_minutes: int = 30,
+) -> bool:
+    row = conn.execute(
+        """SELECT status, triggered_at
+           FROM scheduler_runs
+           WHERE slot=? AND scheduled_for=?""",
+        (slot, scheduled_for),
+    ).fetchone()
+    if row:
+        status = str(row_value(row, "status", 0))
+        previous_trigger = str(row_value(row, "triggered_at", 1))
+        if status == "done":
+            return False
+        if status == "running" and _scheduler_trigger_is_fresh(
+            previous_trigger,
+            triggered_at,
+            stale_after_minutes,
+        ):
+            return False
+        conn.execute(
+            """UPDATE scheduler_runs
+               SET triggered_at=?, status='running', error='', message_length=0
+               WHERE slot=? AND scheduled_for=?""",
+            (triggered_at, slot, scheduled_for),
+        )
+        conn.commit()
+        return True
+
+    conn.execute(
+        """INSERT INTO scheduler_runs (slot, scheduled_for, triggered_at, status)
+           VALUES (?, ?, ?, 'running')""",
+        (slot, scheduled_for, triggered_at),
+    )
+    conn.commit()
+    return True
+
+
+def finish_scheduler_run(
+    conn,
+    slot: str,
+    scheduled_for: str,
+    status: str,
+    message_length: int = 0,
+    error: str = "",
+) -> None:
+    conn.execute(
+        """UPDATE scheduler_runs
+           SET status=?, message_length=?, error=?
+           WHERE slot=? AND scheduled_for=?""",
+        (status, message_length, error[:500], slot, scheduled_for),
+    )
+    conn.commit()
+
+
+def _scheduler_trigger_is_fresh(previous_trigger: str, current_trigger: str, stale_after_minutes: int) -> bool:
+    try:
+        previous = datetime.fromisoformat(previous_trigger)
+        current = datetime.fromisoformat(current_trigger)
+    except ValueError:
+        return False
+    return current - previous < timedelta(minutes=stale_after_minutes)

@@ -3,8 +3,10 @@ import unittest
 from pathlib import Path
 
 from news_keep_up.db import (
+    claim_scheduler_run,
     connect_database,
     count_llm_calls_today,
+    finish_scheduler_run,
     get_enrichment,
     init_db,
     mark_delivered,
@@ -97,6 +99,25 @@ class DatabaseTest(unittest.TestCase):
             self.assertEqual(row["is_backfill"], 1)
             count = conn.execute("SELECT COUNT(*) AS count FROM deliveries WHERE item_id=?", (item_id,)).fetchone()
             self.assertEqual(count["count"], 1)
+
+    def test_scheduler_run_claims_once_and_marks_done(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+
+            scheduled_for = "2026-07-14T10:20:00+07:00"
+            self.assertTrue(claim_scheduler_run(conn, "fde", scheduled_for, "2026-07-14T10:21:00+07:00"))
+            self.assertFalse(claim_scheduler_run(conn, "fde", scheduled_for, "2026-07-14T10:22:00+07:00"))
+
+            finish_scheduler_run(conn, "fde", scheduled_for, "done", message_length=123)
+            self.assertFalse(claim_scheduler_run(conn, "fde", scheduled_for, "2026-07-14T10:55:00+07:00"))
+
+            row = conn.execute(
+                "SELECT status, message_length FROM scheduler_runs WHERE slot=? AND scheduled_for=?",
+                ("fde", scheduled_for),
+            ).fetchone()
+            self.assertEqual(row["status"], "done")
+            self.assertEqual(row["message_length"], 123)
 
 
 if __name__ == "__main__":

@@ -127,7 +127,13 @@ Configure repository secrets:
 
 - `CRON_SECRET`
 
-The workflow is in `.github/workflows/digest.yml`. It runs FDE news at `20 0-15 * * *` UTC, FDE interview guidelines at `35 0-14/2 * * *` UTC, and Engineer news at `40 0-15 * * *` UTC. It calls `/api/digest/fde`, `/api/digest/fde-interview`, and `/api/digest/engineer` with `CRON_SECRET`; the Telegram/Gemini/runtime DB configuration remains in Vercel.
+The workflow is in `.github/workflows/digest.yml`. It calls `/api/scheduler/tick` every 5 minutes from `00:00` through `15:55` UTC. The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
+
+- FDE news: hourly from `07:20` through `22:20`
+- FDE interview guidelines: every 2 hours from `07:35` through `21:35`
+- Engineer news: hourly from `07:40` through `22:40`
+
+Vercel Cron is not configured because the current Vercel Hobby plan only supports once-per-day cron cadence. The scheduler endpoint is compatible with a future Pro Vercel Cron setup by pointing a frequent cron at `/api/scheduler/tick`.
 
 ## Vercel
 
@@ -137,6 +143,7 @@ The Vercel deployment exposes `news_keep_up.vercel_app:app`:
 - `/api/digest/engineer` runs the engineer digest
 - `/api/digest/fde` runs the Forward Deployed Engineer digest
 - `/api/digest/fde-interview` sends the compact FDE interview guideline
+- `/api/scheduler/tick` runs at most one due scheduled profile and records it in Turso
 - `/api/telegram/engineer` handles Engineer bot commands
 - `/api/telegram/fde` handles FDE bot commands
 - `?dry_run=true` formats the digest without sending Telegram

@@ -7,11 +7,20 @@ from pathlib import Path
 from flask import Flask, Response, jsonify, request
 
 from .config import load_settings
-from .db import connect_database, init_db, mark_delivered, row_value
+from .db import (
+    claim_scheduler_run,
+    connect_database,
+    finish_scheduler_run,
+    init_db,
+    mark_delivered,
+    row_value,
+)
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
+from .scheduler import due_digest_jobs
 from .telegram import set_telegram_chat_photo
 from .telegram_commands import handle_telegram_update
+from .utils import now_ict
 
 
 @dataclass(frozen=True)
@@ -74,26 +83,8 @@ def digest_endpoint(slot: str):
         return auth_error
 
     dry_run = request.args.get("dry_run", "").lower() in {"1", "true", "yes"}
-    settings = load_settings(env_prefix=profile.env_prefix)
-    if not dry_run and not _telegram_delivery_configured(settings):
-        return jsonify({
-            "ok": True,
-            "slot": slot,
-            "dry_run": False,
-            "delivery_configured": False,
-            "message": "Telegram delivery is not configured for this digest profile.",
-        })
-
     try:
-        if profile.mode == "interview":
-            message = run_fde_interview_guideline(settings, dry_run=dry_run)
-        else:
-            message = run_digest(
-                settings,
-                profile.slot,
-                dry_run=dry_run,
-                sources_path=profile.sources_path,
-            )
+        result = _run_digest_profile(profile, dry_run=dry_run)
     except Exception as exc:
         app.logger.exception("Digest run failed")
         return jsonify({"ok": False, "slot": slot, "error": str(exc)}), 500
@@ -102,8 +93,77 @@ def digest_endpoint(slot: str):
         "ok": True,
         "slot": slot,
         "dry_run": dry_run,
-        "delivery_configured": True,
-        "message_length": len(message),
+        **result,
+    })
+
+
+@app.get("/api/scheduler/tick")
+def scheduler_tick_endpoint():
+    auth_error = _cron_auth_error()
+    if auth_error is not None:
+        return auth_error
+
+    current = now_ict()
+    base_settings = load_settings()
+    conn = connect_database(base_settings)
+    init_db(conn)
+    results = []
+    triggered = 0
+    max_jobs_per_tick = 1
+    try:
+        for job in due_digest_jobs(current):
+            if triggered >= max_jobs_per_tick:
+                break
+            if not claim_scheduler_run(conn, job.slot, job.scheduled_for_key, current.isoformat()):
+                results.append({
+                    "slot": job.slot,
+                    "scheduled_for": job.scheduled_for_key,
+                    "status": "already_handled",
+                })
+                continue
+
+            triggered += 1
+            profile = DIGEST_PROFILES[job.slot]
+            try:
+                result = _run_digest_profile(profile, dry_run=False)
+            except Exception as exc:
+                app.logger.exception("Scheduled digest run failed")
+                finish_scheduler_run(
+                    conn,
+                    job.slot,
+                    job.scheduled_for_key,
+                    "failed",
+                    error=str(exc),
+                )
+                results.append({
+                    "slot": job.slot,
+                    "scheduled_for": job.scheduled_for_key,
+                    "status": "failed",
+                    "error": str(exc),
+                })
+                continue
+
+            finish_scheduler_run(
+                conn,
+                job.slot,
+                job.scheduled_for_key,
+                "done",
+                message_length=int(result.get("message_length", 0)),
+            )
+            results.append({
+                "slot": job.slot,
+                "scheduled_for": job.scheduled_for_key,
+                "status": "done",
+                **result,
+            })
+    finally:
+        conn.close()
+
+    return jsonify({
+        "ok": True,
+        "triggered": triggered,
+        "checked_at": current.isoformat(),
+        "results": results,
     })
 
 
@@ -204,6 +264,30 @@ def _telegram_webhook_auth_error():
 
 def _telegram_delivery_configured(settings) -> bool:
     return bool(settings.telegram_bot_token and settings.telegram_chat_id)
+
+
+def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
+    settings = load_settings(env_prefix=profile.env_prefix)
+    if not dry_run and not _telegram_delivery_configured(settings):
+        return {
+            "delivery_configured": False,
+            "message": "Telegram delivery is not configured for this digest profile.",
+            "message_length": 0,
+        }
+
+    if profile.mode == "interview":
+        message = run_fde_interview_guideline(settings, dry_run=dry_run)
+    else:
+        message = run_digest(
+            settings,
+            profile.slot,
+            dry_run=dry_run,
+            sources_path=profile.sources_path,
+        )
+    return {
+        "delivery_configured": True,
+        "message_length": len(message),
+    }
 
 
 def _undelivered_item_ids(conn, limit: int) -> list[int]:

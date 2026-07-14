@@ -2,80 +2,22 @@ name: News Keep Up Digest
 
 on:
   schedule:
-    # FDE hourly from 07:20 through 22:20 Asia/Ho_Chi_Minh.
-    - cron: "20 0-15 * * *"
-    # FDE interview guidelines every 2 hours from 07:35 through 21:35 Asia/Ho_Chi_Minh.
-    - cron: "35 0-14/2 * * *"
-    # Engineer hourly from 07:40 through 22:40 Asia/Ho_Chi_Minh.
-    - cron: "40 0-15 * * *"
+    # Tick every 5 minutes from 07:00 through 22:55 Asia/Ho_Chi_Minh.
+    # The app decides whether FDE, FDE interview, or Engineer is due.
+    - cron: "*/5 0-15 * * *"
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "Format digest without sending Telegram"
-        type: boolean
-        required: false
-        default: false
 
 jobs:
-  fde-digest:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '20 0-15 * * *'
+  scheduler-tick:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Trigger FDE Vercel digest
+      - name: Trigger Vercel scheduler tick
         shell: bash
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
         run: |
-          url="https://news-keep-up.vercel.app/api/digest/fde"
-          if [ "$DRY_RUN" = "true" ]; then
-            url="${url}?dry_run=true"
-          fi
-
-          curl --fail --show-error --silent --max-time 120 \
+          curl --fail --show-error --silent --max-time 290 \
             --header "Authorization: Bearer ${CRON_SECRET}" \
-            "$url"
-          echo
-
-  engineer-digest:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '40 0-15 * * *'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Trigger Engineer Vercel digest
-        shell: bash
-        env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
-        run: |
-          url="https://news-keep-up.vercel.app/api/digest/engineer"
-          if [ "$DRY_RUN" = "true" ]; then
-            url="${url}?dry_run=true"
-          fi
-
-          curl --fail --show-error --silent --max-time 120 \
-            --header "Authorization: Bearer ${CRON_SECRET}" \
-            "$url"
-          echo
-
-  fde-interview-guideline:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '35 0-14/2 * * *'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Trigger FDE interview guideline
-        shell: bash
-        env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
-        run: |
-          url="https://news-keep-up.vercel.app/api/digest/fde-interview"
-          if [ "$DRY_RUN" = "true" ]; then
-            url="${url}?dry_run=true"
-          fi
-
-          curl --fail --show-error --silent --max-time 120 \
-            --header "Authorization: Bearer ${CRON_SECRET}" \
-            "$url"
+            "https://news-keep-up.vercel.app/api/scheduler/tick"
           echo
