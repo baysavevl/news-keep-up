@@ -31,7 +31,10 @@ def build_prompt(item: CandidateItem) -> str:
         "the item includes customer rollout, field delivery, production governance, "
         "or enterprise implementation impact.\n\n"
         "Write for a Telegram scan: concrete, opinionated, and non-generic.\n"
-        "- summary must start with the key idea, then include 1-2 specific highlights.\n"
+        "- summary must start with one key idea that is not a title rewrite.\n"
+        "- summary must then include 3-5 concrete highlights separated by semicolons or short sentences.\n"
+        "- highlights must explain what changed, evidence/signals, constraints/risks, and what an engineer should do next.\n"
+        "- do not copy the article title into summary or highlights.\n"
         "- why_it_matters must explain impact for SWE/FDE/solution architect work.\n"
         "- relevance_score is the importance score.\n"
         "- use category/topic that can be displayed beside popularity, source trust, importance, and impact.\n"
@@ -43,7 +46,7 @@ def build_prompt(item: CandidateItem) -> str:
         '  "topic": "coding-agents",\n'
         '  "icon": "🤖",\n'
         '  "title_vi": "Vietnamese title translation",\n'
-        '  "summary": "Key idea sentence. Highlight sentence with concrete detail. Optional second highlight.",\n'
+        '  "summary": "Key idea sentence. Highlight 1 with concrete detail; Highlight 2 with evidence or risk; Highlight 3 with action/use-case.",\n'
         '  "why_it_matters": "Impact: why this matters for SWE/FDE/solution architect work.",\n'
         '  "takeaway_vi": "One short Vietnamese takeaway.",\n'
         '  "should_send": true\n'
@@ -76,6 +79,8 @@ def build_digest_review_prompt(slot: str, candidates: list[DigestCandidate], max
         "Prefer practical AI-agent, automation, orchestration, evals, observability, "
         "developer productivity, and production delivery news. Use emoji, concrete "
         "summaries, clear categories, and role-specific impact. "
+        "For every selected item, rewrite the summary into one key idea plus 3-5 specific highlights; "
+        "do not repeat the title, and avoid generic claims like useful, important, or relevant unless followed by concrete evidence. "
         "For Forward Deployed Engineer, reject generic AI/model/API/cloud/coding-tool news "
         "unless it changes customer rollout, field delivery, enterprise implementation, "
         "evals, governance, or production risk.\n\n"
@@ -90,7 +95,7 @@ def build_digest_review_prompt(slot: str, candidates: list[DigestCandidate], max
         '      "category": "ai-engineering",\n'
         '      "topic": "agent-orchestration",\n'
         '      "icon": "🤖",\n'
-        '      "summary": "Key idea sentence. Specific highlight sentence.",\n'
+        '      "summary": "Key idea sentence. Highlight 1 with concrete detail; Highlight 2 with evidence/risk; Highlight 3 with action/use-case.",\n'
         '      "why_it_matters": "Impact: concise role-specific impact.",\n'
         '      "takeaway_vi": "Một ý rút ra ngắn bằng tiếng Việt.",\n'
         '      "should_send": true\n'
@@ -213,7 +218,7 @@ class GeminiClient:
             if not model:
                 continue
             try:
-                text = self._call_prompt(model, prompt, max_output_tokens=1800)
+                text = self._call_prompt(model, prompt, max_output_tokens=3200)
                 reviewed = parse_digest_review_response(text, candidates, model)
                 if reviewed:
                     return reviewed

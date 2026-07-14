@@ -55,6 +55,8 @@ class GeminiTest(unittest.TestCase):
         self.assertIn("Agentic engineering patterns", prompt)
         self.assertIn("key idea", prompt.lower())
         self.assertIn("highlights", prompt.lower())
+        self.assertIn("3-5 concrete highlights", prompt.lower())
+        self.assertIn("do not copy the article title", prompt.lower())
         self.assertIn("popularity", prompt.lower())
         self.assertIn("importance", prompt.lower())
         self.assertIn("source trust", prompt.lower())
@@ -104,6 +106,8 @@ class GeminiTest(unittest.TestCase):
         self.assertIn("rank", prompt.lower())
         self.assertIn("impact", prompt.lower())
         self.assertIn("emoji", prompt.lower())
+        self.assertIn("3-5 specific highlights", prompt.lower())
+        self.assertIn("do not repeat the title", prompt.lower())
         self.assertIn("Forward Deployed Engineer", prompt)
         self.assertIn('"item_id": 2', prompt)
 

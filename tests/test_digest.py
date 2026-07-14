@@ -204,6 +204,30 @@ class DigestTest(unittest.TestCase):
         self.assertNotIn("It lets", message)
         self.assertNotIn("appeared first", message)
 
+    def test_format_replaces_title_repeated_highlights_with_role_specific_bullets(self):
+        title = "One Contract, Every Model: An Operating Standard for AI Coding Agents"
+        item = candidate(1, 95, "ai-engineering")
+        item = DigestCandidate(
+            **{
+                **item.__dict__,
+                "title": title,
+                "enrichment": Enrichment(
+                    **{
+                        **item.enrichment.__dict__,
+                        "summary": f"{title}. {title}.",
+                        "why_it_matters": f"{title}.",
+                    }
+                ),
+            }
+        )
+
+        message = format_digest("engineer", [DigestSelection(candidate=item, position=1)])
+        bullets = [line for line in message.splitlines() if line.startswith("• ")]
+
+        self.assertGreaterEqual(len(bullets), 3)
+        self.assertTrue(all(title not in bullet for bullet in bullets))
+        self.assertIn("eval", message.lower())
+
     def test_format_escapes_html_and_hides_fallback_translation(self):
         item = candidate(1, 95, "ai-engineering")
         item = DigestCandidate(

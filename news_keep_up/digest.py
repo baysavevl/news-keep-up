@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -196,12 +197,12 @@ def _format_digest_chunk(
             lines.append(f"VN title: {escape(translated_title)}")
         if item.is_backfill:
             lines.append("Backfill - still relevant")
-        highlights = _highlights(enrichment.summary, enrichment.why_it_matters)
+        key_idea = _key_idea(item, enrichment)
+        highlights = _highlights(item, enrichment, key_idea)
         lines.extend([
-            f"💡 Ý chính: {escape(_key_idea(enrichment.summary))}",
+            f"💡 Ý chính: {escape(key_idea)}",
             "✨ Highlights:",
-            f"• {escape(highlights[0])}",
-            f"• {escape(highlights[1])}",
+            *[f"• {escape(highlight)}" for highlight in highlights],
             f"🇻🇳 VN: {escape(enrichment.takeaway_vi)}",
             f'🔗 Read: <a href="{escape(item.url, quote=True)}">Read</a>',
             "",
@@ -322,22 +323,117 @@ def _impact_score(item: DigestCandidate, enrichment: Enrichment) -> int:
     return max(0, min(100, score))
 
 
-def _key_idea(summary: str) -> str:
-    sentences = _summary_parts(summary)
-    return sentences[0] if sentences else summary
+def _key_idea(item: DigestCandidate, enrichment: Enrichment) -> str:
+    title = item.title
+    for part in _summary_parts(enrichment.summary):
+        if not _too_similar(part, title):
+            return part[:240]
+    for part in _summary_parts(enrichment.why_it_matters):
+        if not _too_similar(part, title):
+            return part[:240]
+    return _fallback_key_idea(item)
 
 
-def _highlights(summary: str, why_it_matters: str) -> tuple[str, str]:
-    sentences = _summary_parts(summary)
-    first = sentences[1] if len(sentences) > 1 else (sentences[0] if sentences else why_it_matters)
-    second = why_it_matters
-    return (first[:280], second[:280])
+def _highlights(item: DigestCandidate, enrichment: Enrichment, key_idea: str) -> list[str]:
+    candidates = [
+        *_summary_parts(enrichment.summary),
+        *_summary_parts(enrichment.why_it_matters),
+    ]
+    highlights: list[str] = []
+    for part in candidates:
+        cleaned = _clean_highlight(part)
+        if not cleaned:
+            continue
+        if _too_similar(cleaned, item.title) or _too_similar(cleaned, key_idea):
+            continue
+        if any(_too_similar(cleaned, existing) for existing in highlights):
+            continue
+        highlights.append(cleaned[:220])
+        if len(highlights) >= 5:
+            break
+
+    for fallback in _fallback_highlights(item, enrichment):
+        if len(highlights) >= 3:
+            break
+        if not any(_too_similar(fallback, existing) for existing in highlights):
+            highlights.append(fallback)
+    return highlights[:5]
 
 
 def _summary_parts(summary: str) -> list[str]:
     normalized = " ".join(summary.split())
+    normalized = normalized.replace(" • ", ". ").replace(" - ", ". ")
     parts = [part.strip(" -•") for part in normalized.replace("; ", ". ").split(". ") if part.strip(" -•")]
-    return [part for part in parts if not _is_feed_fragment(part)][:3]
+    return [part for part in parts if not _is_feed_fragment(part) and len(part) >= 24][:6]
+
+
+def _clean_highlight(part: str) -> str:
+    cleaned = part.strip(" -•")
+    lowered = cleaned.lower()
+    for prefix in ("key idea:", "highlight:", "impact:", "why it matters:", "summary:"):
+        if lowered.startswith(prefix):
+            cleaned = cleaned[len(prefix):].strip(" -")
+            lowered = cleaned.lower()
+    if not cleaned or len(cleaned) < 24:
+        return ""
+    return cleaned
+
+
+def _fallback_key_idea(item: DigestCandidate) -> str:
+    if item.source_category.startswith("discussion"):
+        return "Tín hiệu từ cộng đồng về một vấn đề đang được kỹ sư thảo luận, cần kiểm chứng trước khi áp dụng."
+    if item.source_category.startswith("fde") or item.source_category in {"field-engineering", "enterprise-ai"}:
+        return "Tín hiệu liên quan đến triển khai AI trong môi trường khách hàng, cần đọc dưới góc rollout và rủi ro vận hành."
+    return "Tín hiệu về AI engineering có thể ảnh hưởng đến cách đội kỹ thuật thiết kế, tự động hóa hoặc vận hành workflow."
+
+
+def _fallback_highlights(item: DigestCandidate, enrichment: Enrichment) -> list[str]:
+    if item.source_category.startswith("fde") or item.source_category in {"field-engineering", "enterprise-ai"}:
+        return [
+            "Đọc để xác định bài học cho discovery, rollout, stakeholder alignment hoặc handoff với khách hàng.",
+            "Kiểm tra xem nội dung có gợi ý guardrail, eval, observability hay tiêu chí production readiness nào không.",
+            "Chuyển ý đáng tin thành một câu hỏi phỏng vấn hoặc một checklist triển khai ngắn cho FDE.",
+        ]
+    if item.source_category.startswith("discussion"):
+        return [
+            "Ưu tiên xem các bình luận có kinh nghiệm thực chiến, số liệu, failure mode hoặc phản biện đáng tin.",
+            "Dùng như early signal, không xem là kết luận cho tới khi có nguồn chính thống hoặc case study đi kèm.",
+            "Nếu liên quan đến workflow nội bộ, thử biến insight thành một experiment nhỏ thay vì áp dụng rộng ngay.",
+        ]
+    topic = enrichment.topic.lower()
+    if "agent" in topic or "automation" in topic or "orchestration" in topic:
+        return [
+            "Đọc theo câu hỏi: agent này giảm bước thủ công nào, cần người kiểm soát ở điểm nào, và đo hiệu quả ra sao.",
+            "Tìm dấu hiệu về eval, rollback, permission, observability hoặc cost trước khi đưa vào workflow thật.",
+            "Nếu phù hợp, biến insight thành một playbook nhỏ cho coding agent hoặc automation trong team.",
+        ]
+    return [
+        "Đọc để tìm thay đổi cụ thể trong tooling, process hoặc architecture thay vì chỉ lấy thông tin announcement.",
+        "Đánh giá bằng impact lên developer productivity, reliability, cost hoặc tốc độ delivery.",
+        "Chỉ áp dụng nếu có bước thử nghiệm nhỏ và metric kiểm chứng rõ ràng.",
+    ]
+
+
+def _too_similar(left: str, right: str) -> bool:
+    left_tokens = _content_tokens(left)
+    right_tokens = _content_tokens(right)
+    if not left_tokens or not right_tokens:
+        return False
+    overlap = len(left_tokens & right_tokens)
+    return overlap / max(1, min(len(left_tokens), len(right_tokens))) >= 0.72
+
+
+def _content_tokens(text: str) -> set[str]:
+    stopwords = {
+        "the", "and", "for", "with", "that", "this", "from", "into", "your", "you",
+        "are", "was", "were", "how", "what", "why", "about", "more", "than", "then",
+        "one", "every", "model", "models", "ai",
+    }
+    return {
+        token
+        for token in re.findall(r"[a-z0-9]+", text.lower())
+        if len(token) > 2 and token not in stopwords
+    }
 
 
 def _is_feed_fragment(part: str) -> bool:
