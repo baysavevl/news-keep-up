@@ -57,6 +57,31 @@ def build_prompt(item: CandidateItem) -> str:
 
 def build_digest_review_prompt(slot: str, candidates: list[DigestCandidate], max_items: int) -> str:
     profile = "Forward Deployed Engineer" if slot == "fde" else "software engineer"
+    if slot == "fde":
+        focus_instruction = (
+            "Prefer customer rollout, field delivery, enterprise implementation, evals, "
+            "governance, observability, stakeholder handoff, and production risk. "
+            "Reject generic AI/model/API/cloud/coding-tool news unless it changes a real "
+            "customer deployment or field-delivery workflow. "
+            "For every selected FDE item, rewrite the summary as exactly 5 specific highlights "
+            "separated by semicolons or short sentences, with no separate key idea sentence "
+            "and no 'key idea' prefix. "
+        )
+        summary_example = (
+            "Highlight 1 with the rollout change; Highlight 2 with customer or stakeholder signal; "
+            "Highlight 3 with eval/governance risk; Highlight 4 with integration or observability detail; "
+            "Highlight 5 with the action an FDE should take."
+        )
+    else:
+        focus_instruction = (
+            "Prefer practical AI-agent, automation, orchestration, evals, observability, "
+            "developer productivity, and production delivery news. "
+            "For every selected item, rewrite the summary into one key idea plus 3-5 specific highlights; "
+        )
+        summary_example = (
+            "Key idea sentence. Highlight 1 with concrete detail; Highlight 2 with evidence/risk; "
+            "Highlight 3 with action/use-case."
+        )
     items_json = json.dumps([
         {
             "item_id": item.item_id,
@@ -76,14 +101,9 @@ def build_digest_review_prompt(slot: str, candidates: list[DigestCandidate], max
     return (
         f"You are the final Gemini editor for a Telegram digest for a {profile}. "
         f"Review this batch and rank only the best, highest-impact {max_items} items. "
-        "Prefer practical AI-agent, automation, orchestration, evals, observability, "
-        "developer productivity, and production delivery news. Use emoji, concrete "
-        "summaries, clear categories, and role-specific impact. "
-        "For every selected item, rewrite the summary into one key idea plus 3-5 specific highlights; "
+        f"{focus_instruction}"
+        "Use emoji, concrete summaries, clear categories, and role-specific impact. "
         "do not repeat the title, and avoid generic claims like useful, important, or relevant unless followed by concrete evidence. "
-        "For Forward Deployed Engineer, reject generic AI/model/API/cloud/coding-tool news "
-        "unless it changes customer rollout, field delivery, enterprise implementation, "
-        "evals, governance, or production risk.\n\n"
         "Return JSON only with this exact shape. Include low-impact items with "
         "should_send=false when they should be filtered out:\n"
         "{\n"
@@ -95,7 +115,7 @@ def build_digest_review_prompt(slot: str, candidates: list[DigestCandidate], max
         '      "category": "ai-engineering",\n'
         '      "topic": "agent-orchestration",\n'
         '      "icon": "🤖",\n'
-        '      "summary": "Key idea sentence. Highlight 1 with concrete detail; Highlight 2 with evidence/risk; Highlight 3 with action/use-case.",\n'
+        f'      "summary": "{summary_example}",\n'
         '      "why_it_matters": "Impact: concise role-specific impact.",\n'
         '      "takeaway_vi": "Một ý rút ra ngắn bằng tiếng Việt.",\n'
         '      "should_send": true\n'

@@ -49,23 +49,20 @@ FDE_STRONG_PHRASES = [
     "deployment engineer",
     "applied ai architect",
     "technical deployment",
-    "customer-facing",
     "customer embedded",
     "customer-embedded",
     "customer delivery",
+    "customer rollout",
+    "customer deployment",
+    "field delivery",
     "pilot to production",
     "production rollout",
     "workflow integration",
-    "enterprise ai",
-    "enterprise agent",
-    "enterprise agents",
     "solution engineer",
     "sales engineer",
 ]
 
 FDE_DELIVERY_PHRASES = [
-    "client",
-    "stakeholder",
     "implementation",
     "deploy",
     "deployment",
@@ -75,9 +72,13 @@ FDE_DELIVERY_PHRASES = [
     "rollout metrics",
     "workflow",
     "integration",
-    "customer",
-    "enterprise",
     "production",
+    "production readiness",
+    "launch gate",
+    "acceptance criteria",
+    "handoff",
+    "rollback",
+    "observability",
 ]
 
 FDE_AGENT_PHRASES = [
@@ -159,6 +160,28 @@ FDE_EXCLUDE_PHRASES = [
     "serverless gpus",
 ]
 
+FDE_GENERIC_AI_PHRASES = [
+    "api launch",
+    "api launches",
+    "api features",
+    "benchmark",
+    "benchmarks",
+    "cloud deployment options",
+    "cloud roundups",
+    "coding-agent tools",
+    "developer preview",
+    "feature bundle",
+    "faster coding-agent tools",
+    "general aws updates",
+    "model api",
+    "model availability",
+    "model launch",
+    "model news",
+    "new model",
+    "service availability",
+    "weekly roundup",
+]
+
 
 def prefilter_score(item: CandidateItem) -> int:
     text = " ".join([item.title, item.summary, item.content, item.source_category]).lower()
@@ -198,10 +221,12 @@ def is_candidate_relevant_for_slot(item: CandidateItem, slot: str) -> bool:
     content_text = " ".join([item.title, item.summary, item.content]).lower()
     if any(phrase in content_text for phrase in EXCLUDE_PHRASES + FDE_EXCLUDE_PHRASES):
         return False
-    if _has_direct_fde_signal(content_text):
-        return prefilter_score(item) >= 30
     has_enterprise_delivery = _has_enterprise_delivery_signal(content_text)
     has_contextual_governance = has_enterprise_delivery and _has_agent_governance_signal(content_text)
+    if _is_generic_ai_without_field_delivery(content_text, has_enterprise_delivery, has_contextual_governance):
+        return False
+    if _has_direct_fde_signal(content_text):
+        return prefilter_score(item) >= 30
     if item.source_category == "discussion-fde":
         return has_contextual_governance and prefilter_score(item) >= 55
     if item.source_category in {"ai-engineering", "enterprise-ai", "field-engineering"}:
@@ -234,3 +259,13 @@ def _has_agent_governance_signal(text: str) -> bool:
     workflow_count = sum(1 for phrase in FDE_WORKFLOW_PHRASES if phrase in text)
     delivery_count = sum(1 for phrase in FDE_DELIVERY_PHRASES if phrase in text)
     return governance_count >= 2 or (governance_count >= 1 and workflow_count + delivery_count >= 1)
+
+
+def _is_generic_ai_without_field_delivery(
+    text: str,
+    has_enterprise_delivery: bool,
+    has_contextual_governance: bool,
+) -> bool:
+    if has_enterprise_delivery or has_contextual_governance or _has_direct_fde_signal(text):
+        return False
+    return any(phrase in text for phrase in FDE_GENERIC_AI_PHRASES)

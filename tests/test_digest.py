@@ -155,12 +155,40 @@ class DigestTest(unittest.TestCase):
         self.assertIn("Category:", message)
         self.assertIn("Popularity:", message)
         self.assertIn("Importance:", message)
-        self.assertIn("Ý chính:", message)
+        self.assertNotIn("Ý chính:", message)
         self.assertIn("Highlights:", message)
         self.assertRegex(message, r"<b>1\. .+ English title 1</b>")
         self.assertIn("Source:", message)
         self.assertNotIn("Summary:", message)
         self.assertNotIn("Why:", message)
+
+    def test_fde_format_uses_five_highlights_without_key_idea_section(self):
+        item = candidate(1, 95, "fde-industry")
+        item = DigestCandidate(
+            **{
+                **item.__dict__,
+                "enrichment": Enrichment(
+                    **{
+                        **item.enrichment.__dict__,
+                        "summary": (
+                            "Customer discovery exposes the real rollout blocker. "
+                            "The team maps stakeholder owners before integration. "
+                            "Launch gates include evals and rollback criteria. "
+                            "Observability tracks failed handoffs and support escalations. "
+                            "The reusable playbook shortens the next enterprise deployment."
+                        ),
+                        "why_it_matters": "Impact: FDEs can turn this into a customer rollout checklist.",
+                    }
+                ),
+            }
+        )
+
+        message = format_digest("fde", [DigestSelection(candidate=item, position=1)])
+        bullets = [line for line in message.splitlines() if line.startswith("• ")]
+
+        self.assertNotIn("Ý chính:", message)
+        self.assertEqual(len(bullets), 5)
+        self.assertIn("Customer discovery exposes", bullets[0])
 
     def test_format_places_ranking_after_separator_at_item_bottom(self):
         message = format_digest("fde", [DigestSelection(candidate=candidate(1, 92, "fde-industry"), position=1)])
@@ -233,6 +261,35 @@ class DigestTest(unittest.TestCase):
 
         self.assertNotIn("Continue reading", message)
         self.assertIn("discovery gates", message)
+
+    def test_format_skips_hacker_news_intro_for_key_idea(self):
+        item = candidate(1, 95, "ai-engineering")
+        item = DigestCandidate(
+            **{
+                **item.__dict__,
+                "title": "Launch HN: Context.dev - API to get structured data from any website",
+                "source_name": "Hacker News RAG Agents",
+                "enrichment": Enrichment(
+                    **{
+                        **item.enrichment.__dict__,
+                        "summary": (
+                            "Hi Hacker News, I'm Yahia. "
+                            "I built Context.dev to make it really easy to integrate web data into your products and agents. "
+                            "Here's a demo video: https://www.tella.tv/video/build-faster-with-context-dev-api. "
+                            "Since it's an API, here are the docs: https://docs.context.dev/quickstart. "
+                            "You can send us a URL and get back clean Markdown, rendered HTML, screenshots, extracted images, etc."
+                        ),
+                    }
+                ),
+            }
+        )
+
+        message = format_digest("engineer", [DigestSelection(candidate=item, position=1)])
+
+        self.assertNotIn("Ý chính: Hi Hacker News", message)
+        self.assertIn("Ý chính: I built Context.dev", message)
+        self.assertNotIn("demo video", message)
+        self.assertNotIn("here are the docs", message)
 
     def test_format_replaces_title_repeated_highlights_with_role_specific_bullets(self):
         title = "One Contract, Every Model: An Operating Standard for AI Coding Agents"

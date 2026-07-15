@@ -32,9 +32,9 @@ COMMAND_ALIASES = {
 }
 
 SCHEDULE_LABELS = {
-    "fde": "hourly at :20, 07:20-22:20 ICT",
+    "fde": "every 2 hours at :20, 07:20-21:20 ICT",
     "engineer": "hourly at :40, 07:40-22:40 ICT",
-    "fde-interview": "every 2 hours at :35, 07:35-21:35 ICT",
+    "fde-interview": "hourly at :35, 07:35-22:35 ICT",
 }
 
 

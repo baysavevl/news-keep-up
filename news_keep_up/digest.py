@@ -230,9 +230,17 @@ def _format_digest_chunk(
         if item.is_backfill:
             lines.append("Backfill - still relevant")
         key_idea = _key_idea(item, enrichment)
-        highlights = _highlights(item, enrichment, key_idea)
+        min_highlights, max_highlights = _highlight_bounds(slot)
+        highlights = _highlights(
+            item,
+            enrichment,
+            "" if slot == "fde" else key_idea,
+            min_count=min_highlights,
+            max_count=max_highlights,
+        )
+        if slot != "fde":
+            lines.append(f"💡 Ý chính: {escape(key_idea)}")
         lines.extend([
-            f"💡 Ý chính: {escape(key_idea)}",
             "✨ Highlights:",
             *[f"• {escape(highlight)}" for highlight in highlights],
             f"🇻🇳 VN: {escape(enrichment.takeaway_vi)}",
@@ -366,7 +374,19 @@ def _key_idea(item: DigestCandidate, enrichment: Enrichment) -> str:
     return _fallback_key_idea(item)
 
 
-def _highlights(item: DigestCandidate, enrichment: Enrichment, key_idea: str) -> list[str]:
+def _highlight_bounds(slot: str) -> tuple[int, int]:
+    if slot == "fde":
+        return (5, 5)
+    return (3, 5)
+
+
+def _highlights(
+    item: DigestCandidate,
+    enrichment: Enrichment,
+    key_idea: str,
+    min_count: int = 3,
+    max_count: int = 5,
+) -> list[str]:
     candidates = [
         *_summary_parts(enrichment.summary),
         *_summary_parts(enrichment.why_it_matters),
@@ -381,15 +401,15 @@ def _highlights(item: DigestCandidate, enrichment: Enrichment, key_idea: str) ->
         if any(_too_similar(cleaned, existing) for existing in highlights):
             continue
         highlights.append(cleaned[:220])
-        if len(highlights) >= 5:
+        if len(highlights) >= max_count:
             break
 
     for fallback in _fallback_highlights(item, enrichment):
-        if len(highlights) >= 3:
+        if len(highlights) >= min_count:
             break
         if not any(_too_similar(fallback, existing) for existing in highlights):
             highlights.append(fallback)
-    return highlights[:5]
+    return highlights[:max_count]
 
 
 def _summary_parts(summary: str) -> list[str]:
@@ -425,12 +445,16 @@ def _fallback_highlights(item: DigestCandidate, enrichment: Enrichment) -> list[
             "Đọc để xác định bài học cho discovery, rollout, stakeholder alignment hoặc handoff với khách hàng.",
             "Kiểm tra xem nội dung có gợi ý guardrail, eval, observability hay tiêu chí production readiness nào không.",
             "Chuyển ý đáng tin thành một câu hỏi phỏng vấn hoặc một checklist triển khai ngắn cho FDE.",
+            "Tách phần có thể áp dụng ngay cho customer workflow khỏi phần chỉ là nhận định chiến lược.",
+            "Ghi lại owner, metric và rủi ro vận hành cần hỏi lại trước khi biến insight thành kế hoạch rollout.",
         ]
     if item.source_category.startswith("discussion"):
         return [
             "Ưu tiên xem các bình luận có kinh nghiệm thực chiến, số liệu, failure mode hoặc phản biện đáng tin.",
             "Dùng như early signal, không xem là kết luận cho tới khi có nguồn chính thống hoặc case study đi kèm.",
             "Nếu liên quan đến workflow nội bộ, thử biến insight thành một experiment nhỏ thay vì áp dụng rộng ngay.",
+            "So sánh các quan điểm trái chiều để tìm constraint thật thay vì chỉ lấy ý kiến được upvote cao.",
+            "Chỉ chuyển thành action khi có bối cảnh triển khai, dữ liệu hoặc trade-off rõ ràng.",
         ]
     topic = enrichment.topic.lower()
     if "agent" in topic or "automation" in topic or "orchestration" in topic:
@@ -438,11 +462,15 @@ def _fallback_highlights(item: DigestCandidate, enrichment: Enrichment) -> list[
             "Đọc theo câu hỏi: agent này giảm bước thủ công nào, cần người kiểm soát ở điểm nào, và đo hiệu quả ra sao.",
             "Tìm dấu hiệu về eval, rollback, permission, observability hoặc cost trước khi đưa vào workflow thật.",
             "Nếu phù hợp, biến insight thành một playbook nhỏ cho coding agent hoặc automation trong team.",
+            "Xác định rõ boundary giữa đề xuất của model, tool action và bước cần con người approve.",
+            "Ưu tiên pattern có log, trace và cơ chế phục hồi khi tool call hoặc dữ liệu đầu vào lỗi.",
         ]
     return [
         "Đọc để tìm thay đổi cụ thể trong tooling, process hoặc architecture thay vì chỉ lấy thông tin announcement.",
         "Đánh giá bằng impact lên developer productivity, reliability, cost hoặc tốc độ delivery.",
         "Chỉ áp dụng nếu có bước thử nghiệm nhỏ và metric kiểm chứng rõ ràng.",
+        "Tìm constraint về vận hành, bảo mật hoặc tích hợp trước khi đưa vào backlog.",
+        "Biến insight thành một câu hỏi review kiến trúc nếu chưa đủ chắc để triển khai.",
     ]
 
 
@@ -470,6 +498,12 @@ def _content_tokens(text: str) -> set[str]:
 
 def _is_feed_fragment(part: str) -> bool:
     lowered = part.lower()
+    if lowered.startswith(("hi hacker news", "hello hacker news", "hey hacker news", "hi hn", "hello hn", "hey hn")):
+        return True
+    if lowered.startswith(("here's a demo", "here is a demo", "here's the demo", "here is the demo")):
+        return True
+    if "here are the docs" in lowered or "here's the docs" in lowered or "here is the docs" in lowered:
+        return True
     if lowered.startswith("the post ") and " appeared first" in lowered:
         return True
     if lowered.startswith("it lets") and (len(part) < 30 or part.endswith("..") or part.endswith("...")):

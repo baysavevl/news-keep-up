@@ -77,6 +77,20 @@ class TelegramCommandsTest(unittest.TestCase):
         self.assertIn("enterprise implementation", sent_text)
         self.assertIn("generic ai", sent_text)
 
+    def test_status_command_reports_updated_fde_schedule(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+
+        with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+            handle_telegram_update(
+                update("/status"),
+                slot="fde",
+                sources_path="config/fde_sources.json",
+                settings=settings,
+            )
+
+        sent_text = send.call_args.args[0]
+        self.assertIn("every 2 hours at :20", sent_text)
+
     def test_search_command_returns_recent_stored_news(self):
         with tempfile.TemporaryDirectory() as tmp:
             settings = Settings(

@@ -38,10 +38,10 @@ def due_digest_jobs(
 def _jobs_for_day(day, start: datetime, end: datetime) -> list[ScheduledDigestJob]:
     jobs: list[ScheduledDigestJob] = []
     for hour in range(7, 23):
-        jobs.append(_job_for(day, hour, 20, "fde"))
-        jobs.append(_job_for(day, hour, 40, "engineer"))
-    for hour in range(7, 22, 2):
+        if (hour - 7) % 2 == 0:
+            jobs.append(_job_for(day, hour, 20, "fde"))
         jobs.append(_job_for(day, hour, 35, "fde-interview"))
+        jobs.append(_job_for(day, hour, 40, "engineer"))
     return [job for job in jobs if start <= job.scheduled_for <= end]
 
 

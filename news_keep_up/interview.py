@@ -153,8 +153,8 @@ def select_fde_interview_guideline(current: datetime | None = None) -> FdeInterv
     else:
         now = now.astimezone(ICT)
     minutes = now.hour * 60 + now.minute
-    window = max(0, (minutes - (7 * 60 + 35)) // 120)
-    day_offset = now.toordinal() * 8
+    window = max(0, (minutes - (7 * 60 + 35)) // 60)
+    day_offset = now.toordinal() * 16
     return FDE_INTERVIEW_GUIDELINES[(day_offset + window) % len(FDE_INTERVIEW_GUIDELINES)]
 
 

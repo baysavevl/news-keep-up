@@ -17,12 +17,10 @@ class FdeInterviewGuidelineTest(unittest.TestCase):
     def test_guideline_pool_has_enough_rotation_depth(self):
         self.assertGreaterEqual(len(FDE_INTERVIEW_GUIDELINES), 12)
 
-    def test_select_guideline_rotates_every_two_hours_from_0735(self):
+    def test_select_guideline_rotates_hourly_from_0735(self):
         first = select_fde_interview_guideline(datetime(2026, 7, 13, 7, 35, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")))
-        same_window = select_fde_interview_guideline(datetime(2026, 7, 13, 8, 35, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")))
-        next_window = select_fde_interview_guideline(datetime(2026, 7, 13, 9, 35, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")))
+        next_window = select_fde_interview_guideline(datetime(2026, 7, 13, 8, 35, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")))
 
-        self.assertEqual(first.slug, same_window.slug)
         self.assertNotEqual(first.slug, next_window.slug)
 
     def test_format_guideline_is_three_to_five_telegram_lines(self):

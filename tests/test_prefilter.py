@@ -109,6 +109,15 @@ class PrefilterTest(unittest.TestCase):
         self.assertFalse(is_candidate_relevant_for_slot(weekly_roundup, "fde"))
         self.assertFalse(is_candidate_relevant_for_slot(managed_agents, "fde"))
 
+    def test_fde_slot_rejects_generic_enterprise_ai_model_and_api_news(self):
+        model_launch = item(
+            "Enterprise AI model API launches with faster coding-agent tools",
+            "The announcement covers model availability, API features, benchmarks, and cloud deployment options.",
+            "enterprise-ai",
+        )
+
+        self.assertFalse(is_candidate_relevant_for_slot(model_launch, "fde"))
+
     def test_fde_slot_accepts_enterprise_ai_delivery_items(self):
         candidate = item(
             "Building enterprise AI agents that are autonomous and reliable",
