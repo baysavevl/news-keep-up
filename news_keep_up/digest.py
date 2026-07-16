@@ -310,6 +310,8 @@ def _format_digest_chunk(
             _source_author_line(item),
             f"Topic: {escape(enrichment.category)} / {escape(enrichment.topic)}",
         ])
+        if slot == "fde":
+            lines.append(f"FDE topic: {escape(_fde_topic_label(item, enrichment))}")
         if item.is_backfill:
             lines.append("Backfill - still relevant")
         key_idea = _key_idea(item, enrichment)
@@ -443,6 +445,118 @@ def _impact_score(item: DigestCandidate, enrichment: Enrichment) -> int:
     if item.source_category.startswith("discussion"):
         score -= 4
     return max(0, min(100, score))
+
+
+FDE_TOPIC_SIGNALS = [
+    (
+        "Engineering",
+        (
+            "api",
+            "architecture",
+            "auth",
+            "coding",
+            "data",
+            "idempot",
+            "integration",
+            "latency",
+            "rag",
+            "retry",
+            "schema",
+            "system design",
+            "tenant",
+            "tool",
+            "typed error",
+            "voice",
+        ),
+    ),
+    (
+        "Consulting",
+        (
+            "blocker",
+            "consult",
+            "customer context",
+            "discovery",
+            "requirement",
+            "stakeholder",
+            "workflow mapping",
+        ),
+    ),
+    (
+        "Product",
+        (
+            "adoption",
+            "feedback",
+            "product",
+            "roadmap",
+            "reusable",
+            "user",
+            "value",
+        ),
+    ),
+    (
+        "Delivery/Ops",
+        (
+            "acceptance",
+            "debug",
+            "deployment",
+            "eval",
+            "handoff",
+            "incident",
+            "kpi",
+            "launch",
+            "metric",
+            "observability",
+            "production",
+            "rollback",
+            "rollout",
+            "sre",
+        ),
+    ),
+    (
+        "Security/Governance",
+        (
+            "audit",
+            "compliance",
+            "governance",
+            "guardrail",
+            "permission",
+            "pii",
+            "policy",
+            "redact",
+            "security",
+        ),
+    ),
+    (
+        "Customer/Business",
+        (
+            "business",
+            "customer",
+            "roi",
+            "success metric",
+            "value metric",
+        ),
+    ),
+]
+
+
+def _fde_topic_label(item: DigestCandidate, enrichment: Enrichment) -> str:
+    text = " ".join([
+        item.title,
+        item.source_category,
+        enrichment.category,
+        enrichment.topic,
+        enrichment.summary,
+        enrichment.why_it_matters,
+        enrichment.takeaway_vi,
+    ]).lower()
+    scored: list[tuple[int, int, str]] = []
+    for index, (label, signals) in enumerate(FDE_TOPIC_SIGNALS):
+        hits = sum(1 for signal in signals if signal in text)
+        if hits:
+            scored.append((-hits, index, label))
+    if not scored:
+        return "Engineering"
+    return " · ".join(label for _, _, label in sorted(scored)[:2])
 
 
 def _key_idea(item: DigestCandidate, enrichment: Enrichment) -> str:

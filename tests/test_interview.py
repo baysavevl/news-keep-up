@@ -38,7 +38,8 @@ class FdeInterviewGuidelineTest(unittest.TestCase):
         lines = [line for line in message.splitlines() if line.strip()]
         self.assertGreaterEqual(len(lines), 7)
         self.assertIn("FDE Interview", message)
-        self.assertGreaterEqual(message.count("Bổ trợ:"), 2)
+        self.assertGreaterEqual(message.count("FDE topic:"), 2)
+        self.assertGreaterEqual(message.count("Interview focus:"), 2)
         self.assertGreaterEqual(message.count("Kiến thức:"), 2)
         self.assertGreaterEqual(message.count("🎯"), 2)
         self.assertGreaterEqual(message.count("🧪"), 2)

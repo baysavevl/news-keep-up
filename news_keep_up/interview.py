@@ -147,50 +147,62 @@ FDE_INTERVIEW_GUIDELINES = [
 
 INTERVIEW_SUPPORT_BY_SLUG = {
     "agent-state": (
+        "Engineering",
         "System design / agent architecture",
         "state machine, persistence, retry path, resume path, human review gate",
     ),
     "tool-boundaries": (
+        "Engineering",
         "System design / tool safety",
         "typed schema, scoped auth, validation, idempotency key, blocked unsafe action",
     ),
     "eval-gates": (
+        "Delivery/Ops",
         "Deployment readiness",
         "task success eval, safety eval, escalation rule, latency target, launch gate",
     ),
     "rag-vs-tools": (
+        "Engineering",
         "System design / RAG vs tools",
         "freshness boundary, citation, policy retrieval, live account state, API truth",
     ),
     "voice-latency": (
+        "Engineering",
         "Voice agent design",
         "latency budget, interruption handling, turn timeline, barge-in, human handoff",
     ),
     "enterprise-api": (
+        "Engineering",
         "Integration design",
         "auth, tenant boundary, retry, typed error, stale record, rate limit",
     ),
     "security-guardrails": (
+        "Security/Governance",
         "Security / governance",
         "permission model, PII redaction, audit log, escalation, prompt-injection defense",
     ),
     "observability": (
+        "Delivery/Ops",
         "Production debugging",
         "trace, tool call, input/output log, cost, latency, acceptance metric",
     ),
     "customer-discovery": (
+        "Consulting",
         "Customer discovery",
         "success metric, stakeholder, blocker, data owner, launch risk",
     ),
     "case-study": (
+        "Consulting",
         "Written case study",
         "objective, workflow, architecture tradeoff, rollout plan, KPI, open question",
     ),
     "production-coding": (
+        "Engineering",
         "Coding screen",
         "normalization, idempotency, validation, retry, dedupe, trace ID, audit log",
     ),
     "fit-story": (
+        "Product",
         "Behavioral / fit",
         "customer context, deployment ownership, measurable impact, reusable asset, product feedback",
     ),
@@ -226,11 +238,12 @@ def format_fde_interview_guideline(
     normalized_cards = [cards] if isinstance(cards, FdeInterviewGuideline) else cards
     lines = ["<b>🧭 FDE Interview Guideline</b>"]
     for index, card in enumerate(normalized_cards, start=1):
-        support_area, knowledge = _interview_support(card)
+        fde_topic, interview_focus, knowledge = _interview_support(card)
         lines.extend([
             "",
             f"<b>{index}. {escape(card.icon)} {escape(card.category)}: {escape(card.title)}</b>",
-            f"🎯 Bổ trợ: {escape(support_area)}",
+            f"🎯 FDE topic: {escape(fde_topic)}",
+            f"🧩 Interview focus: {escape(interview_focus)}",
             f"📚 Kiến thức: {escape(knowledge)}",
             f"💡 {escape(card.summary)}",
             f"🧪 Drill: {escape(card.drill)}",
@@ -248,21 +261,21 @@ def format_fde_interview_announcement(
         now = now.replace(tzinfo=ICT)
     else:
         now = now.astimezone(ICT)
-    support_areas = []
+    fde_topics = []
     for card in cards:
-        support_area, _ = _interview_support(card)
-        if support_area not in support_areas:
-            support_areas.append(support_area)
+        fde_topic, _, _ = _interview_support(card)
+        if fde_topic not in fde_topics:
+            fde_topics.append(fde_topic)
     return "\n".join([
         "<b>🧭 FDE Interview Prep Thread</b>",
         f"Time: {escape(now.strftime('%d %b %H:%M'))} ICT",
         "Schedule: hourly at :35",
         f"Contents: {len(cards)} focused drills",
-        f"Focus: {escape(' · '.join(support_areas[:3]))}",
+        f"FDE topics: {escape(' · '.join(fde_topics[:3]))}",
     ])
 
 
-def _interview_support(card: FdeInterviewGuideline) -> tuple[str, str]:
+def _interview_support(card: FdeInterviewGuideline) -> tuple[str, str, str]:
     if card.slug in INTERVIEW_SUPPORT_BY_SLUG:
         return INTERVIEW_SUPPORT_BY_SLUG[card.slug]
     category = card.category.lower()
@@ -275,6 +288,7 @@ def _interview_support(card: FdeInterviewGuideline) -> tuple[str, str]:
     if "security" in category:
         return INTERVIEW_SUPPORT_BY_SLUG["security-guardrails"]
     return (
+        "Delivery/Ops",
         "FDE interview practice",
         "customer context, production constraint, tradeoff, measurable outcome",
     )

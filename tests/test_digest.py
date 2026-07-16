@@ -195,6 +195,31 @@ class DigestTest(unittest.TestCase):
         self.assertNotIn("Summary:", message)
         self.assertNotIn("Why:", message)
 
+    def test_fde_format_includes_fde_topic_taxonomy(self):
+        item = candidate(1, 95, "fde-industry")
+        item = DigestCandidate(
+            **{
+                **item.__dict__,
+                "title": "Customer API rollout playbook for enterprise deployment",
+                "enrichment": Enrichment(
+                    **{
+                        **item.enrichment.__dict__,
+                        "category": "field-engineering",
+                        "topic": "customer-rollout",
+                        "summary": (
+                            "The deployment maps API auth, tenant boundaries, retries, typed errors, "
+                            "rollout gates, observability, and rollback ownership."
+                        ),
+                        "why_it_matters": "Impact: FDEs can turn this into an integration and production rollout checklist.",
+                    }
+                ),
+            }
+        )
+
+        message = format_digest("fde", [DigestSelection(candidate=item, position=1)])
+
+        self.assertIn("FDE topic: Engineering · Delivery/Ops", message)
+
     def test_fde_format_uses_five_highlights_without_key_idea_section(self):
         item = candidate(1, 95, "fde-industry")
         item = DigestCandidate(

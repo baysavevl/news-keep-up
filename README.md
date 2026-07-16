@@ -37,6 +37,7 @@ Each item is formatted for quick scanning:
 1. 🧭 English title
 Source: Salesforce Engineering · Author: Unknown
 Topic: field-engineering / enterprise-rollout
+FDE topic: Engineering · Delivery/Ops
 Fit: Impact: High (96/100) · Trust: High (91/100) · Importance: 88/100
 Why read: A customer rollout pattern with reusable launch gates and ownership signals.
 Scan:
@@ -66,18 +67,20 @@ FDE interview guideline messages also start with a standalone thread announcemen
 Time: 16 Jul 09:35 ICT
 Schedule: hourly at :35
 Contents: 2 focused drills
-Focus: Coding screen · Behavioral / fit
+FDE topics: Engineering · Product
 
 🧭 FDE Interview Guideline
 1. 📊 Evals: Evals turn demos into deployments
-🎯 Bổ trợ: Deployment readiness
+🎯 FDE topic: Delivery/Ops
+🧩 Interview focus: Deployment readiness
 📚 Kiến thức: task success eval, safety eval, escalation rule, latency target, launch gate
 💡 A strong FDE converts customer workflows into release gates.
 🧪 Drill: Write 10 eval cases for billing, identity, timeout, and unsafe refund.
 🔗 Source: OpenAI evals
 
 2. 🔌 Integration: The last mile is API, auth, and messy data
-🎯 Bổ trợ: Integration design
+🎯 FDE topic: Engineering
+🧩 Interview focus: Integration design
 📚 Kiến thức: auth, tenant boundary, retry, typed error, stale record, rate limit
 💡 A customer deployment fails when typed errors and tenant boundaries are vague.
 🧪 Drill: Create a failure matrix for 401, 403, 404, 409, 429, and 5xx.
