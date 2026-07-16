@@ -38,6 +38,8 @@ class FdeInterviewGuidelineTest(unittest.TestCase):
         lines = [line for line in message.splitlines() if line.strip()]
         self.assertGreaterEqual(len(lines), 7)
         self.assertIn("FDE Interview", message)
+        self.assertGreaterEqual(message.count("Bổ trợ:"), 2)
+        self.assertGreaterEqual(message.count("Kiến thức:"), 2)
         self.assertGreaterEqual(message.count("🎯"), 2)
         self.assertGreaterEqual(message.count("🧪"), 2)
         self.assertGreaterEqual(message.count("🔗"), 2)
@@ -49,8 +51,9 @@ class FdeInterviewGuidelineTest(unittest.TestCase):
             message = run_fde_interview_guideline(settings, dry_run=False)
 
         self.assertIn("FDE Interview", message)
+        self.assertIn("Interview Prep Thread", send.call_args_list[0].args[0])
         self.assertGreaterEqual(message.count("🎯"), 2)
-        send.assert_called_once()
+        self.assertEqual(send.call_count, 2)
 
 
 if __name__ == "__main__":

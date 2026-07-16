@@ -38,6 +38,30 @@ DIGEST_SLOT_LABELS = {
     "fde": "FDE",
 }
 
+DIGEST_THREAD_TITLES = {
+    "engineer": "🤖 AI/SWE News Thread",
+    "fde": "🧭 FDE News Thread",
+    "news": "🗞️ AI/FDE/SWE News Thread",
+    "morning": "🌅 Morning News Thread",
+    "afternoon": "🌤️ Afternoon News Thread",
+}
+
+DIGEST_THREAD_SCOPES = {
+    "engineer": "Practical AI, SWE workflow, engineering practice",
+    "fde": "Customer rollout, field delivery, enterprise implementation",
+    "news": "AI, SWE, FDE, solution architecture",
+    "morning": "AI, SWE, FDE, solution architecture",
+    "afternoon": "AI, SWE, FDE, solution architecture",
+}
+
+DIGEST_THREAD_SCHEDULES = {
+    "engineer": "every 3 hours at :40",
+    "fde": "every 2 hours at :20",
+    "news": "manual or compatibility slot",
+    "morning": "manual or compatibility slot",
+    "afternoon": "manual or compatibility slot",
+}
+
 DIGEST_SELECTION_POLICIES = {
     "engineer": (2, 3, 1),
     "fde": (3, 5, 1),
@@ -204,6 +228,27 @@ def select_digest_items(
 
 def format_digest(slot: str, selections: list[DigestSelection], now: datetime | None = None) -> str:
     return "\n\n".join(format_digest_messages(slot, selections, now=now))
+
+
+def format_digest_announcement(
+    slot: str,
+    selections: list[DigestSelection],
+    now: datetime | None = None,
+) -> str:
+    current = now or now_ict()
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=ICT)
+    else:
+        current = current.astimezone(ICT)
+    fresh_count = sum(1 for selection in selections if not selection.candidate.is_backfill)
+    backfill_count = sum(1 for selection in selections if selection.candidate.is_backfill)
+    return "\n".join([
+        f"<b>{escape(DIGEST_THREAD_TITLES.get(slot, '🗞️ News Thread'))}</b>",
+        f"Time: {escape(current.strftime('%d %b %H:%M'))} ICT",
+        f"Schedule: {escape(DIGEST_THREAD_SCHEDULES.get(slot, 'manual'))}",
+        f"Scope: {escape(DIGEST_THREAD_SCOPES.get(slot, 'high-signal engineering news'))}",
+        f"Selected: {len(selections)} items · {fresh_count} fresh · {backfill_count} backfill",
+    ])
 
 
 def format_digest_messages(
@@ -634,14 +679,20 @@ def run_digest(
     )
     rows = _review_digest_candidates(conn, settings, slot, rows, max_items)
     selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
-    messages = format_digest_messages(slot, selections)
+    content_messages = format_digest_messages(slot, selections)
+    messages = (
+        [format_digest_announcement(slot, selections), *content_messages]
+        if selections
+        else content_messages
+    )
     message = "\n\n".join(messages)
     if not dry_run:
         if not selections:
             for chunk_message in messages:
                 send_telegram_message(chunk_message, settings)
             return message
-        for chunk, chunk_message in zip(_selection_chunks(selections, DIGEST_ITEMS_PER_MESSAGE), messages):
+        send_telegram_message(messages[0], settings)
+        for chunk, chunk_message in zip(_selection_chunks(selections, DIGEST_ITEMS_PER_MESSAGE), content_messages):
             send_telegram_message(chunk_message, settings)
             mark_delivered(
                 conn,

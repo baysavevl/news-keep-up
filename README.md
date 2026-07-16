@@ -21,6 +21,16 @@ Engineer/AI-SWE sources include at least 150 feeds/searches, weighted toward pra
 
 Engineer/AI digests send 2-3 tightly selected items per run. FDE digests send 3-5 items per run. Stored backfill is re-checked against the active profile relevance filter before selection, so generic AI/coding-agent items are not used just to fill any digest. Delivered items are excluded globally across profiles: an item already sent to the Engineer/AI thread is not sent again to FDE, and vice versa.
 
+Each news thread starts with a standalone announcement message so Telegram groups are easy to scan:
+
+```text
+🧭 FDE News Thread
+Time: 16 Jul 09:20 ICT
+Schedule: every 2 hours at :20
+Scope: Customer rollout, field delivery, enterprise implementation
+Selected: 4 items · 1 fresh · 3 backfill
+```
+
 Each item is formatted for quick scanning:
 
 ```text
@@ -49,16 +59,26 @@ Backfill - still relevant
 
 Before each digest is sent, Gemini performs a final batch review over candidates to rerank by impact, remove low-signal items, and tighten the displayed emoji, category, summary, Vietnamese takeaway, and role-specific impact. Final local ranking then combines source trust, role impact, practical content quality, recency, and backfill penalty. If Gemini is unavailable, cached or fallback enrichment is still used, but the same profile moderation and ranking gates still apply.
 
-FDE interview guideline messages include at least two compact contents:
+FDE interview guideline messages also start with a standalone thread announcement and include at least two compact contents. Each content explicitly says which interview section and knowledge area it supports:
 
 ```text
+🧭 FDE Interview Prep Thread
+Time: 16 Jul 09:35 ICT
+Schedule: hourly at :35
+Contents: 2 focused drills
+Focus: Coding screen · Behavioral / fit
+
 🧭 FDE Interview Guideline
-1. 📊 🎯 Evals: Evals turn demos into deployments
+1. 📊 Evals: Evals turn demos into deployments
+🎯 Bổ trợ: Deployment readiness
+📚 Kiến thức: task success eval, safety eval, escalation rule, latency target, launch gate
 💡 A strong FDE converts customer workflows into release gates.
 🧪 Drill: Write 10 eval cases for billing, identity, timeout, and unsafe refund.
 🔗 Source: OpenAI evals
 
-2. 🔌 🎯 Integration: The last mile is API, auth, and messy data
+2. 🔌 Integration: The last mile is API, auth, and messy data
+🎯 Bổ trợ: Integration design
+📚 Kiến thức: auth, tenant boundary, retry, typed error, stale record, rate limit
 💡 A customer deployment fails when typed errors and tenant boundaries are vague.
 🧪 Drill: Create a failure matrix for 401, 403, 404, 409, 429, and 5xx.
 🔗 Source: OpenAPI specification

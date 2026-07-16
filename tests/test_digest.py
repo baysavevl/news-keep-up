@@ -853,7 +853,11 @@ class DigestTest(unittest.TestCase):
             ):
                 run_digest(settings, "fde", dry_run=False)
 
-        self.assertEqual(send.call_count, 2)
+        self.assertEqual(send.call_count, 3)
+        self.assertIn("FDE News Thread", send.call_args_list[0].args[0])
+        self.assertIn("Schedule: every 2 hours", send.call_args_list[0].args[0])
+        self.assertIn("Selected: 4 items", send.call_args_list[0].args[0])
+        self.assertIn("<b>FDE Digest</b>", send.call_args_list[1].args[0])
         self.assertEqual(mark.call_count, 2)
         self.assertEqual(mark.call_args_list[0].args[1], [1, 2])
         self.assertEqual(mark.call_args_list[1].args[1], [3, 4])

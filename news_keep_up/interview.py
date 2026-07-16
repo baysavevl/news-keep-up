@@ -145,6 +145,57 @@ FDE_INTERVIEW_GUIDELINES = [
     ),
 ]
 
+INTERVIEW_SUPPORT_BY_SLUG = {
+    "agent-state": (
+        "System design / agent architecture",
+        "state machine, persistence, retry path, resume path, human review gate",
+    ),
+    "tool-boundaries": (
+        "System design / tool safety",
+        "typed schema, scoped auth, validation, idempotency key, blocked unsafe action",
+    ),
+    "eval-gates": (
+        "Deployment readiness",
+        "task success eval, safety eval, escalation rule, latency target, launch gate",
+    ),
+    "rag-vs-tools": (
+        "System design / RAG vs tools",
+        "freshness boundary, citation, policy retrieval, live account state, API truth",
+    ),
+    "voice-latency": (
+        "Voice agent design",
+        "latency budget, interruption handling, turn timeline, barge-in, human handoff",
+    ),
+    "enterprise-api": (
+        "Integration design",
+        "auth, tenant boundary, retry, typed error, stale record, rate limit",
+    ),
+    "security-guardrails": (
+        "Security / governance",
+        "permission model, PII redaction, audit log, escalation, prompt-injection defense",
+    ),
+    "observability": (
+        "Production debugging",
+        "trace, tool call, input/output log, cost, latency, acceptance metric",
+    ),
+    "customer-discovery": (
+        "Customer discovery",
+        "success metric, stakeholder, blocker, data owner, launch risk",
+    ),
+    "case-study": (
+        "Written case study",
+        "objective, workflow, architecture tradeoff, rollout plan, KPI, open question",
+    ),
+    "production-coding": (
+        "Coding screen",
+        "normalization, idempotency, validation, retry, dedupe, trace ID, audit log",
+    ),
+    "fit-story": (
+        "Behavioral / fit",
+        "customer context, deployment ownership, measurable impact, reusable asset, product feedback",
+    ),
+}
+
 
 def select_fde_interview_guideline(current: datetime | None = None) -> FdeInterviewGuideline:
     return select_fde_interview_guidelines(current, count=1)[0]
@@ -175,14 +226,58 @@ def format_fde_interview_guideline(
     normalized_cards = [cards] if isinstance(cards, FdeInterviewGuideline) else cards
     lines = ["<b>🧭 FDE Interview Guideline</b>"]
     for index, card in enumerate(normalized_cards, start=1):
+        support_area, knowledge = _interview_support(card)
         lines.extend([
             "",
-            f"<b>{index}. {escape(card.icon)} 🎯 {escape(card.category)}: {escape(card.title)}</b>",
+            f"<b>{index}. {escape(card.icon)} {escape(card.category)}: {escape(card.title)}</b>",
+            f"🎯 Bổ trợ: {escape(support_area)}",
+            f"📚 Kiến thức: {escape(knowledge)}",
             f"💡 {escape(card.summary)}",
             f"🧪 Drill: {escape(card.drill)}",
             f'🔗 Source: <a href="{escape(card.source_url, quote=True)}">{escape(card.source_label)}</a>',
         ])
     return "\n".join(lines).strip()
+
+
+def format_fde_interview_announcement(
+    cards: list[FdeInterviewGuideline],
+    current: datetime | None = None,
+) -> str:
+    now = current or now_ict()
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=ICT)
+    else:
+        now = now.astimezone(ICT)
+    support_areas = []
+    for card in cards:
+        support_area, _ = _interview_support(card)
+        if support_area not in support_areas:
+            support_areas.append(support_area)
+    return "\n".join([
+        "<b>🧭 FDE Interview Prep Thread</b>",
+        f"Time: {escape(now.strftime('%d %b %H:%M'))} ICT",
+        "Schedule: hourly at :35",
+        f"Contents: {len(cards)} focused drills",
+        f"Focus: {escape(' · '.join(support_areas[:3]))}",
+    ])
+
+
+def _interview_support(card: FdeInterviewGuideline) -> tuple[str, str]:
+    if card.slug in INTERVIEW_SUPPORT_BY_SLUG:
+        return INTERVIEW_SUPPORT_BY_SLUG[card.slug]
+    category = card.category.lower()
+    if "coding" in category:
+        return INTERVIEW_SUPPORT_BY_SLUG["production-coding"]
+    if "fit" in category:
+        return INTERVIEW_SUPPORT_BY_SLUG["fit-story"]
+    if "integration" in category:
+        return INTERVIEW_SUPPORT_BY_SLUG["enterprise-api"]
+    if "security" in category:
+        return INTERVIEW_SUPPORT_BY_SLUG["security-guardrails"]
+    return (
+        "FDE interview practice",
+        "customer context, production constraint, tradeoff, measurable outcome",
+    )
 
 
 def run_fde_interview_guideline(
@@ -206,7 +301,10 @@ def run_fde_interview_guideline(
                 source_label=reviewed.get("source_label", card.source_label),
             )
         reviewed_cards.append(card)
-    message = format_fde_interview_guideline(reviewed_cards)
+    announcement = format_fde_interview_announcement(reviewed_cards, current)
+    guideline = format_fde_interview_guideline(reviewed_cards)
+    message = f"{announcement}\n\n{guideline}"
     if not dry_run:
-        send_telegram_message(message, settings)
+        send_telegram_message(announcement, settings)
+        send_telegram_message(guideline, settings)
     return message
