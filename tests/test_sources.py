@@ -65,15 +65,15 @@ class SourcesTest(unittest.TestCase):
             "llm-ops",
         }
 
-        self.assertGreaterEqual(len(sources), 86)
+        self.assertGreaterEqual(len(sources), 150)
         self.assertGreaterEqual(sum(categories[category] for category in ai_categories), 50)
         self.assertGreaterEqual(categories["software-engineering"], 13)
 
-    def test_fde_interview_sources_cover_thirty_interview_prep_signals(self):
+    def test_fde_interview_sources_cover_one_hundred_interview_prep_signals(self):
         sources = json.loads(Path("config/fde_interview_sources.json").read_text(encoding="utf-8"))
         categories = Counter(source["category"] for source in sources if source.get("enabled", True))
 
-        self.assertGreaterEqual(len(sources), 30)
+        self.assertGreaterEqual(len(sources), 100)
         self.assertGreaterEqual(categories["fde-interview"], 10)
         self.assertGreaterEqual(categories["agentic-interview"], 5)
         self.assertTrue(all(source["type"] in {"rss", "hackernews"} for source in sources))

@@ -600,5 +600,481 @@
     "url": "https://hn.algolia.com/api/v1/search_by_date?query=Zalando%20engineering&tags=story",
     "category": "software-engineering",
     "enabled": true
+  },
+  {
+    "name": "Hacker News Practical AI Agent Workflows",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=practical%20AI%20agent%20workflows&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Production Coding Agent Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=production%20coding%20agent%20evals&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Product Workflows",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20product%20workflows&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Workflow Automation Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20workflow%20automation%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Engineering Playbook",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20engineering%20playbook&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Coding Agent Code Review Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=coding%20agent%20code%20review%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Observability Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20observability%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Product Workflow Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20product%20workflow%20evals&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Software Delivery Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20software%20delivery%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Workflow Integration Patterns",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20workflow%20integration%20patterns&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Coding Agent Guardrails Production",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=coding%20agent%20guardrails%20production&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Reliability Patterns",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20reliability%20patterns&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Tooling Team Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20tooling%20team%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Developer Productivity Metrics",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20developer%20productivity%20metrics&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News RAG Product Workflow Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=RAG%20product%20workflow%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News MCP Agent Workflow Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=MCP%20agent%20workflow%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM App Production Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20app%20production%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Incident Response",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20incident%20response&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Testing Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20testing%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Product Launch Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20product%20launch%20evals&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Engineering Case Study",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20engineering%20case%20study&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Workflow Case Study",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20workflow%20case%20study&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Workflow Automation Case Study",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20workflow%20automation%20case%20study&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Coding Agent Refactoring Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=coding%20agent%20refactoring%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Architecture Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20architecture%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Permission Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20permission%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Audit Logs",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20audit%20logs&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Human Review",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20human%20review%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Rollback Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20rollback%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Deployment Checklist",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20deployment%20checklist&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Acceptance Criteria",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20acceptance%20criteria&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Agent Product Metrics",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20agent%20product%20metrics&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Security Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20security%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Data Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20data%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Oncall Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20oncall%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Workflow Rollout Metrics",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20workflow%20rollout%20metrics&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Automation Engineering Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20automation%20engineering%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Platform Engineering Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20platform%20engineering%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Design Review",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20design%20review&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Product Adoption",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20product%20adoption%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Workflow Lessons Learned",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20workflow%20lessons%20learned&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Failure Modes",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20failure%20modes%20production&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Workflow Observability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20workflow%20observability&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Release Process",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20release%20process&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent QA Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20QA%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent DevEx Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20DevEx%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Repository Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20repository%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Coding Agent Pull Request Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=coding%20agent%20pull%20request%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Documentation Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20documentation%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Migration Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20migration%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Legacy Code Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20legacy%20code%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Data Pipeline Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20data%20pipeline%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Engineering Metrics",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20engineering%20metrics&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Product Reliability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20product%20reliability&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Application Guardrails Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20application%20guardrails%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Continuous Evaluation",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20continuous%20evaluation&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Workflow Benchmark Production",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20workflow%20benchmark%20production&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Integration Testing",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20integration%20testing&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Sandbox Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20sandbox%20workflow&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Cost Observability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20cost%20observability&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Workflow Governance",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20workflow%20governance&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Product Feedback Loop",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20product%20feedback%20loop&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Workflow Ops",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20workflow%20ops&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Implementation Notes",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20implementation%20notes&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Workflows in Production",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20workflows%20in%20production&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Assisted Engineering Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20assisted%20engineering%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Coding Workflow Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20coding%20workflow%20practice&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Team Practices",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20team%20practices&tags=story",
+    "category": "discussion-ai-workflow",
+    "enabled": true
   }
 ]

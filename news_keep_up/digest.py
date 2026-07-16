@@ -39,8 +39,8 @@ DIGEST_SLOT_LABELS = {
 }
 
 DIGEST_SELECTION_POLICIES = {
-    "engineer": (5, 5, 1),
-    "fde": (8, 8, 2),
+    "engineer": (2, 3, 1),
+    "fde": (3, 5, 1),
 }
 
 DIGEST_ITEMS_PER_MESSAGE = 2
@@ -125,6 +125,45 @@ SOURCE_TRUST_OVERRIDES = {
     "Ajay Kumar Medium": 76,
 }
 
+CONTENT_QUALITY_TERMS = {
+    "acceptance criteria",
+    "architecture",
+    "automation",
+    "case study",
+    "code review",
+    "delivery",
+    "eval",
+    "evals",
+    "guardrail",
+    "guardrails",
+    "implementation",
+    "integration",
+    "metrics",
+    "observability",
+    "pattern",
+    "patterns",
+    "playbook",
+    "practice",
+    "practices",
+    "production",
+    "product workflow",
+    "reliability",
+    "rollout",
+    "testing",
+    "workflow",
+    "workflows",
+}
+
+GENERIC_CONTENT_TERMS = {
+    "announcement",
+    "api features",
+    "benchmark",
+    "benchmarks",
+    "cloud regions",
+    "model availability",
+    "public beta",
+}
+
 
 def select_digest_items(
     rows: list[DigestCandidate],
@@ -202,8 +241,10 @@ def _format_digest_chunk(
     part_label = f" | Part {part_index}/{part_count}" if part_count > 1 else ""
     lines = [
         f"<b>{escape(digest_title)}</b>",
-        f"{escape(slot_label)} | {current.strftime('%d %b %Y %H:%M')} ICT",
-        f"{fresh_count} fresh, {backfill_count} backfill{part_label}",
+        (
+            f"{escape(slot_label)} · {current.strftime('%d %b %H:%M')} ICT · "
+            f"{fresh_count} fresh · {backfill_count} backfill{part_label}"
+        ),
         "",
     ]
 
@@ -222,11 +263,8 @@ def _format_digest_chunk(
         lines.extend([
             f"<b>{selection.position}. {escape(title)}</b>",
             _source_author_line(item),
-            f"🏷 Category: {escape(enrichment.category)} / {escape(enrichment.topic)}",
+            f"Topic: {escape(enrichment.category)} / {escape(enrichment.topic)}",
         ])
-        translated_title = _display_title_vi(item.title, enrichment.title_vi)
-        if translated_title:
-            lines.append(f"VN title: {escape(translated_title)}")
         if item.is_backfill:
             lines.append("Backfill - still relevant")
         key_idea = _key_idea(item, enrichment)
@@ -238,17 +276,16 @@ def _format_digest_chunk(
             min_count=min_highlights,
             max_count=max_highlights,
         )
-        if slot != "fde":
-            lines.append(f"💡 Ý chính: {escape(key_idea)}")
         lines.extend([
-            "✨ Highlights:",
-            *[f"• {escape(highlight)}" for highlight in highlights],
-            f"🇻🇳 VN: {escape(enrichment.takeaway_vi)}",
-            f'🔗 Read: <a href="{escape(item.url, quote=True)}">Read</a>',
-            "",
-            "-----",
-            f"🔥 Popularity: {escape(_popularity_label(item, enrichment))} | 🛡 Trust: {escape(_trust_label(item))}",
-            f"⚖️ Importance: {enrichment.relevance_score}/100 | 🎯 Impact: {escape(_impact_label(item, enrichment))}",
+            (
+                f"Fit: Impact: {escape(_impact_label(item, enrichment))} · "
+                f"Trust: {escape(_trust_label(item))} · Importance: {enrichment.relevance_score}/100"
+            ),
+            f"Why read: {escape(_why_read(item, enrichment, key_idea, slot))}",
+            "Scan:",
+            *[f"• {escape(highlight)}" for highlight in _label_highlights(highlights, slot)],
+            f"Takeaway: {escape(_trim_text(enrichment.takeaway_vi, 180))}",
+            f'Read: <a href="{escape(item.url, quote=True)}">Read</a>',
             "",
         ])
     return "\n".join(lines).strip()
@@ -260,7 +297,7 @@ def _selection_chunks(selections: list[DigestSelection], size: int) -> list[list
 
 def _source_author_line(item: DigestCandidate) -> str:
     author = item.author.strip() or "Unknown"
-    return f"📰 Source: {escape(item.source_name)} | ✍️ Author: {escape(author)}"
+    return f"Source: {escape(item.source_name)} · Author: {escape(author)}"
 
 
 def _display_title_vi(title: str, title_vi: str) -> str:
@@ -400,7 +437,7 @@ def _highlights(
             continue
         if any(_too_similar(cleaned, existing) for existing in highlights):
             continue
-        highlights.append(cleaned[:220])
+        highlights.append(_trim_text(cleaned, 170))
         if len(highlights) >= max_count:
             break
 
@@ -410,6 +447,61 @@ def _highlights(
         if not any(_too_similar(fallback, existing) for existing in highlights):
             highlights.append(fallback)
     return highlights[:max_count]
+
+
+def _why_read(item: DigestCandidate, enrichment: Enrichment, key_idea: str, slot: str) -> str:
+    if slot == "fde":
+        candidates = [
+            _clean_leading_label(enrichment.why_it_matters),
+            key_idea,
+            _fallback_key_idea(item),
+        ]
+    else:
+        candidates = [
+            key_idea,
+            _clean_leading_label(enrichment.why_it_matters),
+            _fallback_key_idea(item),
+        ]
+    for candidate in candidates:
+        cleaned = _trim_text(candidate, 220)
+        if cleaned and not _too_similar(cleaned, item.title):
+            return cleaned
+    if slot == "fde":
+        return "Only useful if it changes customer rollout, integration, governance, or production handoff decisions."
+    return "Useful only if it changes how the team builds, reviews, ships, or operates software."
+
+
+def _clean_leading_label(text: str) -> str:
+    cleaned = text.strip(" -•")
+    lowered = cleaned.lower()
+    for prefix in ("impact:", "why it matters:", "summary:", "key idea:"):
+        if lowered.startswith(prefix):
+            return cleaned[len(prefix):].strip(" -")
+    return cleaned
+
+
+def _label_highlights(highlights: list[str], slot: str) -> list[str]:
+    labels = (
+        ["Rollout", "Evidence", "Risk", "Action", "Fit"]
+        if slot == "fde"
+        else ["Change", "Evidence", "Risk", "Action", "Fit"]
+    )
+    labeled: list[str] = []
+    for index, highlight in enumerate(highlights):
+        cleaned = _trim_text(_clean_leading_label(highlight), 170)
+        if cleaned:
+            labeled.append(f"{labels[index % len(labels)]}: {cleaned}")
+    return labeled
+
+
+def _trim_text(text: str, max_chars: int) -> str:
+    normalized = " ".join(text.split()).strip()
+    if len(normalized) <= max_chars:
+        return normalized
+    shortened = normalized[:max_chars].rsplit(" ", 1)[0].rstrip(" ,;:-")
+    if not shortened:
+        shortened = normalized[:max_chars].rstrip(" ,;:-")
+    return f"{shortened}..."
 
 
 def _summary_parts(summary: str) -> list[str]:
@@ -586,12 +678,35 @@ def _review_digest_candidates(
             continue
         if not enrichment.should_send:
             continue
-        reviewed_rows.append(replace(row, enrichment=enrichment))
+        reviewed_row = replace(row, enrichment=enrichment)
+        if not _digest_candidate_matches_slot(reviewed_row, slot):
+            continue
+        reviewed_rows.append(reviewed_row)
 
     if reviewed_rows:
         model = next(iter(reviewed.values())).model
         record_llm_usage(conn, model, today, slot, None, "review")
     return sorted(reviewed_rows, key=_candidate_sort_key)
+
+
+def _digest_candidate_matches_slot(row: DigestCandidate, slot: str) -> bool:
+    review_text = " ".join([
+        row.enrichment.summary,
+        row.enrichment.why_it_matters,
+    ])
+    candidate = CandidateItem(
+        source_name=row.source_name,
+        source_kind="stored",
+        source_category=row.source_category,
+        title=row.title,
+        url=row.url,
+        canonical_url=row.url,
+        summary=review_text,
+        author=row.author,
+        published_at=row.published_at,
+        fetched_at=row.fetched_at,
+    )
+    return is_candidate_relevant_for_slot(candidate, slot)
 
 
 def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources: list[Source]) -> set[int]:
@@ -677,11 +792,7 @@ def _load_digest_candidates(
         "(i.published_at IS NULL OR i.published_at = '' OR i.published_at >= ?)",
     ]
     params: list[object] = [settings.min_relevance_score, fetched_cutoff, published_cutoff]
-    if slot is None:
-        conditions.append("NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)")
-    else:
-        conditions.append("NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id AND d.slot = ?)")
-        params.append(slot)
+    conditions.append("NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)")
     if allowed_source_names is not None:
         ordered_source_names = sorted(allowed_source_names)
         placeholders = ", ".join("?" for _ in ordered_source_names)
@@ -690,6 +801,7 @@ def _load_digest_candidates(
 
     rows = conn.execute(
         f"""SELECT i.id, i.title, i.url, i.source_name, i.source_category, i.author, i.published_at, i.fetched_at,
+                  i.source_kind, i.canonical_url, i.summary AS item_summary, i.content AS item_content,
                   e.model, e.relevance_score, e.category, e.topic, e.icon, e.title_vi,
                   e.summary, e.why_it_matters, e.takeaway_vi, e.should_send
            FROM items i
@@ -701,27 +813,42 @@ def _load_digest_candidates(
     candidates: list[DigestCandidate] = []
     for row in rows:
         enrichment = Enrichment(
-            model=row_value(row, "model", 8),
-            relevance_score=int(row_value(row, "relevance_score", 9)),
-            category=row_value(row, "category", 10),
-            topic=row_value(row, "topic", 11),
-            icon=row_value(row, "icon", 12),
-            title_vi=row_value(row, "title_vi", 13),
-            summary=row_value(row, "summary", 14),
-            why_it_matters=row_value(row, "why_it_matters", 15),
-            takeaway_vi=row_value(row, "takeaway_vi", 16),
-            should_send=bool(row_value(row, "should_send", 17)),
+            model=row_value(row, "model", 12),
+            relevance_score=int(row_value(row, "relevance_score", 13)),
+            category=row_value(row, "category", 14),
+            topic=row_value(row, "topic", 15),
+            icon=row_value(row, "icon", 16),
+            title_vi=row_value(row, "title_vi", 17),
+            summary=row_value(row, "summary", 18),
+            why_it_matters=row_value(row, "why_it_matters", 19),
+            takeaway_vi=row_value(row, "takeaway_vi", 20),
+            should_send=bool(row_value(row, "should_send", 21)),
         )
         item_id = int(row_value(row, "id", 0))
-        candidates.append(DigestCandidate(
-            item_id=item_id,
+        candidate_item = CandidateItem(
+            source_name=row_value(row, "source_name", 3),
+            source_kind=row_value(row, "source_kind", 8) or "",
+            source_category=row_value(row, "source_category", 4),
             title=row_value(row, "title", 1),
             url=row_value(row, "url", 2),
-            source_name=row_value(row, "source_name", 3),
-            source_category=row_value(row, "source_category", 4),
+            canonical_url=row_value(row, "canonical_url", 9) or row_value(row, "url", 2),
+            summary=row_value(row, "item_summary", 10) or "",
+            content=row_value(row, "item_content", 11) or "",
+            author=row_value(row, "author", 5) or "",
             published_at=row_value(row, "published_at", 6) or "",
             fetched_at=row_value(row, "fetched_at", 7) or "",
-            author=row_value(row, "author", 5) or "",
+        )
+        if slot is not None and not is_candidate_relevant_for_slot(candidate_item, slot):
+            continue
+        candidates.append(DigestCandidate(
+            item_id=item_id,
+            title=candidate_item.title,
+            url=candidate_item.url,
+            source_name=candidate_item.source_name,
+            source_category=candidate_item.source_category,
+            published_at=candidate_item.published_at,
+            fetched_at=candidate_item.fetched_at,
+            author=candidate_item.author,
             enrichment=enrichment,
             is_backfill=item_id not in current_item_ids,
         ))
@@ -766,17 +893,56 @@ def _load_digest_candidates_for_slot(
     return best_rows
 
 
-def _candidate_sort_key(row: DigestCandidate) -> tuple[int, int, int, int, int, str]:
-    impact = _impact_score(row, row.enrichment)
-    impact_bucket = impact // 5
+def _candidate_sort_key(row: DigestCandidate) -> tuple[float, int, int, int, str]:
+    final_score = _final_ranking_score(row)
     return (
-        -impact_bucket,
+        -final_score,
         -_candidate_recency_timestamp(row),
-        -impact,
         -row.enrichment.relevance_score,
         -_source_trust_score(row),
         row.title,
     )
+
+
+def _final_ranking_score(row: DigestCandidate) -> float:
+    trust = _source_trust_score(row)
+    impact = _impact_score(row, row.enrichment)
+    quality = _content_quality_score(row)
+    recency = _recency_score(row)
+    backfill_penalty = 8 if row.is_backfill else 0
+    return (
+        row.enrichment.relevance_score * 0.30
+        + trust * 0.25
+        + impact * 0.25
+        + quality * 0.15
+        + recency * 0.05
+        - backfill_penalty
+    )
+
+
+def _content_quality_score(row: DigestCandidate) -> int:
+    text = " ".join([
+        row.title,
+        row.source_category,
+        row.enrichment.category,
+        row.enrichment.topic,
+        row.enrichment.summary,
+        row.enrichment.why_it_matters,
+    ]).lower()
+    quality_hits = sum(1 for term in CONTENT_QUALITY_TERMS if term in text)
+    generic_hits = sum(1 for term in GENERIC_CONTENT_TERMS if term in text)
+    score = 45 + quality_hits * 10 - generic_hits * 12
+    if row.source_category.startswith("discussion"):
+        score -= 10
+    return max(0, min(100, score))
+
+
+def _recency_score(row: DigestCandidate) -> int:
+    timestamp = _candidate_recency_timestamp(row)
+    if timestamp <= 0:
+        return 0
+    age_days = max(0, (now_ict().timestamp() - timestamp) / 86_400)
+    return max(0, min(100, int(100 - age_days * 12)))
 
 
 def _candidate_recency_timestamp(row: DigestCandidate) -> int:

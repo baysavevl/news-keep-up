@@ -42,6 +42,30 @@ class PrefilterTest(unittest.TestCase):
         self.assertFalse(is_candidate_relevant(weak))
         self.assertTrue(is_candidate_relevant(strong))
 
+    def test_engineer_slot_rejects_generic_ai_agent_announcements(self):
+        model_launch = item(
+            "New agent model API is now in public beta",
+            "The announcement covers model availability, benchmark scores, API features, and cloud regions.",
+            "ai-engineering",
+        )
+        product_launch = item(
+            "Agentic Batch Changes is now in public beta",
+            "A developer-tool launch announcement for running coding agents across repositories.",
+            "developer-tools",
+        )
+
+        self.assertFalse(is_candidate_relevant_for_slot(model_launch, "engineer"))
+        self.assertFalse(is_candidate_relevant_for_slot(product_launch, "engineer"))
+
+    def test_engineer_slot_accepts_practical_ai_agent_workflow_items(self):
+        candidate = item(
+            "Production patterns for AI agents in product workflows",
+            "Teams use evals, guardrails, observability, rollout metrics, and workflow automation to ship safer agent features.",
+            "ai-engineering",
+        )
+
+        self.assertTrue(is_candidate_relevant_for_slot(candidate, "engineer"))
+
     def test_forward_deployed_engineering_item_scores_as_relevant(self):
         candidate = item(
             "Forward deployed engineers move enterprise AI from pilot to production",
@@ -93,6 +117,71 @@ class PrefilterTest(unittest.TestCase):
         self.assertFalse(is_candidate_relevant_for_slot(generic_workbench, "fde"))
         self.assertFalse(is_candidate_relevant_for_slot(job_hunt_agent, "fde"))
         self.assertFalse(is_candidate_relevant_for_slot(career_thread, "fde"))
+
+    def test_fde_slot_rejects_personal_research_digest_tooling(self):
+        research_radar = item(
+            "Hundreds of papers hit arXiv every day and maybe 3 matter to my research, so I built an open-source tool that finds them [P]",
+            (
+                "Left: Telegram digest. Right: detailed digest on HTML. "
+                "Skimming arXiv listings takes 30-60 minutes a day, 95% is irrelevant to my research. "
+                "Research Radar is a daily cron job that fetches new papers from arXiv RSS and API, "
+                "then scores every abstract against a markdown file describing research interests."
+            ),
+            "discussion",
+        )
+
+        self.assertFalse(is_candidate_relevant_for_slot(research_radar, "fde"))
+
+    def test_fde_slot_rejects_generic_agent_product_and_platform_items(self):
+        generic_items = [
+            item(
+                "Launch HN: Coasty (YC S26) - An API for computer-use agents",
+                (
+                    "Computer-use agents complete workflows inside legacy desktop software and web applications "
+                    "without usable APIs. Developers send a natural-language task, credentials, and files; "
+                    "the agent operates screenshots, mouse, and keyboard, verifies the result, and returns run records."
+                ),
+                "ai-engineering",
+            ),
+            item(
+                "Ask HN: Who build production apps without seeing code?",
+                "A discussion about Cursor, Claude Code, Codex, agentic mode, and whether builders still need a code editor.",
+                "ai-engineering",
+            ),
+            item(
+                "Show HN: Vendo (YC S26) - Let your users add their own features to your product",
+                (
+                    "Users create personal micro-apps and features on top of a product. "
+                    "Agents personalize dashboards, UIs, workflows, outcomes, and views for each user."
+                ),
+                "ai-engineering",
+            ),
+            item(
+                "Agents need their own computer. Here's how to give them one safely.",
+                (
+                    "Sandboxes give every agent an isolated computer for iteration, verification, and access "
+                    "to tools a person would normally use."
+                ),
+                "agent-frameworks",
+            ),
+            item(
+                "New in Fleet: Deploy AI agents to Slack in one click",
+                "Give agents custom identities, use them in Slack channels and threads, and keep work moving.",
+                "agent-frameworks",
+            ),
+            item(
+                "Agentic vision: Building visual intelligence with Amazon Bedrock and MCP servers",
+                (
+                    "A Computer Vision MCP Server shows how AI systems process visual information through "
+                    "a standardized integration path for broader applications and developers."
+                ),
+                "ai-engineering",
+            ),
+        ]
+
+        for candidate in generic_items:
+            with self.subTest(candidate.title):
+                self.assertFalse(is_candidate_relevant_for_slot(candidate, "fde"))
 
     def test_fde_slot_rejects_generic_ai_roundups_without_field_delivery_signal(self):
         weekly_roundup = item(

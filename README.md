@@ -6,7 +6,7 @@ GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
 
 - FDE news: every 2 hours at `:20`, from 07:20 through 21:20 Asia/Ho_Chi_Minh.
 - FDE interview guideline: hourly at `:35`, from 07:35 through 22:35 Asia/Ho_Chi_Minh.
-- Engineer news: hourly at `:40`, from 07:40 through 22:40 Asia/Ho_Chi_Minh.
+- Engineer news: every 3 hours at `:40`, from 07:40 through 22:40 Asia/Ho_Chi_Minh.
 
 ## Profiles
 
@@ -15,31 +15,31 @@ GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
 - `fde-interview`: compact Forward Deployed Engineer interview guideline flow using `FDE_TELEGRAM_*` env vars and `config/fde_interview_sources.json` for source coverage.
 - `news`, `morning`, and `afternoon` remain as backward-compatible aliases using `TELEGRAM_*` env vars.
 
-Engineer sources include 86 feeds/searches, with the new additions weighted toward AI agents, agent orchestration, automation, evals, LLMOps, observability, and AI-assisted engineering productivity. FDE interview sources include 30 feeds/searches around FDE interview loops, customer-facing deployment, agent system design, evals, RAG, voice agents, security, and integration design.
+Engineer/AI-SWE sources include at least 150 feeds/searches, weighted toward practical AI agents, product workflows, engineering practices, automation, evals, LLMOps, observability, and AI-assisted engineering productivity. FDE news sources include at least 150 feeds/searches around customer rollout, field delivery, enterprise implementation, evals, governance, observability, and production deployment. FDE interview sources include at least 100 feeds/searches around FDE interview loops, customer-facing deployment, agent system design, evals, RAG, voice agents, security, and integration design.
 
 ## Message Format
+
+Engineer/AI digests send 2-3 tightly selected items per run. FDE digests send 3-5 items per run. Stored backfill is re-checked against the active profile relevance filter before selection, so generic AI/coding-agent items are not used just to fill any digest. Delivered items are excluded globally across profiles: an item already sent to the Engineer/AI thread is not sent again to FDE, and vice versa.
 
 Each item is formatted for quick scanning:
 
 ```text
 1. 🧭 English title
-📰 Source: Salesforce Engineering | ✍️ Author: Unknown
-🏷 Category: field-engineering / enterprise-rollout
-✨ Highlights:
-• Specific highlight.
-• Customer rollout signal.
-• Integration or governance risk.
-• Operational owner or metric.
-• Next FDE action.
-🇻🇳 VN: One short Vietnamese takeaway.
-🔗 Read: Read
-
------
-🔥 Popularity: Medium (70/100) | 🛡 Trust: High (91/100)
-⚖️ Importance: 88/100 | 🎯 Impact: High (96/100)
+Source: Salesforce Engineering · Author: Unknown
+Topic: field-engineering / enterprise-rollout
+Fit: Impact: High (96/100) · Trust: High (91/100) · Importance: 88/100
+Why read: A customer rollout pattern with reusable launch gates and ownership signals.
+Scan:
+• Rollout: Specific rollout change or deployment lesson.
+• Evidence: Customer, stakeholder, metric, or production signal.
+• Risk: Integration, governance, eval, rollback, or observability concern.
+• Action: What a reader should inspect, test, or turn into a checklist.
+• Fit: Why it belongs in this profile, not a generic AI feed.
+Takeaway: One short Vietnamese takeaway.
+Read: Read
 ```
 
-Digest messages are split into two news items per Telegram message. FDE's 8-item digest is delivered every 2 hours as 4 Telegram messages so Telegram does not break long messages awkwardly.
+Digest messages are split into two news items per Telegram message. FDE's 3-5 item digest is delivered every 2 hours as up to 3 Telegram messages so Telegram does not break long messages awkwardly.
 
 Backfilled items are marked:
 
@@ -47,16 +47,21 @@ Backfilled items are marked:
 Backfill - still relevant
 ```
 
-Before each digest is sent, Gemini performs a final batch review over candidates to rerank by impact, remove low-signal items, and tighten the displayed emoji, category, summary, Vietnamese takeaway, and role-specific impact. If Gemini is unavailable, cached or fallback enrichment is still used so the automation keeps running.
+Before each digest is sent, Gemini performs a final batch review over candidates to rerank by impact, remove low-signal items, and tighten the displayed emoji, category, summary, Vietnamese takeaway, and role-specific impact. Final local ranking then combines source trust, role impact, practical content quality, recency, and backfill penalty. If Gemini is unavailable, cached or fallback enrichment is still used, but the same profile moderation and ranking gates still apply.
 
-FDE interview guideline messages are intentionally shorter:
+FDE interview guideline messages include at least two compact contents:
 
 ```text
 🧭 FDE Interview Guideline
-🎯 Evals: Evals turn demos into deployments
+1. 📊 🎯 Evals: Evals turn demos into deployments
 💡 A strong FDE converts customer workflows into release gates.
 🧪 Drill: Write 10 eval cases for billing, identity, timeout, and unsafe refund.
 🔗 Source: OpenAI evals
+
+2. 🔌 🎯 Integration: The last mile is API, auth, and messy data
+💡 A customer deployment fails when typed errors and tenant boundaries are vague.
+🧪 Drill: Create a failure matrix for 401, 403, 404, 409, 429, and 5xx.
+🔗 Source: OpenAPI specification
 ```
 
 ## Local Setup

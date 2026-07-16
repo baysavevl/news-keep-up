@@ -100,7 +100,7 @@ class GeminiTest(unittest.TestCase):
                 make_candidate(1, "Generic model launch"),
                 make_candidate(2, "Customer rollout with eval gates", "fde-industry"),
             ],
-            max_items=8,
+            max_items=5,
         )
 
         self.assertIn("rank", prompt.lower())
@@ -110,6 +110,9 @@ class GeminiTest(unittest.TestCase):
         self.assertIn("no separate key idea", prompt.lower())
         self.assertIn("do not repeat the title", prompt.lower())
         self.assertIn("Forward Deployed Engineer", prompt)
+        self.assertIn("Before marking should_send=true", prompt)
+        self.assertIn("personal research triage", prompt)
+        self.assertIn("arXiv/news digest tools", prompt)
         self.assertIn('"item_id": 2', prompt)
 
     def test_parse_digest_review_response_updates_scores_and_filters_items(self):

@@ -102,10 +102,10 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(sources[0].name, "Latent Space")
         self.assertEqual(sources[0].kind, "rss")
 
-    def test_fde_sources_include_at_least_50_trusted_enabled_sources(self):
+    def test_fde_sources_include_at_least_150_enabled_sources(self):
         sources = load_sources("config/fde_sources.json")
 
-        self.assertGreaterEqual(len(sources), 70)
+        self.assertGreaterEqual(len(sources), 150)
         self.assertTrue(all(source.enabled for source in sources))
         self.assertTrue(all(source.category.startswith(("fde", "ai", "enterprise", "field", "discussion")) for source in sources))
 
@@ -138,10 +138,10 @@ class ConfigTest(unittest.TestCase):
         self.assertGreaterEqual(len(names.intersection(expected_names)), len(expected_names))
         self.assertGreaterEqual(len(sources), 120)
 
-    def test_engineer_sources_include_at_least_20_additional_trusted_sources(self):
+    def test_engineer_sources_include_at_least_150_enabled_sources(self):
         sources = load_sources("config/sources.json")
 
-        self.assertGreaterEqual(len(sources), 36)
+        self.assertGreaterEqual(len(sources), 150)
         self.assertTrue(all(source.enabled for source in sources))
         self.assertTrue(all(source.category.startswith((
             "ai",

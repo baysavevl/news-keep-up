@@ -943,5 +943,145 @@
     "url": "https://thegradient.pub/rss/",
     "category": "ai-engineering",
     "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Customer Rollout Metrics",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20customer%20rollout%20metrics&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Forward Deployed AI Workflow Integration",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=forward%20deployed%20AI%20workflow%20integration&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise AI Customer Deployment Practice",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20AI%20customer%20deployment%20practice&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Field Engineering Agent Rollout",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=field%20engineering%20agent%20rollout&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer AI Agent Guardrails",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20AI%20agent%20guardrails&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Production Readiness Checklist",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20production%20readiness%20checklist&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise Agent Acceptance Criteria",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20agent%20acceptance%20criteria&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Workflow AI Evals",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20workflow%20AI%20evals&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Stakeholder Handoff",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20stakeholder%20handoff&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Deployment Customer Observability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20deployment%20customer%20observability&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Forward Deployed Engineering Case Study",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=forward%20deployed%20engineering%20case%20study&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise AI Rollout Lessons",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20AI%20rollout%20lessons%20learned&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Integration Failure Modes",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20integration%20failure%20modes&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Facing Agent Reliability",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20facing%20agent%20reliability&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Pilot To Production",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20pilot%20to%20production&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Product Feedback Loop",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20product%20feedback%20loop&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise AI Governance Rollout",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20AI%20governance%20rollout&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Deployment Agent Playbook",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20deployment%20agent%20playbook&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Solution Engineering AI Agent Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=solution%20engineering%20AI%20agent%20workflow&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Technical Deployment AI Workflow",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=technical%20deployment%20AI%20workflow&tags=story",
+    "category": "discussion-fde",
+    "enabled": true
   }
 ]

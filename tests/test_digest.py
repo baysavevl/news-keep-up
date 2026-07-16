@@ -58,18 +58,18 @@ def candidate(item_id: int, score: int, source_category: str, is_backfill: bool 
 
 
 class DigestTest(unittest.TestCase):
-    def test_engineer_selection_policy_targets_five_items(self):
-        self.assertEqual(_selection_policy("engineer"), (5, 5, 1))
+    def test_engineer_selection_policy_targets_two_to_three_items(self):
+        self.assertEqual(_selection_policy("engineer"), (2, 3, 1))
 
-    def test_fde_selection_policy_targets_eight_items(self):
-        self.assertEqual(_selection_policy("fde"), (8, 8, 2))
+    def test_fde_selection_policy_targets_three_to_five_items(self):
+        self.assertEqual(_selection_policy("fde"), (3, 5, 1))
 
-    def test_fde_selection_returns_eight_items_when_available(self):
+    def test_fde_selection_returns_five_items_when_available(self):
         rows = [candidate(index, 95 - index, "fde-industry") for index in range(1, 10)]
 
-        selections = select_digest_items(rows, min_items=6, max_items=8, discussion_limit=2)
+        selections = select_digest_items(rows, min_items=3, max_items=5, discussion_limit=1)
 
-        self.assertEqual(len(selections), 8)
+        self.assertEqual(len(selections), 5)
 
     def test_selection_caps_discussion_profile_categories(self):
         rows = [
@@ -113,7 +113,41 @@ class DigestTest(unittest.TestCase):
 
         self.assertEqual([selection.candidate.item_id for selection in selections], [2, 1])
 
-    def test_format_uses_compact_telegram_html(self):
+    def test_selection_ranks_final_candidates_by_trust_and_content_quality(self):
+        trusted = DigestCandidate(
+            **{
+                **candidate(1, 88, "ai-engineering").__dict__,
+                "source_name": "OpenAI News",
+                "title": "Production patterns for AI agents in product workflows",
+                "enrichment": Enrichment(
+                    **{
+                        **enrichment(88, "ai-engineering", "agent-workflow").__dict__,
+                        "summary": "Teams use evals, guardrails, observability, rollout metrics, and workflow automation to ship safer agent features.",
+                        "why_it_matters": "Impact: turns agent adoption into a measurable engineering practice.",
+                    }
+                ),
+            }
+        )
+        generic = DigestCandidate(
+            **{
+                **candidate(2, 95, "discussion").__dict__,
+                "source_name": "Hacker News Generic AI",
+                "title": "New agent model API is now in public beta",
+                "enrichment": Enrichment(
+                    **{
+                        **enrichment(95, "discussion", "agent-api").__dict__,
+                        "summary": "The announcement covers model availability, benchmark scores, API features, and cloud regions.",
+                        "why_it_matters": "General AI announcement.",
+                    }
+                ),
+            }
+        )
+
+        selections = select_digest_items([generic, trusted], min_items=1, max_items=1, discussion_limit=1)
+
+        self.assertEqual([selection.candidate.item_id for selection in selections], [1])
+
+    def test_format_uses_scan_first_telegram_html(self):
         selections = [
             select_digest_items([candidate(1, 95, "ai-engineering", is_backfill=True)], 1, 5, 1)[0]
         ]
@@ -122,14 +156,13 @@ class DigestTest(unittest.TestCase):
         message = format_digest("news", selections, now=now)
 
         self.assertIn("<b>AI/FDE/SWE Digest</b>", message)
-        self.assertIn("News | 06 Jul 2026 10:00 ICT", message)
+        self.assertIn("News · 06 Jul 10:00 ICT", message)
         self.assertRegex(message, r"<b>1\. .+ English title 1</b>")
-        self.assertIn("Source: Test Source |", message)
-        self.assertIn("Author: Author 1", message)
-        self.assertIn("Category: ai-engineering / coding-agents", message)
-        self.assertIn("Popularity:", message)
-        self.assertIn("Ý chính:", message)
-        self.assertIn("Highlights:", message)
+        self.assertIn("Source: Test Source", message)
+        self.assertIn("Topic: ai-engineering / coding-agents", message)
+        self.assertIn("Fit:", message)
+        self.assertIn("Why read:", message)
+        self.assertIn("Scan:", message)
         self.assertIn("Backfill - still relevant", message)
         self.assertIn('<a href="https://example.com/1">Read</a>', message)
         self.assertNotIn("Title VN:", message)
@@ -143,7 +176,7 @@ class DigestTest(unittest.TestCase):
         message = format_digest("fde", selections)
 
         self.assertIn("<b>FDE Digest</b>", message)
-        self.assertIn("FDE |", message)
+        self.assertIn("FDE ·", message)
 
     def test_format_includes_richer_scan_fields(self):
         selections = [
@@ -152,11 +185,11 @@ class DigestTest(unittest.TestCase):
 
         message = format_digest("fde", selections)
 
-        self.assertIn("Category:", message)
-        self.assertIn("Popularity:", message)
-        self.assertIn("Importance:", message)
+        self.assertIn("Topic:", message)
+        self.assertIn("Fit:", message)
+        self.assertIn("Why read:", message)
+        self.assertIn("Scan:", message)
         self.assertNotIn("Ý chính:", message)
-        self.assertIn("Highlights:", message)
         self.assertRegex(message, r"<b>1\. .+ English title 1</b>")
         self.assertIn("Source:", message)
         self.assertNotIn("Summary:", message)
@@ -190,24 +223,24 @@ class DigestTest(unittest.TestCase):
         self.assertEqual(len(bullets), 5)
         self.assertIn("Customer discovery exposes", bullets[0])
 
-    def test_format_places_ranking_after_separator_at_item_bottom(self):
+    def test_format_places_compact_meta_before_item_body(self):
         message = format_digest("fde", [DigestSelection(candidate=candidate(1, 92, "fde-industry"), position=1)])
 
-        self.assertIn("\n\n-----\n🔥 Popularity:", message)
-        self.assertLess(message.index("🔗 Read:"), message.index("-----"))
-        self.assertLess(message.index("-----"), message.index("Importance:"))
+        self.assertLess(message.index("Fit:"), message.index("Why read:"))
+        self.assertLess(message.index("Why read:"), message.index("Scan:"))
+        self.assertLess(message.index("Scan:"), message.index("Read:"))
 
     def test_format_splits_digest_into_two_item_messages(self):
         selections = [
             DigestSelection(candidate=candidate(index, 95 - index, "fde-industry"), position=index)
-            for index in range(1, 9)
+            for index in range(1, 6)
         ]
 
         messages = format_digest_messages("fde", selections)
 
-        self.assertEqual(len(messages), 4)
-        self.assertIn("Part 1/4", messages[0])
-        self.assertIn("Part 4/4", messages[3])
+        self.assertEqual(len(messages), 3)
+        self.assertIn("Part 1/3", messages[0])
+        self.assertIn("Part 3/3", messages[2])
         self.assertIn("1.", messages[0])
         self.assertIn("2.", messages[0])
         self.assertNotIn("3.", messages[0])
@@ -287,7 +320,7 @@ class DigestTest(unittest.TestCase):
         message = format_digest("engineer", [DigestSelection(candidate=item, position=1)])
 
         self.assertNotIn("Ý chính: Hi Hacker News", message)
-        self.assertIn("Ý chính: I built Context.dev", message)
+        self.assertIn("Why read: I built Context.dev", message)
         self.assertNotIn("demo video", message)
         self.assertNotIn("here are the docs", message)
 
@@ -446,7 +479,7 @@ class DigestTest(unittest.TestCase):
         self.assertIn("No qualifying items found", message)
         self.assertNotIn("Customer rollout playbook", message)
 
-    def test_engineer_digest_can_select_item_already_delivered_to_fde(self):
+    def test_engineer_digest_does_not_select_item_already_delivered_to_fde(self):
         with tempfile.TemporaryDirectory() as tmp:
             sources_path = Path(tmp) / "engineer_sources.json"
             sources_path.write_text(json.dumps([{
@@ -476,7 +509,8 @@ class DigestTest(unittest.TestCase):
             with patch("news_keep_up.digest.fetch_source", return_value=[]):
                 message = run_digest(settings, "engineer", dry_run=True, sources_path=sources_path)
 
-        self.assertIn("Agentic engineering patterns", message)
+        self.assertIn("No qualifying items found", message)
+        self.assertNotIn("Agentic engineering patterns", message)
 
     def test_cached_fallback_is_refreshed_when_model_key_is_available(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -562,6 +596,46 @@ class DigestTest(unittest.TestCase):
         self.assertEqual(base_rows, [])
         self.assertEqual([row.item_id for row in fde_rows], [item_id])
 
+    def test_fde_backfill_rechecks_slot_relevance_for_stored_generic_ai_items(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=10)
+            conn = connect_database(settings)
+            init_db(conn)
+            generic_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Sourcegraph Blog",
+                source_kind="rss",
+                source_category="ai-engineering",
+                title="Agentic Batch Changes is now in public beta",
+                url="https://example.com/sourcegraph-agentic-batch",
+                canonical_url="https://example.com/sourcegraph-agentic-batch",
+                summary="Coding agents automate pull requests and developer productivity workflows.",
+                published_at=now_ict().isoformat(),
+                fetched_at=now_ict().isoformat(),
+            ))
+            rollout_id, _ = upsert_item(conn, CandidateItem(
+                source_name="FDE Voice",
+                source_kind="rss",
+                source_category="fde-industry",
+                title="Customer rollout playbook for forward deployed AI teams",
+                url="https://example.com/fde-rollout",
+                canonical_url="https://example.com/fde-rollout",
+                summary="Customer-facing deployment teams use evals, guardrails, rollout metrics, and workflow integration.",
+                published_at=now_ict().isoformat(),
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, generic_id, enrichment(90, "developer-tools", "coding-agents"))
+            upsert_enrichment(conn, rollout_id, enrichment(91, "fde-industry", "customer-rollout"))
+
+            rows = _load_digest_candidates_for_slot(
+                conn,
+                settings,
+                "fde",
+                set(),
+                allowed_source_names={"Sourcegraph Blog", "FDE Voice"},
+            )
+
+        self.assertEqual([row.item_id for row in rows], [rollout_id])
+
     def test_engineer_backfill_expands_to_twenty_one_days_when_still_short(self):
         with tempfile.TemporaryDirectory() as tmp:
             settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=7)
@@ -591,6 +665,46 @@ class DigestTest(unittest.TestCase):
             )
 
         self.assertEqual([row.item_id for row in rows], [item_id])
+
+    def test_engineer_backfill_rechecks_practical_ai_agent_relevance(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=10)
+            conn = connect_database(settings)
+            init_db(conn)
+            generic_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Sourcegraph Blog",
+                source_kind="rss",
+                source_category="developer-tools",
+                title="Agentic Batch Changes is now in public beta",
+                url="https://example.com/agentic-batch-beta",
+                canonical_url="https://example.com/agentic-batch-beta",
+                summary="A developer-tool launch announcement for running coding agents across repositories.",
+                published_at=now_ict().isoformat(),
+                fetched_at=now_ict().isoformat(),
+            ))
+            practical_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Engineer AI Feed",
+                source_kind="rss",
+                source_category="ai-engineering",
+                title="Production patterns for AI agents in product workflows",
+                url="https://example.com/practical-agent-workflow",
+                canonical_url="https://example.com/practical-agent-workflow",
+                summary="Teams use evals, guardrails, observability, rollout metrics, and workflow automation to ship safer agent features.",
+                published_at=now_ict().isoformat(),
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, generic_id, enrichment(95, "ai-engineering", "agent-api"))
+            upsert_enrichment(conn, practical_id, enrichment(94, "ai-engineering", "agent-workflow"))
+
+            rows = _load_digest_candidates_for_slot(
+                conn,
+                settings,
+                "engineer",
+                set(),
+                allowed_source_names={"Sourcegraph Blog", "Engineer AI Feed"},
+            )
+
+        self.assertEqual([row.item_id for row in rows], [practical_id])
 
     def test_run_digest_uses_gemini_batch_review_before_selecting_items(self):
         generic = candidate(1, 80, "ai-engineering")
@@ -627,6 +741,100 @@ class DigestTest(unittest.TestCase):
         self.assertIn("English title 2", message)
         self.assertNotIn("English title 1", message)
         self.assertIn("98/100", message)
+
+    def test_run_digest_rechecks_fde_role_fit_after_gemini_review(self):
+        research_tool = DigestCandidate(
+            **{
+                **candidate(1, 95, "discussion").__dict__,
+                "source_name": "Reddit Machine Learning",
+                "title": (
+                    "Hundreds of papers hit arXiv every day and maybe 3 matter to my research, "
+                    "so I built an open-source tool that finds them [P]"
+                ),
+                "enrichment": Enrichment(
+                    **{
+                        **enrichment(95, "discussion", "ai-tools").__dict__,
+                        "summary": (
+                            "Left: Telegram digest. Right: detailed digest on HTML. "
+                            "Research Radar fetches arXiv RSS and API, then scores abstracts "
+                            "against a markdown file describing research interests."
+                        ),
+                        "why_it_matters": "Worth scanning for architecture, delivery, or productization impact.",
+                        "takeaway_vi": "Đọc nhanh để lấy ý chính và cân nhắc áp dụng vào delivery.",
+                    }
+                ),
+            }
+        )
+        reviewed = Enrichment(**{
+            **research_tool.enrichment.__dict__,
+            "model": "gemini-review",
+            "relevance_score": 92,
+            "summary": (
+                "Left: Telegram digest. Right: detailed digest on HTML. "
+                "Skimming arXiv listings takes 30-60 minutes a day. "
+                "The cron job fetches new papers from arXiv RSS and API. "
+                "It scores abstracts against a markdown file of research interests. "
+                "The HTML view gives a more detailed digest."
+            ),
+            "why_it_matters": "Impact: generic research tooling, not a customer deployment workflow.",
+            "should_send": True,
+        })
+
+        with (
+            patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1}),
+            patch("news_keep_up.digest._load_digest_candidates", return_value=[research_tool]),
+            patch("news_keep_up.digest.GeminiClient.review_digest_candidates", return_value={1: reviewed}),
+        ):
+            message = run_digest(Settings(gemini_api_key="key"), "fde", dry_run=True)
+
+        self.assertIn("No qualifying items found", message)
+        self.assertNotIn("Hundreds of papers hit arXiv", message)
+
+    def test_run_digest_does_not_let_review_topic_create_fde_relevance(self):
+        computer_use_api = DigestCandidate(
+            **{
+                **candidate(1, 95, "ai-engineering").__dict__,
+                "source_name": "Hacker News Production AI Agents",
+                "title": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
+                "enrichment": Enrichment(
+                    **{
+                        **enrichment(95, "ai-engineering", "coding-agents").__dict__,
+                        "summary": (
+                            "Computer-use agents complete workflows inside legacy desktop software and web applications. "
+                            "Developers send a natural-language task, credentials, and files; the agent verifies the result "
+                            "and returns structured run records."
+                        ),
+                        "why_it_matters": "Generic agent tooling without a customer rollout or field delivery lesson.",
+                    }
+                ),
+            }
+        )
+        reviewed = Enrichment(**{
+            **computer_use_api.enrichment.__dict__,
+            "model": "gemini-review",
+            "relevance_score": 92,
+            "category": "ai-engineering",
+            "topic": "enterprise-rollout",
+            "summary": (
+                "Computer-use agents complete workflows inside legacy desktop software and web applications. "
+                "The API accepts credentials and files. "
+                "The agent operates screenshots, mouse, and keyboard. "
+                "It verifies results and returns structured run records. "
+                "This is agent infrastructure, not customer deployment practice."
+            ),
+            "why_it_matters": "Impact: generic agent API, not a concrete FDE rollout playbook.",
+            "should_send": True,
+        })
+
+        with (
+            patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1}),
+            patch("news_keep_up.digest._load_digest_candidates", return_value=[computer_use_api]),
+            patch("news_keep_up.digest.GeminiClient.review_digest_candidates", return_value={1: reviewed}),
+        ):
+            message = run_digest(Settings(gemini_api_key="key"), "fde", dry_run=True)
+
+        self.assertIn("No qualifying items found", message)
+        self.assertNotIn("Coasty", message)
 
     def test_run_digest_sends_and_marks_each_message_chunk(self):
         rows = [candidate(index, 95 - index, "fde-industry") for index in range(1, 5)]

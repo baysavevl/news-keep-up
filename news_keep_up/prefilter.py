@@ -20,9 +20,15 @@ INCLUDE_WEIGHTS: list[tuple[str, int]] = [
     ("enterprise agent", 22),
     ("customer-facing", 20),
     ("customer embedded", 20),
+    ("customer deployment", 24),
+    ("customer rollout", 24),
     ("pilot to production", 22),
     ("production rollout", 20),
+    ("launch gate", 18),
+    ("acceptance criteria", 18),
     ("workflow integration", 18),
+    ("eval gate", 18),
+    ("eval", 12),
     ("guardrails", 16),
     ("customer engineering", 18),
     ("claude code", 25),
@@ -158,6 +164,25 @@ FDE_EXCLUDE_PHRASES = [
     "career advice",
     "salary negotiation",
     "serverless gpus",
+    "agent infrastructure",
+    "api for computer-use agents",
+    "arxiv listings",
+    "computer-use agents",
+    "deploy ai agents to slack",
+    "generic research tooling",
+    "my research",
+    "not a concrete fde",
+    "not a customer deployment",
+    "not a customer rollout",
+    "not customer deployment",
+    "not field delivery",
+    "own isolated computer",
+    "personal research",
+    "personal micro-apps",
+    "research interests",
+    "to-read list",
+    "users add their own features",
+    "without seeing code",
 ]
 
 FDE_GENERIC_AI_PHRASES = [
@@ -181,6 +206,86 @@ FDE_GENERIC_AI_PHRASES = [
     "service availability",
     "weekly roundup",
 ]
+
+PRACTICAL_AI_WORKFLOW_PHRASES = [
+    "adoption",
+    "architecture",
+    "automation",
+    "case study",
+    "code review",
+    "delivery team",
+    "delivery teams",
+    "developer productivity",
+    "engineering lifecycle",
+    "eval",
+    "evals",
+    "guardrail",
+    "guardrails",
+    "how to",
+    "implementation",
+    "integration",
+    "lesson",
+    "lessons learned",
+    "metrics",
+    "observability",
+    "pattern",
+    "patterns",
+    "playbook",
+    "practice",
+    "practices",
+    "production",
+    "product workflow",
+    "product workflows",
+    "reliability",
+    "rollout",
+    "ship",
+    "testing",
+    "workflow",
+    "workflows",
+]
+
+AI_AGENT_PHRASES = [
+    "agent",
+    "agentic",
+    "agents",
+    "ai",
+    "automation",
+    "claude code",
+    "coding agent",
+    "codex",
+    "llm",
+    "mcp",
+    "rag",
+]
+
+GENERIC_AI_ANNOUNCEMENT_PHRASES = [
+    "announcement",
+    "api features",
+    "benchmark",
+    "benchmarks",
+    "cloud regions",
+    "developer-tool launch",
+    "is now in public beta",
+    "launch announcement",
+    "model availability",
+    "model api",
+    "new agent model",
+    "public beta",
+]
+
+AI_AGENT_SOURCE_CATEGORIES = {
+    "ai-engineering",
+    "agentic-engineering",
+    "developer-tools",
+    "agent-frameworks",
+    "agent-orchestration",
+    "ai-automation",
+    "ai-observability",
+    "llm-ops",
+    "ai-product",
+    "ai-research",
+    "discussion",
+}
 
 
 def prefilter_score(item: CandidateItem) -> int:
@@ -216,7 +321,7 @@ def is_candidate_relevant(item: CandidateItem) -> bool:
 
 def is_candidate_relevant_for_slot(item: CandidateItem, slot: str) -> bool:
     if slot != "fde":
-        return is_candidate_relevant(item)
+        return is_candidate_relevant(item) and _has_practical_ai_or_engineering_signal(item)
 
     content_text = " ".join([item.title, item.summary, item.content]).lower()
     if any(phrase in content_text for phrase in EXCLUDE_PHRASES + FDE_EXCLUDE_PHRASES):
@@ -269,3 +374,14 @@ def _is_generic_ai_without_field_delivery(
     if has_enterprise_delivery or has_contextual_governance or _has_direct_fde_signal(text):
         return False
     return any(phrase in text for phrase in FDE_GENERIC_AI_PHRASES)
+
+
+def _has_practical_ai_or_engineering_signal(item: CandidateItem) -> bool:
+    text = " ".join([item.title, item.summary, item.content, item.source_category]).lower()
+    if item.source_category not in AI_AGENT_SOURCE_CATEGORIES:
+        return True
+    practical_count = sum(1 for phrase in PRACTICAL_AI_WORKFLOW_PHRASES if phrase in text)
+    has_ai_agent = any(phrase in text for phrase in AI_AGENT_PHRASES)
+    if any(phrase in text for phrase in GENERIC_AI_ANNOUNCEMENT_PHRASES) and practical_count < 2:
+        return False
+    return has_ai_agent and practical_count >= 1

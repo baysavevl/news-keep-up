@@ -147,6 +147,13 @@ FDE_INTERVIEW_GUIDELINES = [
 
 
 def select_fde_interview_guideline(current: datetime | None = None) -> FdeInterviewGuideline:
+    return select_fde_interview_guidelines(current, count=1)[0]
+
+
+def select_fde_interview_guidelines(
+    current: datetime | None = None,
+    count: int = 2,
+) -> list[FdeInterviewGuideline]:
     now = current or now_ict()
     if now.tzinfo is None:
         now = now.replace(tzinfo=ICT)
@@ -155,17 +162,27 @@ def select_fde_interview_guideline(current: datetime | None = None) -> FdeInterv
     minutes = now.hour * 60 + now.minute
     window = max(0, (minutes - (7 * 60 + 35)) // 60)
     day_offset = now.toordinal() * 16
-    return FDE_INTERVIEW_GUIDELINES[(day_offset + window) % len(FDE_INTERVIEW_GUIDELINES)]
+    start = day_offset + window * max(1, count)
+    return [
+        FDE_INTERVIEW_GUIDELINES[(start + offset) % len(FDE_INTERVIEW_GUIDELINES)]
+        for offset in range(max(1, count))
+    ]
 
 
-def format_fde_interview_guideline(card: FdeInterviewGuideline) -> str:
-    return "\n".join([
-        f"<b>{escape(card.icon)} FDE Interview Guideline</b>",
-        f"🎯 {escape(card.category)}: {escape(card.title)}",
-        f"💡 {escape(card.summary)}",
-        f"🧪 Drill: {escape(card.drill)}",
-        f'🔗 Source: <a href="{escape(card.source_url, quote=True)}">{escape(card.source_label)}</a>',
-    ])
+def format_fde_interview_guideline(
+    cards: FdeInterviewGuideline | list[FdeInterviewGuideline],
+) -> str:
+    normalized_cards = [cards] if isinstance(cards, FdeInterviewGuideline) else cards
+    lines = ["<b>🧭 FDE Interview Guideline</b>"]
+    for index, card in enumerate(normalized_cards, start=1):
+        lines.extend([
+            "",
+            f"<b>{index}. {escape(card.icon)} 🎯 {escape(card.category)}: {escape(card.title)}</b>",
+            f"💡 {escape(card.summary)}",
+            f"🧪 Drill: {escape(card.drill)}",
+            f'🔗 Source: <a href="{escape(card.source_url, quote=True)}">{escape(card.source_label)}</a>',
+        ])
+    return "\n".join(lines).strip()
 
 
 def run_fde_interview_guideline(
@@ -173,19 +190,23 @@ def run_fde_interview_guideline(
     dry_run: bool = False,
     current: datetime | None = None,
 ) -> str:
-    card = select_fde_interview_guideline(current)
-    reviewed = GeminiClient(settings).review_interview_guideline(asdict(card))
-    if reviewed:
-        card = replace(
-            card,
-            icon=reviewed.get("icon", card.icon),
-            category=reviewed.get("category", card.category),
-            title=reviewed.get("title", card.title),
-            summary=reviewed.get("summary", card.summary),
-            drill=reviewed.get("drill", card.drill),
-            source_label=reviewed.get("source_label", card.source_label),
-        )
-    message = format_fde_interview_guideline(card)
+    cards = select_fde_interview_guidelines(current)
+    reviewed_cards: list[FdeInterviewGuideline] = []
+    client = GeminiClient(settings)
+    for card in cards:
+        reviewed = client.review_interview_guideline(asdict(card))
+        if reviewed:
+            card = replace(
+                card,
+                icon=reviewed.get("icon", card.icon),
+                category=reviewed.get("category", card.category),
+                title=reviewed.get("title", card.title),
+                summary=reviewed.get("summary", card.summary),
+                drill=reviewed.get("drill", card.drill),
+                source_label=reviewed.get("source_label", card.source_label),
+            )
+        reviewed_cards.append(card)
+    message = format_fde_interview_guideline(reviewed_cards)
     if not dry_run:
         send_telegram_message(message, settings)
     return message

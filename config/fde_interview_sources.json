@@ -208,5 +208,523 @@
     "url": "https://hn.algolia.com/api/v1/search_by_date?query=tool%20calling%20interview%20LLM&tags=story",
     "category": "agentic-interview",
     "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview Customer Discovery",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20customer%20discovery%20questions&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview Rollout Metrics",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20rollout%20metrics&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview Case Study",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20case%20study&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview System Design",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20system%20design&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview Enterprise Integration",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20enterprise%20integration&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Forward Deployed Engineer Coding Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=forward%20deployed%20engineer%20coding%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Forward Deployed Engineer Deployment Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=forward%20deployed%20engineer%20deployment%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview Stakeholder Management",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20stakeholder%20management&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview Production Debugging",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20production%20debugging&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Interview Product Feedback",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20interview%20product%20feedback%20loop&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Eval Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20eval%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News RAG Interview System Design",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=RAG%20interview%20system%20design&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Guardrails Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20guardrails%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Observability Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20observability%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Workflow Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20workflow%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Voice Agent Interview Latency",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=voice%20agent%20interview%20latency&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Realtime Agent Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=realtime%20AI%20agent%20interview&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Support Agent Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20support%20AI%20agent%20interview&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise AI Interview Case",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20AI%20interview%20case%20study&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Solutions Engineer AI Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=solutions%20engineer%20AI%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Applied AI Architect Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=applied%20AI%20architect%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Palantir FDSE Interview Case",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Palantir%20FDSE%20interview%20case%20study&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News OpenAI FDE Interview Prep",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=OpenAI%20FDE%20interview%20prep&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Anthropic Applied AI Architect Prep",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Anthropic%20applied%20AI%20architect%20interview%20prep&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Take Home Assignment",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20take%20home%20assignment&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Deployment Memo",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20deployment%20memo%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Authorization Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20authorization%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Security Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20security%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Evals Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20evals%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News RAG Evaluation Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=RAG%20evaluation%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Tool Schema Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20tool%20schema%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Workflow Automation Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=workflow%20automation%20interview%20AI&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise Workflow Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20workflow%20interview%20AI&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Integration Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20integration%20interview%20AI&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Field Engineer AI Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=field%20engineer%20AI%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Incident Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20incident%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Launch Gate Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20launch%20gate%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Acceptance Criteria Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20acceptance%20criteria%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Data Mapping Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20data%20mapping%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE API Integration Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20API%20integration%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Tenant Isolation Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20tenant%20isolation%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent State Machine Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20state%20machine%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LangGraph Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LangGraph%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Temporal Workflow Interview AI",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=Temporal%20workflow%20interview%20AI&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Human In The Loop Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=human%20in%20the%20loop%20AI%20agent%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Rollback Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20rollback%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Monitoring Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20monitoring%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Prompt Injection Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=prompt%20injection%20interview%20LLM&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Authorization Matrix Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20authorization%20matrix%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Audit Log Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20audit%20log%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Behavioral Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20behavioral%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Customer Story Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20customer%20story%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Product Sense Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20product%20sense%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Roadmap Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20roadmap%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Metrics Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20metrics%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agentic Coding Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agentic%20coding%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Evals Case Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20evals%20case%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News RAG Case Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=RAG%20case%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Voice Agent System Design Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=voice%20agent%20system%20design%20interview&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Support Workflow Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20support%20workflow%20interview&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Realtime Voice Latency Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=realtime%20voice%20latency%20interview&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Customer Agent Handoff Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=customer%20agent%20handoff%20interview&tags=story",
+    "category": "voice-agent-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Agent Escalation Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=agent%20escalation%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Cost Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20cost%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Observability Case Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20observability%20case%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Onsite Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20onsite%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDSE Interview Preparation",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDSE%20interview%20preparation&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Workflow Discovery Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20workflow%20discovery%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Enterprise Agent Case Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=enterprise%20agent%20case%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Customer Rollout Case",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20customer%20rollout%20case%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Agent Production Case Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI%20agent%20production%20case%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Integration Design Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20integration%20design%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News LLM Product Workflow Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM%20product%20workflow%20interview&tags=story",
+    "category": "agentic-interview",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Launch Plan Interview",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=FDE%20launch%20plan%20interview&tags=story",
+    "category": "fde-interview",
+    "enabled": true
   }
 ]

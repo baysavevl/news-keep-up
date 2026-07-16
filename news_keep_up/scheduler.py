@@ -41,7 +41,8 @@ def _jobs_for_day(day, start: datetime, end: datetime) -> list[ScheduledDigestJo
         if (hour - 7) % 2 == 0:
             jobs.append(_job_for(day, hour, 20, "fde"))
         jobs.append(_job_for(day, hour, 35, "fde-interview"))
-        jobs.append(_job_for(day, hour, 40, "engineer"))
+        if (hour - 7) % 3 == 0:
+            jobs.append(_job_for(day, hour, 40, "engineer"))
     return [job for job in jobs if start <= job.scheduled_for <= end]
 
 
