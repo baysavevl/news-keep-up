@@ -100,12 +100,20 @@ class DigestTest(unittest.TestCase):
         self.assertTrue(any(s.candidate.is_backfill for s in selections))
 
     def test_selection_prefers_newer_items_with_similar_impact(self):
-        older = candidate(1, 94, "ai-engineering")
+        older_published_at = (now_ict() - timedelta(days=7)).astimezone(ZoneInfo("UTC")).isoformat()
+        newer_published_at = (now_ict() - timedelta(days=1)).astimezone(ZoneInfo("UTC")).isoformat()
+        older = DigestCandidate(
+            **{
+                **candidate(1, 94, "ai-engineering").__dict__,
+                "published_at": older_published_at,
+                "fetched_at": older_published_at,
+            }
+        )
         newer = DigestCandidate(
             **{
                 **candidate(2, 91, "ai-engineering").__dict__,
-                "published_at": "2026-07-13T03:00:00+00:00",
-                "fetched_at": "2026-07-13T03:01:00+00:00",
+                "published_at": newer_published_at,
+                "fetched_at": newer_published_at,
             }
         )
 
@@ -444,7 +452,7 @@ class DigestTest(unittest.TestCase):
 
         self.assertEqual(fetch.call_args.args[2], 2)
 
-    def test_run_digest_sends_no_news_heartbeat_when_no_items(self):
+    def test_run_digest_skips_scheduled_delivery_when_no_items(self):
         with tempfile.TemporaryDirectory() as tmp:
             sources_path = Path(tmp) / "sources.json"
             sources_path.write_text(json.dumps([{
@@ -467,9 +475,8 @@ class DigestTest(unittest.TestCase):
             ):
                 message = run_digest(settings, "engineer", dry_run=False, sources_path=sources_path)
 
-        self.assertIn("Scheduler OK", message)
-        self.assertIn("No qualifying items found", message)
-        send.assert_called_once()
+        self.assertEqual(message, "")
+        send.assert_not_called()
         mark.assert_not_called()
 
     def test_engineer_digest_does_not_select_fde_only_source_from_shared_db(self):
@@ -660,6 +667,48 @@ class DigestTest(unittest.TestCase):
             )
 
         self.assertEqual([row.item_id for row in rows], [rollout_id])
+
+    def test_fde_digest_requires_high_relevance_above_generic_medium_item(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db", backfill_lookback_days=10)
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Ravindra Satyanarayana Medium",
+                source_kind="rss",
+                source_category="fde-industry",
+                title="The GenAI Readiness Gap Is an Engineering Problem, Not a Governance One",
+                url="https://example.com/genai-readiness-gap",
+                canonical_url="https://example.com/genai-readiness-gap",
+                summary=(
+                    "Enterprises are writing AI agent policies for a failure they have not reached yet. "
+                    "The post discusses moving AI from demo to customer-facing production workflow."
+                ),
+                published_at=now_ict().isoformat(),
+                fetched_at=now_ict().isoformat(),
+            ))
+            upsert_enrichment(conn, item_id, Enrichment(
+                model="gemini-test",
+                relevance_score=65,
+                category="fde-industry",
+                topic="enterprise-rollout",
+                icon="🧭",
+                title_vi="",
+                summary="Shows a broad signal for moving AI from demo to customer-facing production workflow.",
+                why_it_matters="Impact: medium-level enterprise AI readiness commentary.",
+                takeaway_vi="Tập trung vào cách đưa AI vào workflow khách hàng thật, không chỉ demo.",
+                should_send=True,
+            ))
+
+            rows = _load_digest_candidates_for_slot(
+                conn,
+                settings,
+                "fde",
+                {item_id},
+                allowed_source_names={"Ravindra Satyanarayana Medium"},
+            )
+
+        self.assertEqual(rows, [])
 
     def test_engineer_backfill_expands_to_twenty_one_days_when_still_short(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -861,7 +910,7 @@ class DigestTest(unittest.TestCase):
         self.assertIn("No qualifying items found", message)
         self.assertNotIn("Coasty", message)
 
-    def test_run_digest_sends_and_marks_each_message_chunk(self):
+    def test_run_digest_sends_only_digest_chunks_and_marks_each_chunk(self):
         rows = [candidate(index, 95 - index, "fde-industry") for index in range(1, 5)]
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -878,11 +927,10 @@ class DigestTest(unittest.TestCase):
             ):
                 run_digest(settings, "fde", dry_run=False)
 
-        self.assertEqual(send.call_count, 3)
-        self.assertIn("FDE News Thread", send.call_args_list[0].args[0])
-        self.assertIn("Schedule: every 2 hours", send.call_args_list[0].args[0])
-        self.assertIn("Selected: 4 items", send.call_args_list[0].args[0])
-        self.assertIn("<b>FDE Digest</b>", send.call_args_list[1].args[0])
+        self.assertEqual(send.call_count, 2)
+        self.assertNotIn("FDE News Thread", send.call_args_list[0].args[0])
+        self.assertNotIn("Schedule:", send.call_args_list[0].args[0])
+        self.assertIn("<b>FDE Digest</b>", send.call_args_list[0].args[0])
         self.assertEqual(mark.call_count, 2)
         self.assertEqual(mark.call_args_list[0].args[1], [1, 2])
         self.assertEqual(mark.call_args_list[1].args[1], [3, 4])

@@ -4,7 +4,7 @@ Automated Telegram digest for keeping up with AI, software engineering, forward 
 
 GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
 
-- FDE news: every 2 hours at `:20`, from 07:20 through 21:20 Asia/Ho_Chi_Minh.
+- FDE news: every 4 hours at `08:00`, `12:00`, `16:00`, and `20:00` Asia/Ho_Chi_Minh.
 - FDE interview guideline: hourly at `:35`, from 07:35 through 22:35 Asia/Ho_Chi_Minh.
 - Engineer news: every 3 hours at `:40`, from 07:40 through 22:40 Asia/Ho_Chi_Minh.
 
@@ -21,17 +21,7 @@ Engineer/AI-SWE sources include at least 150 feeds/searches, weighted toward pra
 
 Engineer/AI digests send 2-3 tightly selected items per run. FDE digests send 3-5 items per run. Stored backfill is re-checked against the active profile relevance filter before selection, so generic AI/coding-agent items are not used just to fill any digest. Delivered items are excluded globally across profiles: an item already sent to the Engineer/AI thread is not sent again to FDE, and vice versa.
 
-Each news thread starts with a standalone announcement message so Telegram groups are easy to scan:
-
-```text
-🧭 FDE News Thread
-Time: 16 Jul 09:20 ICT
-Schedule: every 2 hours at :20
-Scope: Customer rollout, field delivery, enterprise implementation
-Selected: 4 items · 1 fresh · 3 backfill
-```
-
-Each item is formatted for quick scanning:
+Each digest message is formatted for quick scanning:
 
 ```text
 1. 🧭 English title
@@ -50,7 +40,7 @@ Takeaway: One short Vietnamese takeaway.
 Read: Read
 ```
 
-Digest messages are split into two news items per Telegram message. FDE's 3-5 item digest is delivered every 2 hours as up to 3 Telegram messages so Telegram does not break long messages awkwardly.
+Digest messages are split into two news items per Telegram message. FDE's 3-5 item digest is delivered every 4 hours as up to 3 Telegram messages so Telegram does not break long messages awkwardly. Scheduled runs stay silent when no qualifying item is found; manual previews still return a no-item diagnostic.
 
 Backfilled items are marked:
 
@@ -159,15 +149,15 @@ Configure repository secrets:
 
 The workflow is in `.github/workflows/digest.yml`. It is a fallback scheduler that calls `/api/scheduler/tick` at `:08`, `:23`, `:38`, and `:53` from `00:00` through `15:59` UTC. The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
 
-- FDE news: every 2 hours from `07:20` through `21:20`
+- FDE news: every 4 hours at `08:00`, `12:00`, `16:00`, and `20:00`
 - FDE interview guidelines: hourly from `07:35` through `22:35`
-- Engineer news: hourly from `07:40` through `22:40`
+- Engineer news: every 3 hours from `07:40` through `22:40`
 
 Vercel Cron is not configured because the current Vercel Hobby plan only supports once-per-day cron cadence. On Vercel Pro, configure a frequent cron against `/api/scheduler/tick`; GitHub Actions and the local LaunchAgent can keep running as idempotent fallbacks.
 
 ## Local LaunchAgent Scheduler
 
-For a local always-on macOS agent, install `ops/launchagents/com.news-keep-up.scheduler-tick.plist` into `~/Library/LaunchAgents/`. It runs `scripts/trigger_scheduler_tick.py` every 5 minutes and calls `/api/scheduler/tick`; the app still controls exact send times and uses Turso `scheduler_runs` to avoid duplicate sends. If a due slot has no qualifying news, the digest sends a short heartbeat message so the Telegram group still confirms scheduler and delivery health.
+For a local always-on macOS agent, install `ops/launchagents/com.news-keep-up.scheduler-tick.plist` into `~/Library/LaunchAgents/`. It runs `scripts/trigger_scheduler_tick.py` every 5 minutes and calls `/api/scheduler/tick`; the app still controls exact send times and uses Turso `scheduler_runs` to avoid duplicate sends. If a due slot has no qualifying news, scheduled delivery stays silent.
 
 The installed runtime copy should live under `~/Library/Application Support/news-keep-up/` with a private `.env` containing `CRON_SECRET`. Logs are written to `~/Library/Logs/news-keep-up/`.
 

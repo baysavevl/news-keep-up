@@ -38,8 +38,8 @@ def due_digest_jobs(
 def _jobs_for_day(day, start: datetime, end: datetime) -> list[ScheduledDigestJob]:
     jobs: list[ScheduledDigestJob] = []
     for hour in range(7, 23):
-        if (hour - 7) % 2 == 0:
-            jobs.append(_job_for(day, hour, 20, "fde"))
+        if hour in {8, 12, 16, 20}:
+            jobs.append(_job_for(day, hour, 0, "fde"))
         jobs.append(_job_for(day, hour, 35, "fde-interview"))
         if (hour - 7) % 3 == 0:
             jobs.append(_job_for(day, hour, 40, "engineer"))

@@ -31,15 +31,15 @@ class SchedulerTest(unittest.TestCase):
             [],
         )
 
-    def test_due_digest_jobs_include_fde_news_every_two_hours_from_0720(self):
-        jobs = due_digest_jobs(datetime(2026, 7, 14, 9, 21, tzinfo=ICT), lookback_minutes=10)
+    def test_due_digest_jobs_include_fde_news_at_four_fixed_times(self):
+        all_day_jobs = due_digest_jobs(datetime(2026, 7, 14, 20, 1, tzinfo=ICT), lookback_minutes=13 * 60)
 
         self.assertEqual(
-            [(job.slot, job.scheduled_for.strftime("%H:%M")) for job in jobs],
-            [("fde", "09:20")],
+            [job.scheduled_for.strftime("%H:%M") for job in all_day_jobs if job.slot == "fde"],
+            ["08:00", "12:00", "16:00", "20:00"],
         )
 
-        self.assertEqual(due_digest_jobs(datetime(2026, 7, 14, 8, 21, tzinfo=ICT), lookback_minutes=10), [])
+        self.assertEqual(due_digest_jobs(datetime(2026, 7, 14, 9, 21, tzinfo=ICT), lookback_minutes=10), [])
 
     def test_due_digest_jobs_include_interview_hourly_from_0735(self):
         jobs = due_digest_jobs(datetime(2026, 7, 14, 8, 36, tzinfo=ICT), lookback_minutes=10)

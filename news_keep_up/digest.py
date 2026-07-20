@@ -56,7 +56,7 @@ DIGEST_THREAD_SCOPES = {
 
 DIGEST_THREAD_SCHEDULES = {
     "engineer": "every 3 hours at :40",
-    "fde": "every 2 hours at :20",
+    "fde": "every 4 hours at 08:00, 12:00, 16:00, 20:00",
     "news": "manual or compatibility slot",
     "morning": "manual or compatibility slot",
     "afternoon": "manual or compatibility slot",
@@ -68,6 +68,7 @@ DIGEST_SELECTION_POLICIES = {
 }
 
 DIGEST_ITEMS_PER_MESSAGE = 2
+FDE_MIN_RELEVANCE_SCORE = 75
 
 TOPIC_ICONS = {
     "coding-agents": "🤖",
@@ -294,11 +295,7 @@ def _format_digest_chunk(
     ]
 
     if not selections:
-        lines.extend([
-            "✅ Scheduler OK.",
-            "No qualifying items found for this slot.",
-            "Cron heartbeat: notification delivery is working, but the news filter did not find a high-signal item.",
-        ])
+        lines.append("No qualifying items found for this slot.")
         return "\n".join(lines).strip()
 
     for selection in selections:
@@ -794,18 +791,11 @@ def run_digest(
     rows = _review_digest_candidates(conn, settings, slot, rows, max_items)
     selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
     content_messages = format_digest_messages(slot, selections)
-    messages = (
-        [format_digest_announcement(slot, selections), *content_messages]
-        if selections
-        else content_messages
-    )
+    messages = content_messages if selections or dry_run else []
     message = "\n\n".join(messages)
     if not dry_run:
         if not selections:
-            for chunk_message in messages:
-                send_telegram_message(chunk_message, settings)
             return message
-        send_telegram_message(messages[0], settings)
         for chunk, chunk_message in zip(_selection_chunks(selections, DIGEST_ITEMS_PER_MESSAGE), content_messages):
             send_telegram_message(chunk_message, settings)
             mark_delivered(
@@ -956,7 +946,7 @@ def _load_digest_candidates(
         "(i.fetched_at IS NULL OR i.fetched_at = '' OR i.fetched_at >= ?)",
         "(i.published_at IS NULL OR i.published_at = '' OR i.published_at >= ?)",
     ]
-    params: list[object] = [settings.min_relevance_score, fetched_cutoff, published_cutoff]
+    params: list[object] = [_min_relevance_score(settings, slot), fetched_cutoff, published_cutoff]
     conditions.append("NOT EXISTS (SELECT 1 FROM deliveries d WHERE d.item_id = i.id)")
     if allowed_source_names is not None:
         ordered_source_names = sorted(allowed_source_names)
@@ -1056,6 +1046,12 @@ def _load_digest_candidates_for_slot(
         if len(best_rows) >= min_items:
             break
     return best_rows
+
+
+def _min_relevance_score(settings: Settings, slot: str | None) -> int:
+    if slot == "fde":
+        return max(settings.min_relevance_score, FDE_MIN_RELEVANCE_SCORE)
+    return settings.min_relevance_score
 
 
 def _candidate_sort_key(row: DigestCandidate) -> tuple[float, int, int, int, str]:

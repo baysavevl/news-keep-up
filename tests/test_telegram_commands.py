@@ -89,7 +89,7 @@ class TelegramCommandsTest(unittest.TestCase):
             )
 
         sent_text = send.call_args.args[0]
-        self.assertIn("every 2 hours at :20", sent_text)
+        self.assertIn("every 4 hours at 08:00, 12:00, 16:00, 20:00", sent_text)
 
     def test_search_command_returns_recent_stored_news(self):
         with tempfile.TemporaryDirectory() as tmp:
