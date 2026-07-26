@@ -4,9 +4,9 @@ Automated Telegram digest for keeping up with AI, software engineering, forward 
 
 GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
 
-- FDE news: every 4 hours at `08:00`, `12:00`, `16:00`, and `20:00` Asia/Ho_Chi_Minh.
+- FDE news: twice daily at `08:00` and `14:00` Asia/Ho_Chi_Minh.
 - FDE interview guideline: hourly at `:35`, from 07:35 through 22:35 Asia/Ho_Chi_Minh.
-- Engineer news: every 3 hours at `:40`, from 07:40 through 22:40 Asia/Ho_Chi_Minh.
+- Engineer/AI news: twice daily at `09:15` and `16:00` Asia/Ho_Chi_Minh.
 
 ## Profiles
 
@@ -40,7 +40,7 @@ Takeaway: One short Vietnamese takeaway.
 Read: Read
 ```
 
-Digest messages are split into two news items per Telegram message. FDE's 3-5 item digest is delivered every 4 hours as up to 3 Telegram messages so Telegram does not break long messages awkwardly. Scheduled runs stay silent when no qualifying item is found; manual previews still return a no-item diagnostic.
+Digest messages are split into two news items per Telegram message. FDE's 3-5 item digest is delivered twice daily as up to 3 Telegram messages so Telegram does not break long messages awkwardly. Scheduled runs stay silent when no qualifying item is found; manual previews still return a no-item diagnostic.
 
 Backfilled items are marked:
 
@@ -147,11 +147,11 @@ Configure repository secrets:
 
 - `CRON_SECRET`
 
-The workflow is in `.github/workflows/digest.yml`. It is a fallback scheduler that calls `/api/scheduler/tick` at `:08`, `:23`, `:38`, and `:53` from `00:00` through `15:59` UTC. The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
+The workflow is in `.github/workflows/digest.yml`. It is a fallback scheduler that calls `/api/scheduler/tick` at `:00`, `:15`, and `:35` from `00:00` through `15:35` UTC. The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
 
-- FDE news: every 4 hours at `08:00`, `12:00`, `16:00`, and `20:00`
+- FDE news: twice daily at `08:00` and `14:00`
 - FDE interview guidelines: hourly from `07:35` through `22:35`
-- Engineer news: every 3 hours from `07:40` through `22:40`
+- Engineer/AI news: twice daily at `09:15` and `16:00`
 
 Vercel Cron is not configured because the current Vercel Hobby plan only supports once-per-day cron cadence. On Vercel Pro, configure a frequent cron against `/api/scheduler/tick`; GitHub Actions and the local LaunchAgent can keep running as idempotent fallbacks.
 

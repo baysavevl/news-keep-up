@@ -25,7 +25,7 @@ class VercelDeployConfigTest(unittest.TestCase):
     def test_github_actions_triggers_fallback_scheduler_tick_from_7_to_22_ict(self):
         workflow = Path(".github/workflows/digest.yml").read_text(encoding="utf-8")
 
-        self.assertIn('cron: "8,23,38,53 0-15 * * *"', workflow)
+        self.assertIn('cron: "0,15,35 0-15 * * *"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("concurrency:", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/scheduler/tick", workflow)

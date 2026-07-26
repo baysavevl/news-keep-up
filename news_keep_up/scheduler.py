@@ -5,6 +5,10 @@ from datetime import datetime, timedelta
 
 from .utils import ICT, now_ict
 
+FDE_NEWS_TIMES = ((8, 0), (14, 0))
+ENGINEER_NEWS_TIMES = ((9, 15), (16, 0))
+FDE_INTERVIEW_HOURS = range(7, 23)
+
 
 @dataclass(frozen=True)
 class ScheduledDigestJob:
@@ -37,12 +41,12 @@ def due_digest_jobs(
 
 def _jobs_for_day(day, start: datetime, end: datetime) -> list[ScheduledDigestJob]:
     jobs: list[ScheduledDigestJob] = []
-    for hour in range(7, 23):
-        if hour in {8, 12, 16, 20}:
-            jobs.append(_job_for(day, hour, 0, "fde"))
+    for hour, minute in FDE_NEWS_TIMES:
+        jobs.append(_job_for(day, hour, minute, "fde"))
+    for hour, minute in ENGINEER_NEWS_TIMES:
+        jobs.append(_job_for(day, hour, minute, "engineer"))
+    for hour in FDE_INTERVIEW_HOURS:
         jobs.append(_job_for(day, hour, 35, "fde-interview"))
-        if (hour - 7) % 3 == 0:
-            jobs.append(_job_for(day, hour, 40, "engineer"))
     return [job for job in jobs if start <= job.scheduled_for <= end]
 
 

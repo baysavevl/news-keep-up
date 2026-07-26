@@ -55,8 +55,8 @@ DIGEST_THREAD_SCOPES = {
 }
 
 DIGEST_THREAD_SCHEDULES = {
-    "engineer": "every 3 hours at :40",
-    "fde": "every 4 hours at 08:00, 12:00, 16:00, 20:00",
+    "engineer": "twice daily at 09:15 and 16:00",
+    "fde": "twice daily at 08:00 and 14:00",
     "news": "manual or compatibility slot",
     "morning": "manual or compatibility slot",
     "afternoon": "manual or compatibility slot",
