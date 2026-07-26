@@ -7,7 +7,9 @@ from .utils import ICT, now_ict
 
 FDE_NEWS_TIMES = ((8, 0), (14, 0))
 ENGINEER_NEWS_TIMES = ((9, 15), (16, 0))
-FDE_INTERVIEW_HOURS = range(7, 23)
+FDE_INTERVIEW_TIMES = ((8, 35), (11, 35), (14, 35))
+FDE_JOB_ALERT_MINUTES = (0, 30)
+FDE_JOB_SOURCE_TIMES = ((7, 10),)
 
 
 @dataclass(frozen=True)
@@ -45,8 +47,13 @@ def _jobs_for_day(day, start: datetime, end: datetime) -> list[ScheduledDigestJo
         jobs.append(_job_for(day, hour, minute, "fde"))
     for hour, minute in ENGINEER_NEWS_TIMES:
         jobs.append(_job_for(day, hour, minute, "engineer"))
-    for hour in FDE_INTERVIEW_HOURS:
-        jobs.append(_job_for(day, hour, 35, "fde-interview"))
+    for hour, minute in FDE_INTERVIEW_TIMES:
+        jobs.append(_job_for(day, hour, minute, "fde-interview"))
+    for hour, minute in FDE_JOB_SOURCE_TIMES:
+        jobs.append(_job_for(day, hour, minute, "fde-job-sources"))
+    for hour in range(24):
+        for minute in FDE_JOB_ALERT_MINUTES:
+            jobs.append(_job_for(day, hour, minute, "fde-jobs"))
     return [job for job in jobs if start <= job.scheduled_for <= end]
 
 

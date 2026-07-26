@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from .models import CandidateItem, Enrichment, Settings, Source
+from .models import CandidateItem, Enrichment, JobOpportunity, Settings, Source, SourceCandidate, SourceEvaluation
 
 
 def row_value(row, key: str, index: int):
@@ -112,6 +112,86 @@ def init_db(conn) -> None:
            ON scheduler_runs(slot, scheduled_for)""",
         """CREATE INDEX IF NOT EXISTS idx_scheduler_runs_status
            ON scheduler_runs(status, scheduled_for)""",
+        """CREATE TABLE IF NOT EXISTS job_opportunities (
+            id TEXT PRIMARY KEY,
+            source_item_id INTEGER REFERENCES items(id),
+            source_fingerprint TEXT NOT NULL,
+            crawled_at TEXT NOT NULL,
+            priority TEXT NOT NULL,
+            company TEXT NOT NULL,
+            role_title TEXT NOT NULL,
+            category TEXT NOT NULL,
+            location TEXT NOT NULL,
+            remote_policy TEXT NOT NULL,
+            vietnam_eligibility TEXT NOT NULL,
+            evidence_type TEXT NOT NULL,
+            status TEXT NOT NULL,
+            posted_date TEXT,
+            source_type TEXT NOT NULL,
+            source_url TEXT NOT NULL,
+            apply_url TEXT,
+            contact_person TEXT,
+            contact_url TEXT,
+            why_it_fits TEXT NOT NULL,
+            what_to_verify TEXT NOT NULL,
+            required_seniority TEXT,
+            required_skills TEXT NOT NULL,
+            domain TEXT NOT NULL,
+            company_expansion_signal TEXT,
+            linkedin_post_signal TEXT,
+            recommended_action TEXT NOT NULL,
+            outreach_angle TEXT,
+            confidence_score INTEGER NOT NULL,
+            should_alert INTEGER NOT NULL,
+            alert_fingerprint TEXT NOT NULL,
+            raw_json TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )""",
+        """CREATE INDEX IF NOT EXISTS idx_job_opportunities_priority_status
+           ON job_opportunities(priority, status, updated_at)""",
+        """CREATE INDEX IF NOT EXISTS idx_job_opportunities_source_item
+           ON job_opportunities(source_item_id)""",
+        """CREATE TABLE IF NOT EXISTS job_alert_deliveries (
+            id INTEGER PRIMARY KEY,
+            opportunity_id TEXT NOT NULL REFERENCES job_opportunities(id),
+            alert_fingerprint TEXT NOT NULL,
+            delivered_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )""",
+        """CREATE UNIQUE INDEX IF NOT EXISTS idx_job_alert_deliveries_opportunity_fingerprint
+           ON job_alert_deliveries(opportunity_id, alert_fingerprint)""",
+        """CREATE TABLE IF NOT EXISTS source_candidates (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            kind TEXT NOT NULL,
+            url TEXT NOT NULL UNIQUE,
+            category TEXT NOT NULL,
+            source_type TEXT NOT NULL,
+            status TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            discovered_from TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            fingerprint TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )""",
+        """CREATE INDEX IF NOT EXISTS idx_source_candidates_status_score
+           ON source_candidates(status, score, updated_at)""",
+        """CREATE TABLE IF NOT EXISTS source_evaluations (
+            id INTEGER PRIMARY KEY,
+            source_name TEXT NOT NULL,
+            source_url TEXT NOT NULL,
+            evaluation_date TEXT NOT NULL,
+            fetched_items_7d INTEGER NOT NULL,
+            opportunities_7d INTEGER NOT NULL,
+            alerts_7d INTEGER NOT NULL,
+            score INTEGER NOT NULL,
+            verdict TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )""",
+        """CREATE UNIQUE INDEX IF NOT EXISTS idx_source_evaluations_source_date
+           ON source_evaluations(source_url, evaluation_date)""",
     ]
     for statement in statements:
         conn.execute(statement)
@@ -265,6 +345,335 @@ def record_llm_usage(conn, model: str, call_date: str, slot: str, item_id: int |
 def count_llm_calls_today(conn, call_date: str) -> int:
     row = conn.execute("SELECT COUNT(*) AS count FROM llm_usage WHERE call_date=?", (call_date,)).fetchone()
     return int(row_value(row, "count", 0) if row else 0)
+
+
+def get_job_opportunity_source_fingerprint(conn, source_item_id: int) -> str | None:
+    row = conn.execute(
+        """SELECT source_fingerprint
+           FROM job_opportunities
+           WHERE source_item_id=?
+           ORDER BY updated_at DESC
+           LIMIT 1""",
+        (source_item_id,),
+    ).fetchone()
+    if not row:
+        return None
+    return str(row_value(row, "source_fingerprint", 0))
+
+
+def upsert_job_opportunity(conn, opportunity: JobOpportunity) -> tuple[bool, bool]:
+    existing = conn.execute(
+        "SELECT alert_fingerprint FROM job_opportunities WHERE id=?",
+        (opportunity.id,),
+    ).fetchone()
+    values = _job_opportunity_values(opportunity)
+    if existing:
+        previous_fingerprint = str(row_value(existing, "alert_fingerprint", 0))
+        conn.execute(
+            """UPDATE job_opportunities
+               SET source_item_id=?, source_fingerprint=?, crawled_at=?, priority=?,
+                   company=?, role_title=?, category=?, location=?, remote_policy=?,
+                   vietnam_eligibility=?, evidence_type=?, status=?, posted_date=?,
+                   source_type=?, source_url=?, apply_url=?, contact_person=?,
+                   contact_url=?, why_it_fits=?, what_to_verify=?, required_seniority=?,
+                   required_skills=?, domain=?, company_expansion_signal=?,
+                   linkedin_post_signal=?, recommended_action=?, outreach_angle=?,
+                   confidence_score=?, should_alert=?, alert_fingerprint=?, raw_json=?,
+                   updated_at=CURRENT_TIMESTAMP
+               WHERE id=?""",
+            (*values, opportunity.id),
+        )
+        conn.commit()
+        return False, previous_fingerprint != opportunity.alert_fingerprint
+
+    conn.execute(
+        """INSERT INTO job_opportunities (
+               id, source_item_id, source_fingerprint, crawled_at, priority, company,
+               role_title, category, location, remote_policy, vietnam_eligibility,
+               evidence_type, status, posted_date, source_type, source_url, apply_url,
+               contact_person, contact_url, why_it_fits, what_to_verify,
+               required_seniority, required_skills, domain, company_expansion_signal,
+               linkedin_post_signal, recommended_action, outreach_angle,
+               confidence_score, should_alert, alert_fingerprint, raw_json
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (opportunity.id, *values),
+    )
+    conn.commit()
+    return True, True
+
+
+def _job_opportunity_values(opportunity: JobOpportunity) -> tuple[Any, ...]:
+    raw = {
+        "id": opportunity.id,
+        "source_item_id": opportunity.source_item_id,
+        "source_fingerprint": opportunity.source_fingerprint,
+        "crawled_at": opportunity.crawled_at,
+        "priority": opportunity.priority,
+        "company": opportunity.company,
+        "role_title": opportunity.role_title,
+        "category": opportunity.category,
+        "location": opportunity.location,
+        "remote_policy": opportunity.remote_policy,
+        "vietnam_eligibility": opportunity.vietnam_eligibility,
+        "evidence_type": opportunity.evidence_type,
+        "status": opportunity.status,
+        "posted_date": opportunity.posted_date,
+        "source_type": opportunity.source_type,
+        "source_url": opportunity.source_url,
+        "apply_url": opportunity.apply_url,
+        "contact_person": opportunity.contact_person,
+        "contact_url": opportunity.contact_url,
+        "why_it_fits": opportunity.why_it_fits,
+        "what_to_verify": opportunity.what_to_verify,
+        "required_seniority": opportunity.required_seniority,
+        "required_skills": opportunity.required_skills,
+        "domain": opportunity.domain,
+        "company_expansion_signal": opportunity.company_expansion_signal,
+        "linkedin_post_signal": opportunity.linkedin_post_signal,
+        "recommended_action": opportunity.recommended_action,
+        "outreach_angle": opportunity.outreach_angle,
+        "confidence_score": opportunity.confidence_score,
+        "should_alert": opportunity.should_alert,
+    }
+    return (
+        opportunity.source_item_id,
+        opportunity.source_fingerprint,
+        opportunity.crawled_at,
+        opportunity.priority,
+        opportunity.company,
+        opportunity.role_title,
+        opportunity.category,
+        opportunity.location,
+        opportunity.remote_policy,
+        opportunity.vietnam_eligibility,
+        opportunity.evidence_type,
+        opportunity.status,
+        opportunity.posted_date,
+        opportunity.source_type,
+        opportunity.source_url,
+        opportunity.apply_url,
+        opportunity.contact_person,
+        opportunity.contact_url,
+        opportunity.why_it_fits,
+        json.dumps(opportunity.what_to_verify, ensure_ascii=True),
+        opportunity.required_seniority,
+        json.dumps(opportunity.required_skills, ensure_ascii=True),
+        json.dumps(opportunity.domain, ensure_ascii=True),
+        opportunity.company_expansion_signal,
+        opportunity.linkedin_post_signal,
+        opportunity.recommended_action,
+        opportunity.outreach_angle,
+        opportunity.confidence_score,
+        int(opportunity.should_alert),
+        opportunity.alert_fingerprint,
+        json.dumps(raw, ensure_ascii=True),
+    )
+
+
+def job_alert_was_delivered(conn, opportunity_id: str, alert_fingerprint: str) -> bool:
+    row = conn.execute(
+        """SELECT 1
+           FROM job_alert_deliveries
+           WHERE opportunity_id=? AND alert_fingerprint=?
+           LIMIT 1""",
+        (opportunity_id, alert_fingerprint),
+    ).fetchone()
+    return row is not None
+
+
+def mark_job_alert_delivered(conn, opportunity_id: str, alert_fingerprint: str) -> None:
+    conn.execute(
+        """INSERT OR IGNORE INTO job_alert_deliveries (opportunity_id, alert_fingerprint)
+           VALUES (?, ?)""",
+        (opportunity_id, alert_fingerprint),
+    )
+    conn.commit()
+
+
+def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
+    rows = conn.execute(
+        """SELECT id, source_item_id, source_fingerprint, crawled_at, priority, company,
+                  role_title, category, location, remote_policy, vietnam_eligibility,
+                  evidence_type, status, posted_date, source_type, source_url, apply_url,
+                  contact_person, contact_url, why_it_fits, what_to_verify,
+                  required_seniority, required_skills, domain, company_expansion_signal,
+                  linkedin_post_signal, recommended_action, outreach_angle,
+                  confidence_score, should_alert
+           FROM job_opportunities jo
+           WHERE should_alert=1
+             AND priority IN ('High', 'Medium')
+             AND status <> 'closed'
+             AND NOT EXISTS (
+                 SELECT 1
+                 FROM job_alert_deliveries jad
+                 WHERE jad.opportunity_id = jo.id
+                   AND jad.alert_fingerprint = jo.alert_fingerprint
+             )
+           ORDER BY updated_at DESC
+           LIMIT ?""",
+        (limit,),
+    ).fetchall()
+    return [_job_opportunity_from_row(row) for row in rows]
+
+
+def _job_opportunity_from_row(row) -> JobOpportunity:
+    return JobOpportunity(
+        id=str(row_value(row, "id", 0)),
+        source_item_id=int(row_value(row, "source_item_id", 1)),
+        source_fingerprint=str(row_value(row, "source_fingerprint", 2)),
+        crawled_at=str(row_value(row, "crawled_at", 3)),
+        priority=str(row_value(row, "priority", 4)),
+        company=str(row_value(row, "company", 5)),
+        role_title=str(row_value(row, "role_title", 6)),
+        category=str(row_value(row, "category", 7)),
+        location=str(row_value(row, "location", 8)),
+        remote_policy=str(row_value(row, "remote_policy", 9)),
+        vietnam_eligibility=str(row_value(row, "vietnam_eligibility", 10)),
+        evidence_type=str(row_value(row, "evidence_type", 11)),
+        status=str(row_value(row, "status", 12)),
+        posted_date=str(row_value(row, "posted_date", 13) or ""),
+        source_type=str(row_value(row, "source_type", 14)),
+        source_url=str(row_value(row, "source_url", 15)),
+        apply_url=str(row_value(row, "apply_url", 16) or ""),
+        contact_person=str(row_value(row, "contact_person", 17) or ""),
+        contact_url=str(row_value(row, "contact_url", 18) or ""),
+        why_it_fits=str(row_value(row, "why_it_fits", 19)),
+        what_to_verify=_json_list(row_value(row, "what_to_verify", 20)),
+        required_seniority=str(row_value(row, "required_seniority", 21) or ""),
+        required_skills=_json_list(row_value(row, "required_skills", 22)),
+        domain=_json_list(row_value(row, "domain", 23)),
+        company_expansion_signal=str(row_value(row, "company_expansion_signal", 24) or ""),
+        linkedin_post_signal=str(row_value(row, "linkedin_post_signal", 25) or ""),
+        recommended_action=str(row_value(row, "recommended_action", 26)),
+        outreach_angle=str(row_value(row, "outreach_angle", 27) or ""),
+        confidence_score=int(row_value(row, "confidence_score", 28)),
+        should_alert=bool(row_value(row, "should_alert", 29)),
+    )
+
+
+def _json_list(value: object) -> list[str]:
+    try:
+        parsed = json.loads(str(value or "[]"))
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(parsed, list):
+        return []
+    return [str(item) for item in parsed if str(item).strip()]
+
+
+def upsert_source_candidate(conn, candidate: SourceCandidate) -> tuple[bool, bool]:
+    existing = conn.execute(
+        "SELECT id, fingerprint FROM source_candidates WHERE url=?",
+        (candidate.url,),
+    ).fetchone()
+    values = (
+        candidate.id,
+        candidate.name,
+        candidate.kind,
+        candidate.url,
+        candidate.category,
+        candidate.source_type,
+        candidate.status,
+        candidate.score,
+        candidate.discovered_from,
+        candidate.reason,
+        candidate.fingerprint,
+    )
+    if existing:
+        previous_fingerprint = str(row_value(existing, "fingerprint", 1))
+        conn.execute(
+            """UPDATE source_candidates
+               SET id=?, name=?, kind=?, category=?, source_type=?, status=?, score=?,
+                   discovered_from=?, reason=?, fingerprint=?, updated_at=CURRENT_TIMESTAMP
+               WHERE url=?""",
+            (
+                candidate.id,
+                candidate.name,
+                candidate.kind,
+                candidate.category,
+                candidate.source_type,
+                candidate.status,
+                candidate.score,
+                candidate.discovered_from,
+                candidate.reason,
+                candidate.fingerprint,
+                candidate.url,
+            ),
+        )
+        conn.commit()
+        return False, previous_fingerprint != candidate.fingerprint
+
+    conn.execute(
+        """INSERT INTO source_candidates (
+               id, name, kind, url, category, source_type, status, score,
+               discovered_from, reason, fingerprint
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        values,
+    )
+    conn.commit()
+    return True, True
+
+
+def list_source_candidates(conn, status: str | None = None, limit: int = 50) -> list[SourceCandidate]:
+    conditions: list[str] = []
+    params: list[object] = []
+    if status is not None:
+        conditions.append("status=?")
+        params.append(status)
+    where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    rows = conn.execute(
+        f"""SELECT id, name, kind, url, category, source_type, status, score,
+                   discovered_from, reason
+            FROM source_candidates
+            {where}
+            ORDER BY score DESC, updated_at DESC
+            LIMIT ?""",
+        (*params, limit),
+    ).fetchall()
+    return [
+        SourceCandidate(
+            id=str(row_value(row, "id", 0)),
+            name=str(row_value(row, "name", 1)),
+            kind=str(row_value(row, "kind", 2)),
+            url=str(row_value(row, "url", 3)),
+            category=str(row_value(row, "category", 4)),
+            source_type=str(row_value(row, "source_type", 5)),
+            status=str(row_value(row, "status", 6)),
+            score=int(row_value(row, "score", 7)),
+            discovered_from=str(row_value(row, "discovered_from", 8)),
+            reason=str(row_value(row, "reason", 9)),
+        )
+        for row in rows
+    ]
+
+
+def record_source_evaluation(conn, evaluation: SourceEvaluation) -> None:
+    conn.execute(
+        """INSERT INTO source_evaluations (
+               source_name, source_url, evaluation_date, fetched_items_7d,
+               opportunities_7d, alerts_7d, score, verdict, reason
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(source_url, evaluation_date) DO UPDATE SET
+               source_name=excluded.source_name,
+               fetched_items_7d=excluded.fetched_items_7d,
+               opportunities_7d=excluded.opportunities_7d,
+               alerts_7d=excluded.alerts_7d,
+               score=excluded.score,
+               verdict=excluded.verdict,
+               reason=excluded.reason""",
+        (
+            evaluation.source_name,
+            evaluation.source_url,
+            evaluation.evaluation_date,
+            evaluation.fetched_items_7d,
+            evaluation.opportunities_7d,
+            evaluation.alerts_7d,
+            evaluation.score,
+            evaluation.verdict,
+            evaluation.reason,
+        ),
+    )
+    conn.commit()
 
 
 def claim_scheduler_run(

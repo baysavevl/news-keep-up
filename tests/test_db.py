@@ -8,14 +8,21 @@ from news_keep_up.db import (
     count_llm_calls_today,
     finish_scheduler_run,
     get_enrichment,
+    get_job_opportunity_source_fingerprint,
+    job_alert_was_delivered,
+    list_source_candidates,
     init_db,
+    mark_job_alert_delivered,
     mark_delivered,
+    record_source_evaluation,
     record_llm_usage,
     upsert_enrichment,
     upsert_item,
+    upsert_job_opportunity,
+    upsert_source_candidate,
     upsert_source,
 )
-from news_keep_up.models import CandidateItem, Enrichment, Settings, Source
+from news_keep_up.models import CandidateItem, Enrichment, JobOpportunity, SourceCandidate, SourceEvaluation, Settings, Source
 
 
 def make_item(title: str = "AI agents for engineers") -> CandidateItem:
@@ -48,6 +55,45 @@ def make_enrichment(score: int = 88) -> Enrichment:
         why_it_matters="Useful for designing agent-assisted delivery workflows.",
         takeaway_vi="Nên thử nghiệm agent trong quy trình giao việc nhỏ.",
         should_send=True,
+    )
+
+
+def make_job_opportunity(
+    opportunity_id: str = "wonderful-forward-deployed-engineer-vietnam",
+    priority: str = "High",
+    source_fingerprint: str = "job-fp-1",
+) -> JobOpportunity:
+    return JobOpportunity(
+        id=opportunity_id,
+        source_item_id=1,
+        source_fingerprint=source_fingerprint,
+        crawled_at="2026-07-27",
+        priority=priority,
+        company="Wonderful",
+        role_title="Forward Deployed Engineer",
+        category="Exact FDE Role",
+        location="Vietnam",
+        remote_policy="Remote Vietnam possible",
+        vietnam_eligibility="explicit_yes",
+        evidence_type="Hard",
+        status="open",
+        posted_date="",
+        source_type="ATS",
+        source_url="https://example.com/jobs/fde",
+        apply_url="https://example.com/jobs/fde/apply",
+        contact_person="",
+        contact_url="",
+        why_it_fits="Exact FDE role with Vietnam eligibility.",
+        what_to_verify=["Compensation range"],
+        required_seniority="Senior",
+        required_skills=["LLM", "customer deployment"],
+        domain=["enterprise AI"],
+        company_expansion_signal="",
+        linkedin_post_signal="",
+        recommended_action="apply_now",
+        outreach_angle="Emphasize AI deployment work in Vietnam.",
+        confidence_score=94,
+        should_alert=True,
     )
 
 
@@ -118,6 +164,82 @@ class DatabaseTest(unittest.TestCase):
             ).fetchone()
             self.assertEqual(row["status"], "done")
             self.assertEqual(row["message_length"], 123)
+
+    def test_job_opportunity_upsert_tracks_material_changes_and_alert_delivery(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_item())
+
+            opportunity = make_job_opportunity()
+            opportunity = JobOpportunity(**{**opportunity.__dict__, "source_item_id": item_id})
+            inserted, changed = upsert_job_opportunity(conn, opportunity)
+
+            self.assertTrue(inserted)
+            self.assertTrue(changed)
+            self.assertEqual(get_job_opportunity_source_fingerprint(conn, 1), "job-fp-1")
+            self.assertFalse(job_alert_was_delivered(conn, opportunity.id, opportunity.alert_fingerprint))
+
+            mark_job_alert_delivered(conn, opportunity.id, opportunity.alert_fingerprint)
+            self.assertTrue(job_alert_was_delivered(conn, opportunity.id, opportunity.alert_fingerprint))
+
+            inserted, changed = upsert_job_opportunity(conn, opportunity)
+            self.assertFalse(inserted)
+            self.assertFalse(changed)
+
+            updated = make_job_opportunity(priority="Medium", source_fingerprint="job-fp-2")
+            updated = JobOpportunity(**{**updated.__dict__, "source_item_id": item_id})
+            inserted, changed = upsert_job_opportunity(conn, updated)
+
+            self.assertFalse(inserted)
+            self.assertTrue(changed)
+            self.assertEqual(get_job_opportunity_source_fingerprint(conn, 1), "job-fp-2")
+
+    def test_source_candidates_and_evaluations_are_stored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+
+            candidate = SourceCandidate(
+                id="ashby-fde-apac",
+                name="Ashby FDE APAC",
+                kind="rss",
+                url="https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+FDE+APAC&format=rss",
+                category="ats-index-search",
+                source_type="ATS",
+                status="candidate",
+                score=84,
+                discovered_from="Bing source discovery",
+                reason="Finds indexed Ashby FDE roles in APAC.",
+            )
+            inserted, changed = upsert_source_candidate(conn, candidate)
+            inserted_again, changed_again = upsert_source_candidate(conn, candidate)
+
+            self.assertTrue(inserted)
+            self.assertTrue(changed)
+            self.assertFalse(inserted_again)
+            self.assertFalse(changed_again)
+            self.assertEqual(list_source_candidates(conn, status="candidate")[0].url, candidate.url)
+
+            evaluation = SourceEvaluation(
+                source_name="Bing FDE Vietnam",
+                source_url="https://www.bing.com/search?q=fde&format=rss",
+                evaluation_date="2026-07-27",
+                fetched_items_7d=12,
+                opportunities_7d=3,
+                alerts_7d=1,
+                score=88,
+                verdict="keep",
+                reason="Produced one alert and several relevant opportunities.",
+            )
+            record_source_evaluation(conn, evaluation)
+
+            row = conn.execute(
+                "SELECT score, verdict FROM source_evaluations WHERE source_name=?",
+                ("Bing FDE Vietnam",),
+            ).fetchone()
+            self.assertEqual(row["score"], 88)
+            self.assertEqual(row["verdict"], "keep")
 
 
 if __name__ == "__main__":

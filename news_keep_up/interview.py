@@ -223,7 +223,7 @@ def select_fde_interview_guidelines(
     else:
         now = now.astimezone(ICT)
     minutes = now.hour * 60 + now.minute
-    window = max(0, (minutes - (7 * 60 + 35)) // 60)
+    window = max(0, (minutes - (8 * 60 + 35)) // 180)
     day_offset = now.toordinal() * 16
     start = day_offset + window * max(1, count)
     return [
@@ -261,17 +261,11 @@ def format_fde_interview_announcement(
         now = now.replace(tzinfo=ICT)
     else:
         now = now.astimezone(ICT)
-    fde_topics = []
-    for card in cards:
-        fde_topic, _, _ = _interview_support(card)
-        if fde_topic not in fde_topics:
-            fde_topics.append(fde_topic)
     return "\n".join([
         "<b>🧭 FDE Interview Prep Thread</b>",
         f"Time: {escape(now.strftime('%d %b %H:%M'))} ICT",
-        "Schedule: hourly at :35",
+        "Schedule: 08:35, 11:35, 14:35 ICT",
         f"Contents: {len(cards)} focused drills",
-        f"FDE topics: {escape(' · '.join(fde_topics[:3]))}",
     ])
 
 

@@ -83,3 +83,93 @@ class DigestCandidate:
 class DigestSelection:
     candidate: DigestCandidate
     position: int
+
+
+@dataclass(frozen=True)
+class JobOpportunity:
+    id: str
+    source_item_id: int
+    source_fingerprint: str
+    crawled_at: str
+    priority: str
+    company: str
+    role_title: str
+    category: str
+    location: str
+    remote_policy: str
+    vietnam_eligibility: str
+    evidence_type: str
+    status: str
+    posted_date: str
+    source_type: str
+    source_url: str
+    apply_url: str
+    contact_person: str
+    contact_url: str
+    why_it_fits: str
+    what_to_verify: list[str] = field(default_factory=list)
+    required_seniority: str = ""
+    required_skills: list[str] = field(default_factory=list)
+    domain: list[str] = field(default_factory=list)
+    company_expansion_signal: str = ""
+    linkedin_post_signal: str = ""
+    recommended_action: str = "set_alert"
+    outreach_angle: str = ""
+    confidence_score: int = 0
+    should_alert: bool = False
+
+    @property
+    def alert_fingerprint(self) -> str:
+        parts = [
+            f"priority={self.priority}",
+            f"status={self.status}",
+            f"eligibility={self.vietnam_eligibility}",
+            f"location={self.location}",
+            f"role={self.role_title}",
+            f"apply={self.apply_url or self.source_url}",
+        ]
+        return "|".join(_compact_fingerprint_part(part) for part in parts)
+
+
+def _compact_fingerprint_part(value: str) -> str:
+    return " ".join(str(value).split()).strip()
+
+
+@dataclass(frozen=True)
+class SourceCandidate:
+    id: str
+    name: str
+    kind: str
+    url: str
+    category: str
+    source_type: str
+    status: str
+    score: int
+    discovered_from: str
+    reason: str
+
+    @property
+    def fingerprint(self) -> str:
+        return "|".join(_compact_fingerprint_part(part) for part in (
+            self.name,
+            self.kind,
+            self.url,
+            self.category,
+            self.source_type,
+            self.status,
+            str(self.score),
+            self.reason,
+        ))
+
+
+@dataclass(frozen=True)
+class SourceEvaluation:
+    source_name: str
+    source_url: str
+    evaluation_date: str
+    fetched_items_7d: int
+    opportunities_7d: int
+    alerts_7d: int
+    score: int
+    verdict: str
+    reason: str

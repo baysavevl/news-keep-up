@@ -17,7 +17,9 @@ from .db import (
 )
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
+from .job_alerts import run_fde_job_alerts
 from .scheduler import due_digest_jobs
+from .source_intelligence import run_fde_job_source_intelligence
 from .telegram import set_telegram_chat_photo
 from .telegram_commands import handle_telegram_update
 from .utils import now_ict
@@ -38,6 +40,13 @@ DIGEST_PROFILES = {
     "engineer": DigestProfile("engineer", "config/sources.json", "ENGINEER"),
     "fde": DigestProfile("fde", "config/fde_sources.json", "FDE"),
     "fde-interview": DigestProfile("fde-interview", "config/fde_interview_sources.json", "FDE", "interview"),
+    "fde-jobs": DigestProfile("fde-jobs", "config/fde_job_sources.json", "FDE", "jobs"),
+    "fde-job-sources": DigestProfile(
+        "fde-job-sources",
+        "config/fde_job_source_discovery_sources.json",
+        "FDE",
+        "source-intelligence",
+    ),
 }
 
 app = Flask(__name__)
@@ -109,7 +118,7 @@ def scheduler_tick_endpoint():
     init_db(conn)
     results = []
     triggered = 0
-    max_jobs_per_tick = 1
+    max_jobs_per_tick = 3
     try:
         for job in due_digest_jobs(current):
             if triggered >= max_jobs_per_tick:
@@ -268,7 +277,8 @@ def _telegram_delivery_configured(settings) -> bool:
 
 def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
     settings = load_settings(env_prefix=profile.env_prefix)
-    if not dry_run and not _telegram_delivery_configured(settings):
+    delivery_configured = _telegram_delivery_configured(settings)
+    if profile.mode in {"digest", "interview"} and not dry_run and not delivery_configured:
         return {
             "delivery_configured": False,
             "message": "Telegram delivery is not configured for this digest profile.",
@@ -277,6 +287,18 @@ def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
 
     if profile.mode == "interview":
         message = run_fde_interview_guideline(settings, dry_run=dry_run)
+    elif profile.mode == "jobs":
+        message = run_fde_job_alerts(
+            settings,
+            dry_run=dry_run,
+            sources_path=profile.sources_path,
+        )
+    elif profile.mode == "source-intelligence":
+        message = run_fde_job_source_intelligence(
+            settings,
+            dry_run=dry_run,
+            discovery_sources_path=profile.sources_path,
+        )
     else:
         message = run_digest(
             settings,
@@ -285,7 +307,7 @@ def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
             sources_path=profile.sources_path,
         )
     return {
-        "delivery_configured": True,
+        "delivery_configured": delivery_configured,
         "message_length": len(message),
     }
 

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Bing Source Discovery ATS FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28site%3Ajobs.ashbyhq.com+OR+site%3Ajob-boards.greenhouse.io+OR+site%3Ajobs.lever.co%29+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+Singapore+OR+Vietnam%29&format=rss",
+    "category": "source-discovery-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Source Discovery AI Solutions Vietnam",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22%29+%28Vietnam+OR+%22Ho+Chi+Minh%22+OR+APAC%29+jobs&format=rss",
+    "category": "source-discovery-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Source Discovery LinkedIn Hiring Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%28FDE+OR+%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22%29+%28Vietnam+OR+APAC+OR+%22Southeast+Asia%22%29+hiring&format=rss",
+    "category": "source-discovery-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Source Discovery Startup Boards",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28site%3Aycombinator.com%2Fcompanies+OR+site%3Awellfound.com+OR+site%3Afwddeploy.com%29+%28%22Forward+Deployed%22+OR+%22AI+Deployment%22+OR+%22AI+Solutions%22%29+%28remote+OR+APAC+OR+Vietnam%29&format=rss",
+    "category": "source-discovery-search",
+    "source_type": "aggregator",
+    "enabled": true
+  }
+]

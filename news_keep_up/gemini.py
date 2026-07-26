@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import re
 import urllib.error
 import urllib.request
 from dataclasses import replace
 from typing import Mapping
 
-from .models import CandidateItem, DigestCandidate, Enrichment, Settings
+from .models import CandidateItem, DigestCandidate, Enrichment, JobOpportunity, Settings
 from .utils import clean_text
 
 
@@ -133,6 +134,79 @@ def build_digest_review_prompt(slot: str, candidates: list[DigestCandidate], max
     )
 
 
+def build_job_classification_prompt(
+    candidates: list[tuple[int, CandidateItem]],
+    crawled_at: str,
+) -> str:
+    items_json = json.dumps([
+        {
+            "candidate_id": item_id,
+            "source_name": item.source_name,
+            "source_type_hint": _source_type_hint(item),
+            "source_category": item.source_category,
+            "title": item.title,
+            "url": item.url,
+            "summary": _trim_for_prompt(item.summary or item.content, 700),
+            "published_at": item.published_at,
+        }
+        for item_id, item in candidates
+    ], ensure_ascii=False)
+    return (
+        "You classify tech job and hiring-signal candidates for a Ho Chi Minh City, Vietnam based candidate.\n"
+        "Candidate can work Remote Vietnam, Remote APAC/SEA/Asia/global, or consider SEA/APAC relocation/contract/EOR "
+        "only if evidence suggests it may be possible. Do not assume APAC, SEA, Singapore, or remote accepts Vietnam; "
+        "mark vietnam_eligibility=verify unless explicit.\n\n"
+        "Relevant roles: Forward Deployed Engineer/FDE/Forward Deployment/Deployed Engineer/Deployment Strategist, "
+        "customer-facing AI engineer, applied AI engineer, AI solutions engineer, GenAI solution architect, "
+        "implementation/integration/field/customer engineer, AI deployment engineer, agent/LLM/RAG engineer with "
+        "enterprise/customer deployment.\n\n"
+        "Evidence: Hard=explicit Vietnam/HCMC/Hanoi/Remote Vietnam/Vietnam market/Vietnamese/global remote with no conflict. "
+        "Medium=APAC/SEA/Asia/global remote/Singapore regional but Vietnam not explicit. Weak=relevant but eligibility unclear.\n"
+        "Priority: High=Hard + exact/strong adjacent AI deployment role. Medium=strong role but Vietnam eligibility must be verified. "
+        "Low=loose, onsite outside Vietnam, weak/stale. Reject=closed/unrelated/pure sales/pure research/pure backend.\n"
+        "Set should_alert=true for High or Medium opportunities when status is not closed and confidence_score >= 60. "
+        "Set should_alert=false for Low, Watch, Reject, closed, or confidence_score < 60.\n"
+        "Use only provided evidence. Do not invent status, eligibility, dates, contacts, or apply links.\n\n"
+        "Return JSON only with this exact shape:\n"
+        "{\n"
+        '  "items": [\n'
+        "    {\n"
+        '      "candidate_id": 123,\n'
+        '      "id": "stable-lowercase-slug",\n'
+        '      "priority": "High|Medium|Low",\n'
+        '      "company": "",\n'
+        '      "role_title": "",\n'
+        '      "category": "Exact FDE Role|FDE-Adjacent Role|Expansion Signal|Hidden Hiring Signal|Watchlist Company|Reject",\n'
+        '      "location": "",\n'
+        '      "remote_policy": "",\n'
+        '      "vietnam_eligibility": "explicit_yes|likely_possible|verify|unlikely|no",\n'
+        '      "evidence_type": "Hard|Medium|Weak",\n'
+        '      "status": "open|likely_open|uncertain|closed|watch",\n'
+        '      "posted_date": "",\n'
+        '      "source_type": "official_career_page|ATS|LinkedIn_job|LinkedIn_post|company_blog|VC_job_board|job_board|social|aggregator",\n'
+        '      "source_url": "",\n'
+        '      "apply_url": "",\n'
+        '      "contact_person": "",\n'
+        '      "contact_url": "",\n'
+        '      "why_it_fits": "",\n'
+        '      "what_to_verify": [],\n'
+        '      "required_seniority": "",\n'
+        '      "required_skills": [],\n'
+        '      "domain": [],\n'
+        '      "company_expansion_signal": "",\n'
+        '      "linkedin_post_signal": "",\n'
+        '      "recommended_action": "apply_now|dm_recruiter_first|follow_company|set_alert|ignore",\n'
+        '      "outreach_angle": "",\n'
+        '      "confidence_score": 0,\n'
+        '      "should_alert": false\n'
+        "    }\n"
+        "  ]\n"
+        "}\n\n"
+        f"Crawled at: {crawled_at}\n"
+        f"Candidates:\n{items_json}"
+    )
+
+
 def parse_enrichment_response(text: str, item: CandidateItem, model: str) -> Enrichment:
     try:
         data = json.loads(_extract_json(text))
@@ -195,6 +269,30 @@ def parse_digest_review_response(
     return reviewed
 
 
+def parse_job_classification_response(
+    text: str,
+    candidates_by_id: dict[int, CandidateItem],
+    model: str,
+    crawled_at: str,
+) -> list[JobOpportunity]:
+    try:
+        data = json.loads(_extract_json(text))
+    except (json.JSONDecodeError, ValueError, TypeError):
+        return []
+
+    opportunities: list[JobOpportunity] = []
+    for row in data.get("items", []):
+        candidate_id = _clamp_int(row.get("candidate_id"), 0, 10_000_000_000, 0)
+        candidate = candidates_by_id.get(candidate_id)
+        if candidate is None:
+            continue
+        opportunity = _job_opportunity_from_row(row, candidate_id, candidate, crawled_at)
+        if opportunity.category == "Reject":
+            continue
+        opportunities.append(opportunity)
+    return opportunities
+
+
 def fallback_enrichment(item: CandidateItem, reason: str = "fallback") -> Enrichment:
     return Enrichment(
         model=f"fallback:{reason}",
@@ -208,6 +306,40 @@ def fallback_enrichment(item: CandidateItem, reason: str = "fallback") -> Enrich
         takeaway_vi=_fallback_takeaway_vi(item),
         should_send=True,
     )
+
+
+def fallback_job_opportunities(
+    candidates: list[tuple[int, CandidateItem]],
+    crawled_at: str,
+) -> list[JobOpportunity]:
+    opportunities: list[JobOpportunity] = []
+    for item_id, candidate in candidates:
+        text = f"{candidate.title} {candidate.summary}".lower()
+        if "forward deployed" not in text and "fde" not in text:
+            continue
+        row = {
+            "candidate_id": item_id,
+            "id": "",
+            "priority": "Medium",
+            "company": candidate.source_name,
+            "role_title": candidate.title,
+            "category": "Exact FDE Role",
+            "location": "",
+            "remote_policy": "",
+            "vietnam_eligibility": "verify",
+            "evidence_type": "Medium",
+            "status": "uncertain",
+            "posted_date": candidate.published_at,
+            "source_type": _source_type_hint(candidate),
+            "source_url": candidate.url,
+            "apply_url": candidate.url,
+            "why_it_fits": "Title or snippet contains an exact FDE signal.",
+            "what_to_verify": ["Vietnam-based remote eligibility", "Apply link status"],
+            "recommended_action": "set_alert",
+            "confidence_score": 60,
+        }
+        opportunities.append(_job_opportunity_from_row(row, item_id, candidate, crawled_at))
+    return opportunities
 
 
 class GeminiClient:
@@ -252,6 +384,30 @@ class GeminiClient:
             except (urllib.error.URLError, TimeoutError, KeyError, ValueError, TypeError):
                 continue
         return {}
+
+    def classify_job_candidates(
+        self,
+        candidates: list[tuple[int, CandidateItem]],
+        crawled_at: str,
+    ) -> list[JobOpportunity]:
+        if not candidates:
+            return []
+        if not self.settings.gemini_api_key:
+            return fallback_job_opportunities(candidates, crawled_at)
+
+        prompt = build_job_classification_prompt(candidates, crawled_at)
+        candidates_by_id = {item_id: item for item_id, item in candidates}
+        for model in [self.settings.gemini_model, self.settings.gemini_fallback_model]:
+            if not model:
+                continue
+            try:
+                text = self._call_prompt(model, prompt, max_output_tokens=5200)
+                opportunities = parse_job_classification_response(text, candidates_by_id, model, crawled_at)
+                if opportunities:
+                    return opportunities
+            except (urllib.error.URLError, TimeoutError, KeyError, ValueError, TypeError):
+                continue
+        return fallback_job_opportunities(candidates, crawled_at)
 
     def review_interview_guideline(self, card: Mapping[str, str]) -> dict[str, str]:
         if not self.settings.gemini_api_key:
@@ -380,3 +536,140 @@ def _fallback_takeaway_vi(item: CandidateItem) -> str:
     if "eval" in text or "guardrail" in text:
         return "Chú ý phần đo chất lượng và guardrail trước khi rollout."
     return "Đọc nhanh để lấy ý chính và cân nhắc áp dụng vào delivery."
+
+
+def _job_opportunity_from_row(
+    row: Mapping[str, object],
+    candidate_id: int,
+    candidate: CandidateItem,
+    crawled_at: str,
+) -> JobOpportunity:
+    priority = _enum_value(row.get("priority"), {"High", "Medium", "Low"}, "Low")
+    status = _enum_value(row.get("status"), {"open", "likely_open", "uncertain", "closed", "watch"}, "uncertain")
+    category = _enum_value(
+        row.get("category"),
+        {
+            "Exact FDE Role",
+            "FDE-Adjacent Role",
+            "Expansion Signal",
+            "Hidden Hiring Signal",
+            "Watchlist Company",
+            "Reject",
+        },
+        "FDE-Adjacent Role",
+    )
+    confidence = _clamp_int(row.get("confidence_score"), 0, 100, 0)
+    company = clean_text(row.get("company", "")) or candidate.source_name
+    role_title = clean_text(row.get("role_title", "")) or candidate.title
+    location = clean_text(row.get("location", ""))
+    source_url = clean_text(row.get("source_url", "")) or candidate.url
+    apply_url = clean_text(row.get("apply_url", ""))
+    should_alert = (
+        priority in {"High", "Medium"}
+        and status != "closed"
+        and category != "Reject"
+        and confidence >= 60
+    )
+    return JobOpportunity(
+        id=_stable_job_id(clean_text(row.get("id", "")), company, role_title, location, source_url),
+        source_item_id=candidate_id,
+        source_fingerprint=candidate.fingerprint or _stable_job_id("", candidate.title, candidate.summary, source_url, ""),
+        crawled_at=crawled_at,
+        priority=priority,
+        company=company,
+        role_title=role_title,
+        category=category,
+        location=location,
+        remote_policy=clean_text(row.get("remote_policy", "")),
+        vietnam_eligibility=_enum_value(
+            row.get("vietnam_eligibility"),
+            {"explicit_yes", "likely_possible", "verify", "unlikely", "no"},
+            "verify",
+        ),
+        evidence_type=_enum_value(row.get("evidence_type"), {"Hard", "Medium", "Weak"}, "Weak"),
+        status=status,
+        posted_date=clean_text(row.get("posted_date", "")) or candidate.published_at,
+        source_type=clean_text(row.get("source_type", "")) or _source_type_hint(candidate),
+        source_url=source_url,
+        apply_url=apply_url,
+        contact_person=clean_text(row.get("contact_person", "")),
+        contact_url=clean_text(row.get("contact_url", "")),
+        why_it_fits=clean_text(row.get("why_it_fits", "")) or _fallback_job_fit(candidate),
+        what_to_verify=_string_list(row.get("what_to_verify")),
+        required_seniority=clean_text(row.get("required_seniority", "")),
+        required_skills=_string_list(row.get("required_skills")),
+        domain=_string_list(row.get("domain")),
+        company_expansion_signal=clean_text(row.get("company_expansion_signal", "")),
+        linkedin_post_signal=clean_text(row.get("linkedin_post_signal", "")),
+        recommended_action=_enum_value(
+            row.get("recommended_action"),
+            {"apply_now", "dm_recruiter_first", "follow_company", "set_alert", "ignore"},
+            "set_alert",
+        ),
+        outreach_angle=clean_text(row.get("outreach_angle", "")),
+        confidence_score=confidence,
+        should_alert=should_alert,
+    )
+
+
+def _source_type_hint(item: CandidateItem) -> str:
+    metadata_type = clean_text(item.raw.get("source_type", "") if isinstance(item.raw, dict) else "")
+    if metadata_type:
+        return metadata_type
+    url = item.url.lower()
+    source = f"{item.source_name} {item.source_category}".lower()
+    if "linkedin.com/jobs" in url:
+        return "LinkedIn_job"
+    if "linkedin.com/posts" in url:
+        return "LinkedIn_post"
+    if any(host in url for host in ("ashbyhq.com", "greenhouse.io", "lever.co", "workable.com", "teamtailor.com")):
+        return "ATS"
+    if "career" in url or "jobs" in url:
+        return "official_career_page"
+    if "linkedin" in source:
+        return "LinkedIn_post"
+    if "vc" in source:
+        return "VC_job_board"
+    if "bing" in source or "search" in source:
+        return "aggregator"
+    return "job_board"
+
+
+def _trim_for_prompt(text: str, max_chars: int) -> str:
+    normalized = clean_text(text)
+    if len(normalized) <= max_chars:
+        return normalized
+    shortened = normalized[:max_chars].rsplit(" ", 1)[0].rstrip(" ,;:-")
+    return shortened or normalized[:max_chars]
+
+
+def _enum_value(value: object, allowed: set[str], default: str) -> str:
+    cleaned = clean_text(value)
+    return cleaned if cleaned in allowed else default
+
+
+def _string_list(value: object) -> list[str]:
+    if isinstance(value, list):
+        return [clean_text(item) for item in value if clean_text(item)]
+    if isinstance(value, str) and value.strip():
+        return [clean_text(value)]
+    return []
+
+
+def _stable_job_id(raw_id: str, company: str, role_title: str, location: str, source_url: str) -> str:
+    if raw_id:
+        return _slug(raw_id)[:120]
+    base = "-".join(part for part in (company, role_title, location) if part.strip())
+    slug = _slug(base)
+    if slug:
+        return slug[:120]
+    return _slug(source_url)[:120] or "job-opportunity"
+
+
+def _slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return re.sub(r"-+", "-", slug)
+
+
+def _fallback_job_fit(item: CandidateItem) -> str:
+    return _trim_for_prompt(item.summary or item.title, 240)

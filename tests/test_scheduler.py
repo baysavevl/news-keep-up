@@ -9,12 +9,12 @@ ICT = ZoneInfo("Asia/Ho_Chi_Minh")
 
 
 class SchedulerTest(unittest.TestCase):
-    def test_due_digest_jobs_include_current_interview_window(self):
+    def test_due_digest_jobs_include_current_job_alert_windows(self):
         jobs = due_digest_jobs(datetime(2026, 7, 14, 10, 41, tzinfo=ICT))
 
         self.assertEqual(
             [(job.slot, job.scheduled_for.strftime("%H:%M")) for job in jobs],
-            [("fde-interview", "10:35")],
+            [("fde-jobs", "10:00"), ("fde-jobs", "10:30")],
         )
 
     def test_due_digest_jobs_include_engineer_news_at_fixed_times(self):
@@ -38,18 +38,37 @@ class SchedulerTest(unittest.TestCase):
             ["08:00", "14:00"],
         )
 
-        self.assertEqual(due_digest_jobs(datetime(2026, 7, 14, 12, 10, tzinfo=ICT), lookback_minutes=10), [])
+        noon_jobs = due_digest_jobs(datetime(2026, 7, 14, 12, 10, tzinfo=ICT), lookback_minutes=10)
+        self.assertEqual([job.slot for job in noon_jobs], ["fde-jobs"])
 
-    def test_due_digest_jobs_include_interview_hourly_from_0735(self):
-        jobs = due_digest_jobs(datetime(2026, 7, 14, 8, 36, tzinfo=ICT), lookback_minutes=10)
+    def test_due_digest_jobs_include_interview_every_three_hours_in_business_window(self):
+        jobs = due_digest_jobs(datetime(2026, 7, 14, 14, 36, tzinfo=ICT), lookback_minutes=7 * 60)
 
         self.assertEqual(
-            [(job.slot, job.scheduled_for.strftime("%H:%M")) for job in jobs],
-            [("fde-interview", "08:35")],
+            [job.scheduled_for.strftime("%H:%M") for job in jobs if job.slot == "fde-interview"],
+            ["08:35", "11:35", "14:35"],
+        )
+
+    def test_due_digest_jobs_include_fde_jobs_every_thirty_minutes(self):
+        jobs = due_digest_jobs(datetime(2026, 7, 14, 9, 31, tzinfo=ICT), lookback_minutes=35)
+
+        self.assertEqual(
+            [job.scheduled_for.strftime("%H:%M") for job in jobs if job.slot == "fde-jobs"],
+            ["09:00", "09:30"],
+        )
+
+    def test_due_digest_jobs_include_daily_fde_job_source_maintenance(self):
+        jobs = due_digest_jobs(datetime(2026, 7, 14, 7, 11, tzinfo=ICT), lookback_minutes=5)
+
+        self.assertEqual(
+            [job.scheduled_for.strftime("%H:%M") for job in jobs if job.slot == "fde-job-sources"],
+            ["07:10"],
         )
 
     def test_due_digest_jobs_skip_outside_operating_hours(self):
-        self.assertEqual(due_digest_jobs(datetime(2026, 7, 14, 6, 59, tzinfo=ICT)), [])
+        jobs = due_digest_jobs(datetime(2026, 7, 14, 6, 59, tzinfo=ICT))
+
+        self.assertNotIn("fde-interview", [job.slot for job in jobs])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Bing FDE Vietnam",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+Vietnam+job&format=rss",
+    "category": "fde-job-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing FDE Ho Chi Minh",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+%22Ho+Chi+Minh%22&format=rss",
+    "category": "fde-job-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing FDE APAC Remote",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+%28APAC+OR+%22Southeast+Asia%22+OR+Singapore+OR+Remote%29&format=rss",
+    "category": "fde-job-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing AI Deployment Vietnam",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22AI+Deployment+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22GenAI+Solutions+Engineer%22%29+Vietnam+job&format=rss",
+    "category": "fde-adjacent-job-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing AI Solution Architect Vietnam",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22AI+Solution+Architect%22+OR+%22Solutions+Architect%22%29+Vietnam+GenAI+job&format=rss",
+    "category": "fde-adjacent-job-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Vietnam Market AI Customer Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22Vietnam+Market%22+OR+%22Vietnamese+speaker%22%29+%28%22Customer+Engineer%22+OR+%22Solution+Engineer%22+OR+%22Solutions+Engineer%22%29+AI+Cloud&format=rss",
+    "category": "vietnam-ai-expansion-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Enterprise AI SEA Hiring",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22Southeast+Asia%22+OR+ASEAN+OR+APAC%29+%28%22AI+agents%22+OR+%22enterprise+AI%22+OR+GenAI%29+hiring&format=rss",
+    "category": "fde-expansion-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Ashby FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%22Forward+Deployed+Engineer%22+APAC&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "enabled": true
+  },
+  {
+    "name": "Bing Greenhouse FDE Singapore",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%22Forward+Deployed+Engineer%22+Singapore&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "enabled": true
+  },
+  {
+    "name": "Bing Lever FDE Asia",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%22Forward+Deployed+Engineer%22+Asia&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn FDE Vietnam Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%22Forward+Deployed+Engineer%22+Vietnam&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn FDE APAC Hiring Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%28%22Forward+Deployed+Engineer%22+OR+FDE%29+APAC+hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn GenAI Vietnamese Hiring Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%22Vietnamese+speaker%22+GenAI+hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News FDE Hiring",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Forward%20Deployed%20Engineer%22%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "social",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News AI Deployment Hiring",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22AI%20Deployment%20Engineer%22%20OR%20%22AI%20Solutions%20Engineer%22%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "social",
+    "enabled": true
+  }
+]

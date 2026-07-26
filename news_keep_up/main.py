@@ -7,11 +7,15 @@ from .config import load_settings
 from .db import connect_database, init_db
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
+from .job_alerts import run_fde_job_alerts
+from .source_intelligence import run_fde_job_source_intelligence
 
 PROFILE_SOURCE_PATHS = {
     "engineer": "config/sources.json",
     "fde": "config/fde_sources.json",
     "fde-interview": "config/fde_interview_sources.json",
+    "fde-jobs": "config/fde_job_sources.json",
+    "fde-job-sources": "config/fde_job_source_discovery_sources.json",
     "news": "config/sources.json",
     "morning": "config/sources.json",
     "afternoon": "config/sources.json",
@@ -50,6 +54,10 @@ def main(argv: list[str] | None = None) -> int:
         sources_path = args.sources_path or PROFILE_SOURCE_PATHS[args.slot]
         if args.slot == "fde-interview":
             message = run_fde_interview_guideline(settings, dry_run=args.dry_run)
+        elif args.slot == "fde-jobs":
+            message = run_fde_job_alerts(settings, dry_run=args.dry_run, sources_path=sources_path)
+        elif args.slot == "fde-job-sources":
+            message = run_fde_job_source_intelligence(settings, dry_run=args.dry_run, discovery_sources_path=sources_path)
         else:
             message = run_digest(settings, args.slot, dry_run=args.dry_run, sources_path=sources_path)
         if args.dry_run:

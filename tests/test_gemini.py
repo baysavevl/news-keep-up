@@ -1,9 +1,11 @@
 import unittest
 
 from news_keep_up.gemini import (
+    build_job_classification_prompt,
     build_digest_review_prompt,
     build_prompt,
     fallback_enrichment,
+    parse_job_classification_response,
     parse_digest_review_response,
     parse_enrichment_response,
 )
@@ -157,6 +159,75 @@ class GeminiTest(unittest.TestCase):
         self.assertEqual(reviewed[2].icon, "🧭")
         self.assertTrue(reviewed[2].should_send)
         self.assertFalse(reviewed[1].should_send)
+
+    def test_job_classification_prompt_is_compact_and_alerts_high_medium(self):
+        prompt = build_job_classification_prompt(
+            [(7, make_item())],
+            crawled_at="2026-07-27",
+        )
+
+        self.assertIn("Ho Chi Minh City", prompt)
+        self.assertIn("High or Medium", prompt)
+        self.assertIn("should_alert=true", prompt)
+        self.assertIn("Do not assume APAC", prompt)
+        self.assertIn('"candidate_id": 7', prompt)
+        self.assertLess(len(prompt), 7000)
+
+    def test_parse_job_classification_response_sets_alert_for_high_and_medium(self):
+        candidate = CandidateItem(
+            source_name="Bing FDE Search",
+            source_kind="rss",
+            source_category="fde-job-search",
+            title="Wonderful is hiring a Forward Deployed Engineer in Vietnam",
+            url="https://example.com/jobs/wonderful-fde",
+            canonical_url="https://example.com/jobs/wonderful-fde",
+            summary="Official listing says Vietnam remote candidates can apply.",
+            fingerprint="abc123",
+        )
+        response = """```json
+        {
+          "items": [
+            {
+              "candidate_id": 7,
+              "id": "wonderful-forward-deployed-engineer-vietnam",
+              "priority": "Medium",
+              "company": "Wonderful",
+              "role_title": "Forward Deployed Engineer",
+              "category": "Exact FDE Role",
+              "location": "Vietnam",
+              "remote_policy": "Remote Vietnam",
+              "vietnam_eligibility": "explicit_yes",
+              "evidence_type": "Hard",
+              "status": "open",
+              "posted_date": "",
+              "source_type": "ATS",
+              "source_url": "https://example.com/jobs/wonderful-fde",
+              "apply_url": "https://example.com/jobs/wonderful-fde/apply",
+              "contact_person": "",
+              "contact_url": "",
+              "why_it_fits": "Exact FDE role with Vietnam eligibility.",
+              "what_to_verify": ["Compensation range"],
+              "required_seniority": "Senior",
+              "required_skills": ["LLM", "customer deployment"],
+              "domain": ["enterprise AI"],
+              "company_expansion_signal": "",
+              "linkedin_post_signal": "",
+              "recommended_action": "apply_now",
+              "outreach_angle": "Lead with customer-facing AI deployment work.",
+              "confidence_score": 82,
+              "should_alert": false
+            }
+          ]
+        }
+        ```"""
+
+        opportunities = parse_job_classification_response(response, {7: candidate}, "gemini-test", "2026-07-27")
+
+        self.assertEqual(len(opportunities), 1)
+        self.assertEqual(opportunities[0].priority, "Medium")
+        self.assertTrue(opportunities[0].should_alert)
+        self.assertEqual(opportunities[0].source_fingerprint, "abc123")
+        self.assertIn("priority=Medium", opportunities[0].alert_fingerprint)
 
 
 if __name__ == "__main__":

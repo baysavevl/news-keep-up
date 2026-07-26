@@ -126,6 +126,57 @@ class VercelDigestEndpointTest(unittest.TestCase):
         run_guideline.assert_called_once()
         run_digest.assert_not_called()
 
+    def test_fde_jobs_endpoint_uses_job_alert_flow_and_fde_env_prefix(self):
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {
+                "CRON_SECRET": "test-secret",
+                "FDE_TELEGRAM_BOT_TOKEN": "token",
+                "FDE_TELEGRAM_CHAT_ID": "-100123",
+            }, clear=False),
+            patch("news_keep_up.vercel_app.load_settings") as load_settings,
+            patch("news_keep_up.vercel_app.run_fde_job_alerts", return_value="job alert") as run_jobs,
+            patch("news_keep_up.vercel_app.run_digest") as run_digest,
+        ):
+            response = app.test_client().get(
+                "/api/digest/fde-jobs",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["slot"], "fde-jobs")
+        load_settings.assert_called_once_with(env_prefix="FDE")
+        run_jobs.assert_called_once()
+        self.assertEqual(run_jobs.call_args.kwargs["sources_path"], "config/fde_job_sources.json")
+        run_digest.assert_not_called()
+
+    def test_fde_job_sources_endpoint_runs_without_telegram_delivery(self):
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.load_settings", return_value=Settings()),
+            patch(
+                "news_keep_up.vercel_app.run_fde_job_source_intelligence",
+                return_value="source intelligence",
+            ) as run_sources,
+        ):
+            response = app.test_client().get(
+                "/api/digest/fde-job-sources",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["slot"], "fde-job-sources")
+        self.assertFalse(response.get_json()["delivery_configured"])
+        run_sources.assert_called_once()
+        self.assertEqual(
+            run_sources.call_args.kwargs["discovery_sources_path"],
+            "config/fde_job_source_discovery_sources.json",
+        )
+
     def test_profile_endpoint_skips_delivery_when_telegram_chat_is_missing(self):
         from news_keep_up.models import Settings
         from news_keep_up.vercel_app import app
@@ -144,6 +195,25 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertTrue(response.get_json()["ok"])
         self.assertFalse(response.get_json()["delivery_configured"])
         run_digest.assert_not_called()
+
+    def test_fde_jobs_endpoint_runs_storage_flow_when_telegram_chat_is_missing(self):
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.load_settings", return_value=Settings()),
+            patch("news_keep_up.vercel_app.run_fde_job_alerts", return_value="") as run_jobs,
+        ):
+            response = app.test_client().get(
+                "/api/digest/fde-jobs",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["ok"])
+        self.assertFalse(response.get_json()["delivery_configured"])
+        run_jobs.assert_called_once()
 
     def test_telegram_webhook_requires_secret_header(self):
         from news_keep_up.vercel_app import app

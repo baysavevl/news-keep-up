@@ -60,7 +60,7 @@ def fetch_hackernews(source: Source, user_agent: str, timeout_seconds: int = 15)
             published_at=clean_text(hit.get("created_at") or ""),
             fetched_at=now_ict().isoformat(),
             fingerprint=fingerprint_text(title, summary, canonical),
-            raw=hit,
+            raw={**hit, **source.metadata},
         ))
     return candidates
 
@@ -92,7 +92,7 @@ def _candidate_from_xml(node: ET.Element, source: Source) -> CandidateItem | Non
         published_at=published,
         fetched_at=now_ict().isoformat(),
         fingerprint=fingerprint_text(title, summary, canonical),
-        raw={"title": title, "url": link, "summary": summary},
+        raw={"title": title, "url": link, "summary": summary, **source.metadata},
     )
 
 
