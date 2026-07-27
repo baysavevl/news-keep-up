@@ -112,6 +112,13 @@ def init_db(conn) -> None:
            ON scheduler_runs(slot, scheduled_for)""",
         """CREATE INDEX IF NOT EXISTS idx_scheduler_runs_status
            ON scheduler_runs(status, scheduled_for)""",
+        """CREATE TABLE IF NOT EXISTS profile_settings (
+            profile TEXT NOT NULL,
+            key TEXT NOT NULL,
+            value TEXT NOT NULL,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (profile, key)
+        )""",
         """CREATE TABLE IF NOT EXISTS job_opportunities (
             id TEXT PRIMARY KEY,
             source_item_id INTEGER REFERENCES items(id),
@@ -490,6 +497,29 @@ def mark_job_alert_delivered(conn, opportunity_id: str, alert_fingerprint: str) 
     conn.commit()
 
 
+def get_profile_setting(conn, profile: str, key: str) -> str:
+    row = conn.execute(
+        """SELECT value
+           FROM profile_settings
+           WHERE profile=? AND key=?
+           LIMIT 1""",
+        (profile, key),
+    ).fetchone()
+    return str(row_value(row, "value", 0)) if row else ""
+
+
+def upsert_profile_setting(conn, profile: str, key: str, value: str) -> None:
+    conn.execute(
+        """INSERT INTO profile_settings (profile, key, value, updated_at)
+           VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+           ON CONFLICT(profile, key) DO UPDATE SET
+             value=excluded.value,
+             updated_at=CURRENT_TIMESTAMP""",
+        (profile, key, value),
+    )
+    conn.commit()
+
+
 def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
     rows = conn.execute(
         """SELECT id, source_item_id, source_fingerprint, crawled_at, priority, company,
@@ -508,6 +538,14 @@ def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
                  WHERE jad.opportunity_id = jo.id
                    AND jad.alert_fingerprint = jo.alert_fingerprint
              )
+             AND NOT EXISTS (
+                 SELECT 1
+                 FROM job_alert_deliveries delivered_alert
+                 JOIN job_opportunities delivered_jo
+                   ON delivered_jo.id = delivered_alert.opportunity_id
+                 WHERE COALESCE(NULLIF(delivered_jo.apply_url, ''), delivered_jo.source_url)
+                     = COALESCE(NULLIF(jo.apply_url, ''), jo.source_url)
+              )
            ORDER BY updated_at DESC
            LIMIT ?""",
         (limit,),

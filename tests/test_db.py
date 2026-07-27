@@ -9,6 +9,7 @@ from news_keep_up.db import (
     finish_scheduler_run,
     get_enrichment,
     get_job_opportunity_source_fingerprint,
+    get_profile_setting,
     job_alert_was_delivered,
     list_pending_job_alerts,
     list_source_candidates,
@@ -20,6 +21,7 @@ from news_keep_up.db import (
     upsert_enrichment,
     upsert_item,
     upsert_job_opportunity,
+    upsert_profile_setting,
     upsert_source_candidate,
     upsert_source,
 )
@@ -233,6 +235,46 @@ class DatabaseTest(unittest.TestCase):
             upsert_job_opportunity(conn, rejected)
 
             self.assertEqual(list_pending_job_alerts(conn), [])
+
+    def test_pending_job_alerts_dedupe_by_delivered_apply_or_source_url(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_item())
+
+            original = make_job_opportunity("fwddeploy-remote-jobs-clera")
+            original = JobOpportunity(**{
+                **original.__dict__,
+                "source_item_id": item_id,
+                "company": "FWDDeploy Remote Jobs",
+                "source_url": "https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
+                "apply_url": "https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
+            })
+            corrected = make_job_opportunity("clera-founding-forward-deployed-engineer")
+            corrected = JobOpportunity(**{
+                **corrected.__dict__,
+                "source_item_id": item_id,
+                "company": "Clera",
+                "source_url": "https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
+                "apply_url": "https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
+            })
+
+            upsert_job_opportunity(conn, original)
+            mark_job_alert_delivered(conn, original.id, original.alert_fingerprint)
+            upsert_job_opportunity(conn, corrected)
+
+            self.assertEqual(list_pending_job_alerts(conn), [])
+
+    def test_profile_settings_are_upserted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+
+            upsert_profile_setting(conn, "fde-jobs", "telegram_chat_id", "-100999")
+            upsert_profile_setting(conn, "fde-jobs", "telegram_chat_id", "-100888")
+
+            self.assertEqual(get_profile_setting(conn, "fde-jobs", "telegram_chat_id"), "-100888")
+            self.assertEqual(get_profile_setting(conn, "fde", "telegram_chat_id"), "")
 
     def test_source_candidates_and_evaluations_are_stored(self):
         with tempfile.TemporaryDirectory() as tmp:

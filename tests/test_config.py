@@ -143,6 +143,8 @@ class ConfigTest(unittest.TestCase):
         names = {source.name for source in sources}
 
         self.assertIn("Bing Upwork FDE AI Deployment", names)
+        self.assertIn("Upwork Artificial Intelligence Jobs", names)
+        self.assertIn("FWDDeploy Remote Jobs", names)
 
     def test_engineer_sources_include_at_least_150_enabled_sources(self):
         sources = load_sources("config/sources.json")

@@ -4,17 +4,20 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from news_keep_up.db import connect_database, init_db, upsert_enrichment, upsert_item
+from news_keep_up.db import connect_database, get_profile_setting, init_db, upsert_enrichment, upsert_item
 from news_keep_up.models import CandidateItem, Enrichment, Settings
 from news_keep_up.telegram_commands import handle_telegram_update
 
 
-def update(text: str, chat_id: int = -100123, message_id: int = 42) -> dict:
+def update(text: str, chat_id: int = -100123, message_id: int = 42, title: str = "") -> dict:
+    chat = {"id": chat_id, "type": "supergroup"}
+    if title:
+        chat["title"] = title
     return {
         "update_id": 1,
         "message": {
             "message_id": message_id,
-            "chat": {"id": chat_id, "type": "supergroup"},
+            "chat": chat,
             "text": text,
         },
     }
@@ -59,6 +62,27 @@ class TelegramCommandsTest(unittest.TestCase):
         self.assertEqual(run_digest.call_args.kwargs["sources_path"], "config/fde_sources.json")
         self.assertTrue(run_digest.call_args.kwargs["dry_run"])
         self.assertEqual(send.call_args.args[0], "<b>Digest</b>")
+
+    def test_fde_jobs_latest_command_runs_job_alert_preview(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+
+        with (
+            patch("news_keep_up.telegram_commands.run_fde_job_alerts", return_value="<b>Job Alert</b>") as run_jobs,
+            patch("news_keep_up.telegram_commands.run_digest") as run_digest,
+            patch("news_keep_up.telegram_commands.send_telegram_message") as send,
+        ):
+            handle_telegram_update(
+                update("/latest"),
+                slot="fde-jobs",
+                sources_path="config/fde_job_sources.json",
+                settings=settings,
+            )
+
+        run_jobs.assert_called_once()
+        self.assertTrue(run_jobs.call_args.kwargs["dry_run"])
+        self.assertEqual(run_jobs.call_args.kwargs["sources_path"], "config/fde_job_sources.json")
+        run_digest.assert_not_called()
+        self.assertEqual(send.call_args.args[0], "<b>Job Alert</b>")
 
     def test_fde_focus_command_explains_fde_relevance(self):
         settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
@@ -213,6 +237,69 @@ class TelegramCommandsTest(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertTrue(result["ignored"])
         send.assert_not_called()
+
+    def test_chatid_command_responds_even_when_chat_is_not_authorized_yet(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+
+        with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+            result = handle_telegram_update(
+                update("/chatid", chat_id=-100999),
+                slot="fde",
+                sources_path="config/fde_sources.json",
+                settings=settings,
+            )
+
+        self.assertEqual(result["command"], "chatid")
+        self.assertIn("-100999", send.call_args.args[0])
+        self.assertEqual(send.call_args.kwargs["chat_id"], "-100999")
+
+    def test_fde_jobs_chatid_command_saves_expected_group_chat_id(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="",
+            )
+
+            with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+                result = handle_telegram_update(
+                    update("/chatid", chat_id=-100999, title="FDE jobs"),
+                    slot="fde-jobs",
+                    sources_path="config/fde_job_sources.json",
+                    settings=settings,
+                )
+
+            conn = connect_database(settings)
+            init_db(conn)
+            stored = get_profile_setting(conn, "fde-jobs", "telegram_chat_id")
+            conn.close()
+
+        self.assertEqual(result["command"], "chatid")
+        self.assertEqual(stored, "-100999")
+        self.assertIn("Saved for fde-jobs delivery.", send.call_args.args[0])
+
+    def test_fde_jobs_chatid_command_does_not_save_unexpected_group_title(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="",
+            )
+
+            with patch("news_keep_up.telegram_commands.send_telegram_message"):
+                handle_telegram_update(
+                    update("/chatid", chat_id=-100999, title="Random group"),
+                    slot="fde-jobs",
+                    sources_path="config/fde_job_sources.json",
+                    settings=settings,
+                )
+
+            conn = connect_database(settings)
+            init_db(conn)
+            stored = get_profile_setting(conn, "fde-jobs", "telegram_chat_id")
+            conn.close()
+
+        self.assertEqual(stored, "")
 
 
 if __name__ == "__main__":

@@ -38,5 +38,29 @@
     "category": "source-discovery-search",
     "source_type": "aggregator",
     "enabled": true
+  },
+  {
+    "name": "FWDDeploy Source Discovery",
+    "type": "html",
+    "url": "https://www.fwddeploy.com/s/remote-jobs",
+    "category": "source-discovery-search",
+    "source_type": "job_board",
+    "enabled": true
+  },
+  {
+    "name": "Indeed Singapore FDE Source Discovery",
+    "type": "html",
+    "url": "https://sg.indeed.com/q-forward-deployed-engineer-jobs.html",
+    "category": "source-discovery-search",
+    "source_type": "job_board",
+    "enabled": true
+  },
+  {
+    "name": "Upwork AI Jobs Source Discovery",
+    "type": "html",
+    "url": "https://www.upwork.com/freelance-jobs/artificial-intelligence/",
+    "category": "source-discovery-search",
+    "source_type": "job_board",
+    "enabled": true
   }
 ]

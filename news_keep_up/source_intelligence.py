@@ -177,7 +177,7 @@ def _source_candidate_from_item(item: CandidateItem, source: Source) -> SourceCa
     return SourceCandidate(
         id=_slug(name),
         name=name,
-        kind="rss",
+        kind=item.source_kind or source.kind,
         url=item.url,
         category=category,
         source_type=source_type,

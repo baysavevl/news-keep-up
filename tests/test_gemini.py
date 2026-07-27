@@ -5,6 +5,7 @@ from news_keep_up.gemini import (
     build_digest_review_prompt,
     build_prompt,
     fallback_enrichment,
+    fallback_job_opportunities,
     parse_job_classification_response,
     parse_digest_review_response,
     parse_enrichment_response,
@@ -251,8 +252,8 @@ class GeminiTest(unittest.TestCase):
               "company": "Example AI",
               "role_title": "AI Deployment Hiring Signal",
               "category": "Watchlist Company",
-              "location": "APAC",
-              "remote_policy": "Verify",
+              "location": "Remote APAC",
+              "remote_policy": "Remote APAC",
               "vietnam_eligibility": "verify",
               "evidence_type": "Weak",
               "status": "watch",
@@ -284,6 +285,57 @@ class GeminiTest(unittest.TestCase):
         self.assertEqual(opportunities[0].priority, "Low")
         self.assertEqual(opportunities[0].status, "watch")
         self.assertTrue(opportunities[0].should_alert)
+
+    def test_fallback_job_opportunities_uses_parsed_job_board_metadata(self):
+        candidate = CandidateItem(
+            source_name="FWDDeploy Remote Jobs",
+            source_kind="html",
+            source_category="fde-job-board",
+            title="Founding Forward Deployed Engineer",
+            url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
+            canonical_url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
+            summary="Company: Clera. Location: Remote APAC. Employment: Full-time. Posted: 6 days.",
+            fingerprint="fde-card-1",
+            raw={
+                "company": "Clera",
+                "location": "Remote APAC",
+                "remote_policy": "Remote",
+                "employment_type": "Full-time",
+                "posted_age": "6 days",
+                "source_type": "job_board",
+            },
+        )
+
+        opportunities = fallback_job_opportunities([(42, candidate)], "2026-07-27")
+
+        self.assertEqual(len(opportunities), 1)
+        self.assertEqual(opportunities[0].company, "Clera")
+        self.assertEqual(opportunities[0].role_title, "Founding Forward Deployed Engineer")
+        self.assertEqual(opportunities[0].location, "Remote APAC")
+        self.assertEqual(opportunities[0].remote_policy, "Remote")
+        self.assertEqual(opportunities[0].status, "likely_open")
+        self.assertGreaterEqual(opportunities[0].confidence_score, 70)
+        self.assertIn("Clera", opportunities[0].why_it_fits)
+
+    def test_fallback_job_opportunities_rejects_onsite_non_vietnam_roles(self):
+        candidate = CandidateItem(
+            source_name="FWDDeploy All Jobs",
+            source_kind="html",
+            source_category="fde-job-board",
+            title="Senior Forward Deployed Engineer",
+            url="https://www.fwddeploy.com/jobs/senior-forward-deployed-engineer-68be6b58",
+            canonical_url="https://www.fwddeploy.com/jobs/senior-forward-deployed-engineer-68be6b58",
+            summary="Company: Handshake. Location: On-site Bengaluru, Karnataka, India. Employment: Full-time.",
+            fingerprint="fde-india-1",
+            raw={
+                "company": "Handshake",
+                "location": "On-site Bengaluru, Karnataka, India",
+                "employment_type": "Full-time",
+                "source_type": "job_board",
+            },
+        )
+
+        self.assertEqual(fallback_job_opportunities([(43, candidate)], "2026-07-27"), [])
 
 
 if __name__ == "__main__":

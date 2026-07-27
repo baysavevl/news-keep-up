@@ -4,9 +4,10 @@ from collections import Counter
 from html import escape
 
 from .config import load_sources
-from .db import connect_database, init_db, mark_delivered, row_value
+from .db import connect_database, init_db, mark_delivered, row_value, upsert_profile_setting
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
+from .job_alerts import run_fde_job_alerts
 from .models import Settings
 from .telegram import send_telegram_message
 
@@ -21,6 +22,8 @@ COMMAND_ALIASES = {
     "find": "search",
     "analyze": "analyze",
     "why": "analyze",
+    "chatid": "chatid",
+    "id": "chatid",
     "sources": "sources",
     "status": "status",
     "focus": "focus",
@@ -35,6 +38,7 @@ SCHEDULE_LABELS = {
     "fde": "twice daily at 08:00 and 14:00 ICT",
     "engineer": "twice daily at 09:15 and 16:00 ICT",
     "fde-interview": "hourly at :35, 07:35-22:35 ICT",
+    "fde-jobs": "every 30 minutes; only sends when matching jobs exist",
 }
 
 
@@ -53,15 +57,22 @@ def handle_telegram_update(
 
     if not text.startswith("/") or not chat_id:
         return {"ok": True, "ignored": True, "reason": "not_a_command"}
-    if settings.telegram_chat_id and chat_id != settings.telegram_chat_id:
-        return {"ok": True, "ignored": True, "reason": "unauthorized_chat"}
 
     command_name, args = _parse_command(text)
     command = COMMAND_ALIASES.get(command_name, "help")
-    if command == "help":
+    if command != "chatid" and settings.telegram_chat_id and chat_id != settings.telegram_chat_id:
+        return {"ok": True, "ignored": True, "reason": "unauthorized_chat"}
+
+    if command == "chatid":
+        saved = _maybe_save_fde_jobs_chat_id(settings, slot, chat)
+        response = _chatid_text(chat, saved=saved)
+    elif command == "help":
         response = _help_text(slot)
     elif command == "latest":
-        response = run_digest(settings, slot, dry_run=True, sources_path=sources_path)
+        if slot == "fde-jobs":
+            response = run_fde_job_alerts(settings, dry_run=True, sources_path=sources_path) or "No pending FDE job alerts."
+        else:
+            response = run_digest(settings, slot, dry_run=True, sources_path=sources_path)
     elif command == "search":
         response = _search_text(settings, args)
     elif command == "analyze":
@@ -101,6 +112,7 @@ def _help_text(slot: str) -> str:
         "/latest - build a fresh digest preview now",
         "/digest - alias for /latest",
         "/today - alias for /latest",
+        "/chatid - show this Telegram chat id",
         "/search keyword - search stored news",
         "/analyze keyword - analyze stored matches through this profile lens",
         "/markread id|keyword|all - mark stored news as read so it will not be sent again",
@@ -110,6 +122,42 @@ def _help_text(slot: str) -> str:
         "/focus - show what this bot considers relevant",
         "/help - show this menu",
     ])
+
+
+def _chatid_text(chat: dict, saved: bool = False) -> str:
+    chat_id = str(chat.get("id") or "")
+    title = escape(str(chat.get("title") or chat.get("username") or "this chat"))
+    lines = [
+        "<b>Telegram chat id</b>",
+        f"Chat: {title}",
+        f"ID: <code>{escape(chat_id)}</code>",
+    ]
+    if saved:
+        lines.append("Saved for fde-jobs delivery.")
+    else:
+        lines.append("Use this value for FDE_JOBS_TELEGRAM_CHAT_ID.")
+    return "\n".join(lines)
+
+
+def _maybe_save_fde_jobs_chat_id(settings: Settings, slot: str, chat: dict) -> bool:
+    if slot != "fde-jobs":
+        return False
+    chat_id = str(chat.get("id") or "").strip()
+    title = str(chat.get("title") or "")
+    if not chat_id or _normalize_group_title(title) != "fdejobs":
+        return False
+
+    conn = connect_database(settings)
+    init_db(conn)
+    try:
+        upsert_profile_setting(conn, slot, "telegram_chat_id", chat_id)
+    finally:
+        conn.close()
+    return True
+
+
+def _normalize_group_title(title: str) -> str:
+    return "".join(char for char in title.lower() if char.isalnum())
 
 
 def _focus_text(slot: str) -> str:

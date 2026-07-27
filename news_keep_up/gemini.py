@@ -7,6 +7,7 @@ import urllib.request
 from dataclasses import replace
 from typing import Mapping
 
+from .job_filters import is_workable_from_vietnam_candidate, is_workable_from_vietnam_opportunity
 from .models import CandidateItem, DigestCandidate, Enrichment, JobOpportunity, Settings
 from .utils import clean_text
 
@@ -289,6 +290,8 @@ def parse_job_classification_response(
         opportunity = _job_opportunity_from_row(row, candidate_id, candidate, crawled_at)
         if opportunity.category == "Reject":
             continue
+        if not is_workable_from_vietnam_opportunity(opportunity):
+            continue
         opportunities.append(opportunity)
     return opportunities
 
@@ -314,29 +317,38 @@ def fallback_job_opportunities(
 ) -> list[JobOpportunity]:
     opportunities: list[JobOpportunity] = []
     for item_id, candidate in candidates:
-        text = f"{candidate.title} {candidate.summary}".lower()
-        if "forward deployed" not in text and "fde" not in text:
+        text = f"{candidate.title} {candidate.summary} {candidate.content}".lower()
+        if not _has_fde_job_signal(text):
             continue
+        if not is_workable_from_vietnam_candidate(candidate):
+            continue
+        company = _candidate_metadata(candidate, "company") or _company_from_source_name(candidate.source_name)
+        role_title = _candidate_metadata(candidate, "role_title") or candidate.title
+        location = _candidate_metadata(candidate, "location") or _fallback_location(candidate)
+        remote_policy = _candidate_metadata(candidate, "remote_policy") or ("Remote" if "remote" in f"{location} {text}".lower() else "")
+        source_type = _source_type_hint(candidate)
+        status = "likely_open" if source_type in {"ATS", "official_career_page", "job_board"} else "uncertain"
+        confidence = 72 if _candidate_metadata(candidate, "company") and location else 60
         row = {
             "candidate_id": item_id,
             "id": "",
-            "priority": "Medium",
-            "company": candidate.source_name,
-            "role_title": candidate.title,
+            "priority": _fallback_job_priority(location, text),
+            "company": company,
+            "role_title": role_title,
             "category": "Exact FDE Role",
-            "location": "",
-            "remote_policy": "",
+            "location": location,
+            "remote_policy": remote_policy,
             "vietnam_eligibility": "verify",
             "evidence_type": "Medium",
-            "status": "uncertain",
+            "status": status,
             "posted_date": candidate.published_at,
-            "source_type": _source_type_hint(candidate),
+            "source_type": source_type,
             "source_url": candidate.url,
             "apply_url": candidate.url,
-            "why_it_fits": "Title or snippet contains an exact FDE signal.",
-            "what_to_verify": ["Vietnam-based remote eligibility", "Apply link status"],
+            "why_it_fits": _fallback_job_analysis(company, role_title, location, remote_policy, candidate),
+            "what_to_verify": _fallback_job_verify_items(location, remote_policy),
             "recommended_action": "set_alert",
-            "confidence_score": 60,
+            "confidence_score": confidence,
         }
         opportunities.append(_job_opportunity_from_row(row, item_id, candidate, crawled_at))
     return opportunities
@@ -559,9 +571,9 @@ def _job_opportunity_from_row(
         "FDE-Adjacent Role",
     )
     confidence = _clamp_int(row.get("confidence_score"), 0, 100, 0)
-    company = clean_text(row.get("company", "")) or candidate.source_name
-    role_title = clean_text(row.get("role_title", "")) or candidate.title
-    location = clean_text(row.get("location", ""))
+    company = clean_text(row.get("company", "")) or _candidate_metadata(candidate, "company") or _company_from_source_name(candidate.source_name)
+    role_title = clean_text(row.get("role_title", "")) or _candidate_metadata(candidate, "role_title") or candidate.title
+    location = clean_text(row.get("location", "")) or _candidate_metadata(candidate, "location")
     source_url = clean_text(row.get("source_url", "")) or candidate.url
     apply_url = clean_text(row.get("apply_url", ""))
     should_alert = status != "closed" and category != "Reject"
@@ -575,7 +587,7 @@ def _job_opportunity_from_row(
         role_title=role_title,
         category=category,
         location=location,
-        remote_policy=clean_text(row.get("remote_policy", "")),
+        remote_policy=clean_text(row.get("remote_policy", "")) or _candidate_metadata(candidate, "remote_policy"),
         vietnam_eligibility=_enum_value(
             row.get("vietnam_eligibility"),
             {"explicit_yes", "likely_possible", "verify", "unlikely", "no"},
@@ -628,6 +640,114 @@ def _source_type_hint(item: CandidateItem) -> str:
     if "bing" in source or "search" in source:
         return "aggregator"
     return "job_board"
+
+
+def _has_fde_job_signal(text: str) -> bool:
+    return any(signal in text for signal in (
+        "forward deployed",
+        "forward-deployed",
+        "forward deployment",
+        "fde",
+        "deployment strategist",
+        "deployed engineer",
+        "ai deployment",
+        "ai forward deployed",
+    ))
+
+
+def _candidate_metadata(item: CandidateItem, key: str) -> str:
+    if not isinstance(item.raw, dict):
+        return ""
+    return clean_text(item.raw.get(key, ""))
+
+
+def _company_from_source_name(source_name: str) -> str:
+    company = clean_text(source_name)
+    replacements = (
+        "FDE APAC",
+        "Forward-Deployed Engineer",
+        "Forward Deployed Engineer",
+        "FDE Jobs",
+        "FDE Job",
+        "Careers",
+        "Career",
+        "Jobs",
+        "Job",
+        "All Page 2",
+        "All",
+        "Remote",
+        "APAC",
+    )
+    for token in replacements:
+        company = re.sub(rf"\b{re.escape(token)}\b", " ", company, flags=re.IGNORECASE)
+    company = clean_text(company)
+    return company or source_name
+
+
+def _fallback_location(item: CandidateItem) -> str:
+    text = f"{item.summary} {item.title}".lower()
+    for location in (
+        "Remote Vietnam",
+        "Ho Chi Minh City",
+        "Hanoi",
+        "Vietnam",
+        "Remote APAC",
+        "Remote Asia",
+        "Remote United States",
+        "Remote Philippines",
+        "Remote Singapore",
+        "Singapore",
+        "Philippines",
+        "Japan",
+        "India",
+        "Australia",
+        "Remote",
+    ):
+        if location.lower() in text:
+            return location
+    return ""
+
+
+def _fallback_job_priority(location: str, text: str) -> str:
+    combined = f"{location} {text}".lower()
+    if any(term in combined for term in ("vietnam", "ho chi minh", "hanoi", "remote vietnam")):
+        return "High"
+    if any(term in combined for term in ("apac", "asia", "southeast asia", "asean", "singapore", "philippines", "remote")):
+        return "Medium"
+    return "Low"
+
+
+def _fallback_job_verify_items(location: str, remote_policy: str) -> list[str]:
+    items = ["Vietnam-based remote eligibility", "Apply link status"]
+    combined = f"{location} {remote_policy}".lower()
+    if "remote" in combined:
+        items.append("APAC timezone expectations")
+    if any(term in combined for term in ("singapore", "japan", "india", "australia", "philippines")):
+        items.append("Work authorization or contractor/EOR path")
+    return items
+
+
+def _fallback_job_analysis(
+    company: str,
+    role_title: str,
+    location: str,
+    remote_policy: str,
+    item: CandidateItem,
+) -> str:
+    details = []
+    if company:
+        details.append(f"{role_title} tại {company}")
+    else:
+        details.append(role_title)
+    if location:
+        details.append(f"location ghi trên source: {location}")
+    if remote_policy:
+        details.append(f"remote policy: {remote_policy}")
+    if _candidate_metadata(item, "employment_type"):
+        details.append(f"employment: {_candidate_metadata(item, 'employment_type')}")
+    details.append("phù hợp vì title/source có tín hiệu FDE hoặc AI deployment")
+    details.append("chưa coi là eligible cho Vietnam cho tới khi source nói rõ")
+    return "; ".join(detail for detail in details if detail)
 
 
 def _trim_for_prompt(text: str, max_chars: int) -> str:

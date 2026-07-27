@@ -1,4 +1,5 @@
 import json
+import tempfile
 import tomllib
 import unittest
 from pathlib import Path
@@ -127,6 +128,7 @@ class VercelDigestEndpointTest(unittest.TestCase):
         run_digest.assert_not_called()
 
     def test_fde_jobs_endpoint_uses_job_alert_flow_and_fde_env_prefix(self):
+        from news_keep_up.models import Settings
         from news_keep_up.vercel_app import app
 
         with (
@@ -134,8 +136,12 @@ class VercelDigestEndpointTest(unittest.TestCase):
                 "CRON_SECRET": "test-secret",
                 "FDE_TELEGRAM_BOT_TOKEN": "token",
                 "FDE_TELEGRAM_CHAT_ID": "-100123",
+                "FDE_JOBS_TELEGRAM_CHAT_ID": "-100999",
             }, clear=False),
-            patch("news_keep_up.vercel_app.load_settings") as load_settings,
+            patch(
+                "news_keep_up.vercel_app.load_settings",
+                return_value=Settings(telegram_bot_token="token", telegram_chat_id="-100123"),
+            ) as load_settings,
             patch("news_keep_up.vercel_app.run_fde_job_alerts", return_value="job alert") as run_jobs,
             patch("news_keep_up.vercel_app.run_digest") as run_digest,
         ):
@@ -148,6 +154,8 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertEqual(response.get_json()["slot"], "fde-jobs")
         load_settings.assert_called_once_with(env_prefix="FDE")
         run_jobs.assert_called_once()
+        self.assertEqual(run_jobs.call_args.args[0].telegram_chat_id, "-100999")
+        self.assertEqual(run_jobs.call_args.args[0].telegram_bot_token, "token")
         self.assertEqual(run_jobs.call_args.kwargs["sources_path"], "config/fde_job_sources.json")
         run_digest.assert_not_called()
 
@@ -215,6 +223,91 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertFalse(response.get_json()["delivery_configured"])
         run_jobs.assert_called_once()
 
+    def test_fde_jobs_endpoint_requires_jobs_chat_override_not_fde_chat(self):
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {
+                "CRON_SECRET": "test-secret",
+                "FDE_TELEGRAM_BOT_TOKEN": "token",
+                "FDE_TELEGRAM_CHAT_ID": "-100123",
+            }, clear=False),
+            patch(
+                "news_keep_up.vercel_app.load_settings",
+                return_value=Settings(telegram_bot_token="token", telegram_chat_id="-100123"),
+            ),
+            patch("news_keep_up.vercel_app.run_fde_job_alerts", return_value="") as run_jobs,
+        ):
+            response = app.test_client().get(
+                "/api/digest/fde-jobs",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.get_json()["delivery_configured"])
+        run_jobs.assert_called_once()
+        self.assertEqual(run_jobs.call_args.args[0].telegram_chat_id, "")
+        self.assertEqual(run_jobs.call_args.args[0].telegram_bot_token, "token")
+
+    def test_fde_jobs_endpoint_can_reuse_global_bot_token_with_jobs_chat(self):
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {
+                "CRON_SECRET": "test-secret",
+                "TELEGRAM_BOT_TOKEN": "global-token",
+                "FDE_JOBS_TELEGRAM_CHAT_ID": "-100999",
+            }, clear=False),
+            patch("news_keep_up.vercel_app.load_settings", return_value=Settings()),
+            patch("news_keep_up.vercel_app.run_fde_job_alerts", return_value="job alert") as run_jobs,
+        ):
+            response = app.test_client().get(
+                "/api/digest/fde-jobs",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["delivery_configured"])
+        run_jobs.assert_called_once()
+        self.assertEqual(run_jobs.call_args.args[0].telegram_chat_id, "-100999")
+        self.assertEqual(run_jobs.call_args.args[0].telegram_bot_token, "global-token")
+
+    def test_fde_jobs_endpoint_uses_stored_jobs_chat_id_when_env_is_missing(self):
+        from news_keep_up.db import connect_database, init_db, upsert_profile_setting
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            settings = Settings(db_path=db_path)
+            conn = connect_database(settings)
+            init_db(conn)
+            upsert_profile_setting(conn, "fde-jobs", "telegram_chat_id", "-100777")
+            conn.close()
+
+            with (
+                patch.dict("os.environ", {
+                    "CRON_SECRET": "test-secret",
+                    "TELEGRAM_BOT_TOKEN": "global-token",
+                    "FDE_JOBS_TELEGRAM_CHAT_ID": "",
+                    "DB_PATH": str(db_path),
+                    "TURSO_DATABASE_URL": "",
+                    "TURSO_AUTH_TOKEN": "",
+                }, clear=False),
+                patch("news_keep_up.vercel_app.run_fde_job_alerts", return_value="job alert") as run_jobs,
+            ):
+                response = app.test_client().get(
+                    "/api/digest/fde-jobs",
+                    headers={"Authorization": "Bearer test-secret"},
+                )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["delivery_configured"])
+        self.assertEqual(run_jobs.call_args.args[0].telegram_chat_id, "-100777")
+        self.assertEqual(run_jobs.call_args.args[0].telegram_bot_token, "global-token")
+
     def test_telegram_webhook_requires_secret_header(self):
         from news_keep_up.vercel_app import app
 
@@ -246,6 +339,30 @@ class VercelDigestEndpointTest(unittest.TestCase):
         load_settings.assert_called_once_with(env_prefix="FDE")
         self.assertEqual(handler.call_args.kwargs["slot"], "fde")
         self.assertEqual(handler.call_args.kwargs["sources_path"], "config/fde_sources.json")
+
+    def test_fde_jobs_telegram_webhook_reuses_global_bot_token(self):
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {
+                "CRON_SECRET": "test-secret",
+                "TELEGRAM_BOT_TOKEN": "global-token",
+            }, clear=False),
+            patch("news_keep_up.vercel_app.load_settings", return_value=Settings()),
+            patch("news_keep_up.vercel_app.handle_telegram_update", return_value={"ok": True, "command": "chatid"}) as handler,
+        ):
+            response = app.test_client().post(
+                "/api/telegram/fde-jobs",
+                headers={"X-Telegram-Bot-Api-Secret-Token": "test-secret"},
+                json={"update_id": 1},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["ok"])
+        self.assertEqual(handler.call_args.kwargs["slot"], "fde-jobs")
+        self.assertEqual(handler.call_args.kwargs["sources_path"], "config/fde_job_sources.json")
+        self.assertEqual(handler.call_args.kwargs["settings"].telegram_bot_token, "global-token")
 
     def test_avatar_admin_endpoint_requires_cron_secret(self):
         from news_keep_up.vercel_app import app

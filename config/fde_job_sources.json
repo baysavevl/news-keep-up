@@ -5,6 +5,7 @@
     "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+Vietnam+job&format=rss",
     "category": "fde-job-search",
     "source_type": "aggregator",
+    "text_exclude_any": ["dictionary", "wikipedia", "cambridge", "news that matters"],
     "enabled": true
   },
   {
@@ -13,6 +14,7 @@
     "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+%22Ho+Chi+Minh%22&format=rss",
     "category": "fde-job-search",
     "source_type": "aggregator",
+    "text_exclude_any": ["dictionary", "wikipedia", "cambridge", "news that matters"],
     "enabled": true
   },
   {
@@ -21,6 +23,7 @@
     "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+%28APAC+OR+%22Southeast+Asia%22+OR+Singapore+OR+Remote%29&format=rss",
     "category": "fde-job-search",
     "source_type": "aggregator",
+    "text_exclude_any": ["dictionary", "wikipedia", "cambridge", "news that matters"],
     "enabled": true
   },
   {
@@ -29,6 +32,7 @@
     "url": "https://www.bing.com/search?q=%28%22AI+Deployment+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22GenAI+Solutions+Engineer%22%29+Vietnam+job&format=rss",
     "category": "fde-adjacent-job-search",
     "source_type": "aggregator",
+    "text_exclude_any": ["wikipedia", "chatgpt", "gemini.google.com"],
     "enabled": true
   },
   {
@@ -37,6 +41,7 @@
     "url": "https://www.bing.com/search?q=%28%22AI+Solution+Architect%22+OR+%22Solutions+Architect%22%29+Vietnam+GenAI+job&format=rss",
     "category": "fde-adjacent-job-search",
     "source_type": "aggregator",
+    "text_exclude_any": ["wikipedia", "chatgpt", "gemini.google.com"],
     "enabled": true
   },
   {
@@ -45,6 +50,7 @@
     "url": "https://www.bing.com/search?q=%28%22Vietnam+Market%22+OR+%22Vietnamese+speaker%22%29+%28%22Customer+Engineer%22+OR+%22Solution+Engineer%22+OR+%22Solutions+Engineer%22%29+AI+Cloud&format=rss",
     "category": "vietnam-ai-expansion-search",
     "source_type": "aggregator",
+    "text_exclude_any": ["wikipedia", "government portal"],
     "enabled": true
   },
   {
@@ -53,6 +59,7 @@
     "url": "https://www.bing.com/search?q=%28%22Southeast+Asia%22+OR+ASEAN+OR+APAC%29+%28%22AI+agents%22+OR+%22enterprise+AI%22+OR+GenAI%29+hiring&format=rss",
     "category": "fde-expansion-search",
     "source_type": "aggregator",
+    "text_exclude_any": ["wikipedia", "worldatlas", "university"],
     "enabled": true
   },
   {
@@ -61,6 +68,7 @@
     "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%22Forward+Deployed+Engineer%22+APAC&format=rss",
     "category": "ats-index-search",
     "source_type": "ATS",
+    "url_include_any": ["jobs.ashbyhq.com"],
     "enabled": true
   },
   {
@@ -69,6 +77,7 @@
     "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%22Forward+Deployed+Engineer%22+Singapore&format=rss",
     "category": "ats-index-search",
     "source_type": "ATS",
+    "url_include_any": ["job-boards.greenhouse.io"],
     "enabled": true
   },
   {
@@ -77,6 +86,7 @@
     "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%22Forward+Deployed+Engineer%22+Asia&format=rss",
     "category": "ats-index-search",
     "source_type": "ATS",
+    "url_include_any": ["jobs.lever.co"],
     "enabled": true
   },
   {
@@ -85,6 +95,7 @@
     "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%22Forward+Deployed+Engineer%22+Vietnam&format=rss",
     "category": "linkedin-hidden-hiring-search",
     "source_type": "LinkedIn_post",
+    "url_include_any": ["linkedin.com/posts"],
     "enabled": true
   },
   {
@@ -93,6 +104,7 @@
     "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%28%22Forward+Deployed+Engineer%22+OR+FDE%29+APAC+hiring&format=rss",
     "category": "linkedin-hidden-hiring-search",
     "source_type": "LinkedIn_post",
+    "url_include_any": ["linkedin.com/posts"],
     "enabled": true
   },
   {
@@ -101,6 +113,7 @@
     "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%22Vietnamese+speaker%22+GenAI+hiring&format=rss",
     "category": "linkedin-hidden-hiring-search",
     "source_type": "LinkedIn_post",
+    "url_include_any": ["linkedin.com/posts"],
     "enabled": true
   },
   {
@@ -109,6 +122,99 @@
     "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs+%28%22Forward+Deployed%22+OR+FDE+OR+%22AI+Deployment%22+OR+%22AI+Solutions%22+OR+%22LLM%22+OR+%22RAG%22%29+%28Vietnam+OR+APAC+OR+remote+OR+%22Southeast+Asia%22%29&format=rss",
     "category": "freelance-job-search",
     "source_type": "job_board",
+    "url_include_any": ["upwork.com/freelance-jobs"],
+    "enabled": true
+  },
+  {
+    "name": "FWDDeploy Remote Jobs",
+    "type": "html",
+    "url": "https://www.fwddeploy.com/s/remote-jobs",
+    "category": "fde-job-board",
+    "source_type": "job_board",
+    "url_include_any": ["fwddeploy.com/jobs/"],
+    "enabled": true
+  },
+  {
+    "name": "FWDDeploy All Jobs",
+    "type": "html",
+    "url": "https://www.fwddeploy.com/jobs",
+    "category": "fde-job-board",
+    "source_type": "job_board",
+    "url_include_any": ["fwddeploy.com/jobs/"],
+    "enabled": true
+  },
+  {
+    "name": "FWDDeploy All Jobs Page 2",
+    "type": "html",
+    "url": "https://www.fwddeploy.com/jobs?page=2",
+    "category": "fde-job-board",
+    "source_type": "job_board",
+    "url_include_any": ["fwddeploy.com/jobs/"],
+    "enabled": true
+  },
+  {
+    "name": "Indeed Singapore FDE Jobs",
+    "type": "html",
+    "url": "https://sg.indeed.com/q-forward-deployed-engineer-jobs.html",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "title_include_any": ["forward deployed", "fde", "deployment strategist", "ai deployment"],
+    "title_exclude_any": ["salary", "salaries"],
+    "url_exclude_any": ["salary", "salaries"],
+    "enabled": true
+  },
+  {
+    "name": "Wonderful Careers",
+    "type": "html",
+    "url": "https://www.wonderful.ai/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": ["forward deployed", "deployment strategist"],
+    "enabled": true
+  },
+  {
+    "name": "Runpod FDE APAC",
+    "type": "html",
+    "url": "https://jobs.ashbyhq.com/runpod/25e7d414-e338-42dc-a206-ca4727f3f98f",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": ["forward deployed"],
+    "enabled": true
+  },
+  {
+    "name": "Vercel Forward-Deployed Engineer",
+    "type": "html",
+    "url": "https://vercel.com/careers/forward-deployed-engineer-5752684004",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": ["forward-deployed", "forward deployed"],
+    "enabled": true
+  },
+  {
+    "name": "Profound Forward Deployed Engineer",
+    "type": "html",
+    "url": "https://www.tryprofound.com/careers/b076c997-0ba3-4d3c-9dc9-ad0b3ed49b05",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": ["forward deployed"],
+    "enabled": true
+  },
+  {
+    "name": "Upwork Artificial Intelligence Jobs",
+    "type": "html",
+    "url": "https://www.upwork.com/freelance-jobs/artificial-intelligence/",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "text_include_any": ["ai", "automation", "agent", "llm", "rag", "openai", "langchain"],
+    "enabled": true
+  },
+  {
+    "name": "Upwork Automation Jobs",
+    "type": "html",
+    "url": "https://www.upwork.com/freelance-jobs/automation/",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "text_include_any": ["ai", "automation", "agent", "llm", "rag", "openai", "langchain"],
     "enabled": true
   },
   {

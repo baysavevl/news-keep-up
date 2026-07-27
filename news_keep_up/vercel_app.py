@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from base64 import b64decode
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from flask import Flask, Response, jsonify, request
@@ -11,6 +12,7 @@ from .db import (
     claim_scheduler_run,
     connect_database,
     finish_scheduler_run,
+    get_profile_setting,
     init_db,
     mark_delivered,
     row_value,
@@ -31,6 +33,8 @@ class DigestProfile:
     sources_path: str
     env_prefix: str = ""
     mode: str = "digest"
+    telegram_chat_id_env: str = ""
+    telegram_bot_token_env: str = ""
 
 
 DIGEST_PROFILES = {
@@ -40,7 +44,14 @@ DIGEST_PROFILES = {
     "engineer": DigestProfile("engineer", "config/sources.json", "ENGINEER"),
     "fde": DigestProfile("fde", "config/fde_sources.json", "FDE"),
     "fde-interview": DigestProfile("fde-interview", "config/fde_interview_sources.json", "FDE", "interview"),
-    "fde-jobs": DigestProfile("fde-jobs", "config/fde_job_sources.json", "FDE", "jobs"),
+    "fde-jobs": DigestProfile(
+        "fde-jobs",
+        "config/fde_job_sources.json",
+        "FDE",
+        "jobs",
+        telegram_chat_id_env="FDE_JOBS_TELEGRAM_CHAT_ID",
+        telegram_bot_token_env="FDE_JOBS_TELEGRAM_BOT_TOKEN",
+    ),
     "fde-job-sources": DigestProfile(
         "fde-job-sources",
         "config/fde_job_source_discovery_sources.json",
@@ -186,7 +197,7 @@ def telegram_webhook_endpoint(slot: str):
     if auth_error is not None:
         return auth_error
 
-    settings = load_settings(env_prefix=profile.env_prefix)
+    settings = _settings_for_profile(profile)
     if not settings.telegram_bot_token:
         return jsonify({"ok": False, "slot": slot, "error": "Telegram bot token is not configured"}), 500
 
@@ -276,7 +287,7 @@ def _telegram_delivery_configured(settings) -> bool:
 
 
 def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
-    settings = load_settings(env_prefix=profile.env_prefix)
+    settings = _settings_for_profile(profile)
     delivery_configured = _telegram_delivery_configured(settings)
     if profile.mode in {"digest", "interview"} and not dry_run and not delivery_configured:
         return {
@@ -310,6 +321,47 @@ def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
         "delivery_configured": delivery_configured,
         "message_length": len(message),
     }
+
+
+def _settings_for_profile(profile: DigestProfile):
+    settings = load_settings(env_prefix=profile.env_prefix)
+    if profile.telegram_chat_id_env:
+        bot_token = _secret_from_env(profile.telegram_bot_token_env) if profile.telegram_bot_token_env else ""
+        chat_id = os.environ.get(profile.telegram_chat_id_env, "") or _stored_profile_chat_id(settings, profile.slot)
+        settings = replace(
+            settings,
+            telegram_chat_id=chat_id,
+            telegram_bot_token=bot_token or settings.telegram_bot_token or _secret_from_env("TELEGRAM_BOT_TOKEN"),
+        )
+    return settings
+
+
+def _secret_from_env(key: str) -> str:
+    if not key:
+        return ""
+    raw = os.environ.get(key)
+    if raw:
+        return raw
+    encoded = os.environ.get(f"{key}_B64")
+    if not encoded:
+        return ""
+    try:
+        return b64decode(encoded, validate=True).decode("utf-8")
+    except Exception:
+        return ""
+
+
+def _stored_profile_chat_id(settings, slot: str) -> str:
+    try:
+        conn = connect_database(settings)
+        init_db(conn)
+        try:
+            return get_profile_setting(conn, slot, "telegram_chat_id")
+        finally:
+            conn.close()
+    except Exception:
+        app.logger.exception("Failed to load stored profile chat id")
+        return ""
 
 
 def _undelivered_item_ids(conn, limit: int) -> list[int]:
