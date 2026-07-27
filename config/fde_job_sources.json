@@ -104,6 +104,14 @@
     "enabled": true
   },
   {
+    "name": "Bing Upwork FDE AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs+%28%22Forward+Deployed%22+OR+FDE+OR+%22AI+Deployment%22+OR+%22AI+Solutions%22+OR+%22LLM%22+OR+%22RAG%22%29+%28Vietnam+OR+APAC+OR+remote+OR+%22Southeast+Asia%22%29&format=rss",
+    "category": "freelance-job-search",
+    "source_type": "job_board",
+    "enabled": true
+  },
+  {
     "name": "Hacker News FDE Hiring",
     "type": "hackernews",
     "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Forward%20Deployed%20Engineer%22%20hiring&tags=story",

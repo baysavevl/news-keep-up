@@ -138,6 +138,12 @@ class ConfigTest(unittest.TestCase):
         self.assertGreaterEqual(len(names.intersection(expected_names)), len(expected_names))
         self.assertGreaterEqual(len(sources), 120)
 
+    def test_fde_job_sources_include_upwork_search(self):
+        sources = load_sources("config/fde_job_sources.json")
+        names = {source.name for source in sources}
+
+        self.assertIn("Bing Upwork FDE AI Deployment", names)
+
     def test_engineer_sources_include_at_least_150_enabled_sources(self):
         sources = load_sources("config/sources.json")
 

@@ -30,5 +30,13 @@
     "category": "source-discovery-search",
     "source_type": "aggregator",
     "enabled": true
+  },
+  {
+    "name": "Bing Source Discovery Upwork AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs+%28%22AI+Deployment%22+OR+%22AI+Solutions%22+OR+%22Forward+Deployed%22+OR+LLM+OR+RAG%29+%28remote+OR+Vietnam+OR+APAC%29&format=rss",
+    "category": "source-discovery-search",
+    "source_type": "aggregator",
+    "enabled": true
   }
 ]

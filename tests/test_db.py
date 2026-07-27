@@ -10,6 +10,7 @@ from news_keep_up.db import (
     get_enrichment,
     get_job_opportunity_source_fingerprint,
     job_alert_was_delivered,
+    list_pending_job_alerts,
     list_source_candidates,
     init_db,
     mark_job_alert_delivered,
@@ -194,6 +195,44 @@ class DatabaseTest(unittest.TestCase):
             self.assertFalse(inserted)
             self.assertTrue(changed)
             self.assertEqual(get_job_opportunity_source_fingerprint(conn, 1), "job-fp-2")
+
+    def test_pending_job_alerts_include_low_and_watch_states_until_delivered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_item())
+
+            low = make_job_opportunity(priority="Low")
+            low = JobOpportunity(**{
+                **low.__dict__,
+                "source_item_id": item_id,
+                "status": "watch",
+                "category": "Watchlist Company",
+                "should_alert": False,
+                "confidence_score": 25,
+            })
+            upsert_job_opportunity(conn, low)
+
+            pending = list_pending_job_alerts(conn)
+            self.assertEqual([opportunity.id for opportunity in pending], [low.id])
+
+            mark_job_alert_delivered(conn, low.id, low.alert_fingerprint)
+            self.assertEqual(list_pending_job_alerts(conn), [])
+
+    def test_pending_job_alerts_exclude_closed_and_reject(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_item())
+
+            closed = make_job_opportunity("closed-fde-role")
+            closed = JobOpportunity(**{**closed.__dict__, "source_item_id": item_id, "status": "closed"})
+            rejected = make_job_opportunity("rejected-fde-role")
+            rejected = JobOpportunity(**{**rejected.__dict__, "source_item_id": item_id, "category": "Reject"})
+            upsert_job_opportunity(conn, closed)
+            upsert_job_opportunity(conn, rejected)
+
+            self.assertEqual(list_pending_job_alerts(conn), [])
 
     def test_source_candidates_and_evaluations_are_stored(self):
         with tempfile.TemporaryDirectory() as tmp:

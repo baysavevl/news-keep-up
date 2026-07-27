@@ -164,8 +164,8 @@ def build_job_classification_prompt(
         "Medium=APAC/SEA/Asia/global remote/Singapore regional but Vietnam not explicit. Weak=relevant but eligibility unclear.\n"
         "Priority: High=Hard + exact/strong adjacent AI deployment role. Medium=strong role but Vietnam eligibility must be verified. "
         "Low=loose, onsite outside Vietnam, weak/stale. Reject=closed/unrelated/pure sales/pure research/pure backend.\n"
-        "Set should_alert=true for High or Medium opportunities when status is not closed and confidence_score >= 60. "
-        "Set should_alert=false for Low, Watch, Reject, closed, or confidence_score < 60.\n"
+        "Set should_alert=true for every non-Reject opportunity, watchlist, expansion, or hiring signal when status is not closed. "
+        "Set should_alert=false only for Reject or closed items.\n"
         "Use only provided evidence. Do not invent status, eligibility, dates, contacts, or apply links.\n\n"
         "Return JSON only with this exact shape:\n"
         "{\n"
@@ -564,12 +564,7 @@ def _job_opportunity_from_row(
     location = clean_text(row.get("location", ""))
     source_url = clean_text(row.get("source_url", "")) or candidate.url
     apply_url = clean_text(row.get("apply_url", ""))
-    should_alert = (
-        priority in {"High", "Medium"}
-        and status != "closed"
-        and category != "Reject"
-        and confidence >= 60
-    )
+    should_alert = status != "closed" and category != "Reject"
     return JobOpportunity(
         id=_stable_job_id(clean_text(row.get("id", "")), company, role_title, location, source_url),
         source_item_id=candidate_id,

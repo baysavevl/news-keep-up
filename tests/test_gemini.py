@@ -160,14 +160,15 @@ class GeminiTest(unittest.TestCase):
         self.assertTrue(reviewed[2].should_send)
         self.assertFalse(reviewed[1].should_send)
 
-    def test_job_classification_prompt_is_compact_and_alerts_high_medium(self):
+    def test_job_classification_prompt_is_compact_and_alerts_non_closed_non_reject(self):
         prompt = build_job_classification_prompt(
             [(7, make_item())],
             crawled_at="2026-07-27",
         )
 
         self.assertIn("Ho Chi Minh City", prompt)
-        self.assertIn("High or Medium", prompt)
+        self.assertIn("non-Reject", prompt)
+        self.assertIn("status is not closed", prompt)
         self.assertIn("should_alert=true", prompt)
         self.assertIn("Do not assume APAC", prompt)
         self.assertIn('"candidate_id": 7', prompt)
@@ -228,6 +229,61 @@ class GeminiTest(unittest.TestCase):
         self.assertTrue(opportunities[0].should_alert)
         self.assertEqual(opportunities[0].source_fingerprint, "abc123")
         self.assertIn("priority=Medium", opportunities[0].alert_fingerprint)
+
+    def test_parse_job_classification_response_sets_alert_for_low_watch_state(self):
+        candidate = CandidateItem(
+            source_name="Bing FDE Search",
+            source_kind="rss",
+            source_category="fde-job-search",
+            title="APAC AI deployment company expanding field engineering",
+            url="https://example.com/jobs/watch",
+            canonical_url="https://example.com/jobs/watch",
+            summary="No exact open role yet, but there is a relevant APAC field engineering signal.",
+            fingerprint="watch123",
+        )
+        response = """```json
+        {
+          "items": [
+            {
+              "candidate_id": 8,
+              "id": "apac-ai-deployment-watch",
+              "priority": "Low",
+              "company": "Example AI",
+              "role_title": "AI Deployment Hiring Signal",
+              "category": "Watchlist Company",
+              "location": "APAC",
+              "remote_policy": "Verify",
+              "vietnam_eligibility": "verify",
+              "evidence_type": "Weak",
+              "status": "watch",
+              "posted_date": "",
+              "source_type": "company_blog",
+              "source_url": "https://example.com/jobs/watch",
+              "apply_url": "",
+              "contact_person": "",
+              "contact_url": "",
+              "why_it_fits": "Weak but relevant FDE-adjacent expansion signal.",
+              "what_to_verify": ["Vietnam-based remote eligibility"],
+              "required_seniority": "",
+              "required_skills": [],
+              "domain": ["enterprise AI"],
+              "company_expansion_signal": "APAC field engineering expansion.",
+              "linkedin_post_signal": "",
+              "recommended_action": "set_alert",
+              "outreach_angle": "",
+              "confidence_score": 25,
+              "should_alert": false
+            }
+          ]
+        }
+        ```"""
+
+        opportunities = parse_job_classification_response(response, {8: candidate}, "gemini-test", "2026-07-27")
+
+        self.assertEqual(len(opportunities), 1)
+        self.assertEqual(opportunities[0].priority, "Low")
+        self.assertEqual(opportunities[0].status, "watch")
+        self.assertTrue(opportunities[0].should_alert)
 
 
 if __name__ == "__main__":

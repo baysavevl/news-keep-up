@@ -500,9 +500,8 @@ def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
                   linkedin_post_signal, recommended_action, outreach_angle,
                   confidence_score, should_alert
            FROM job_opportunities jo
-           WHERE should_alert=1
-             AND priority IN ('High', 'Medium')
-             AND status <> 'closed'
+           WHERE status <> 'closed'
+             AND category <> 'Reject'
              AND NOT EXISTS (
                  SELECT 1
                  FROM job_alert_deliveries jad
