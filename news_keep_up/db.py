@@ -144,6 +144,12 @@ def init_db(conn) -> None:
             required_seniority TEXT,
             required_skills TEXT NOT NULL,
             domain TEXT NOT NULL,
+            country TEXT DEFAULT '',
+            compensation TEXT DEFAULT '',
+            benefits TEXT DEFAULT '',
+            package TEXT DEFAULT '',
+            company_size TEXT DEFAULT '',
+            company_coverage TEXT DEFAULT '',
             company_expansion_signal TEXT,
             linkedin_post_signal TEXT,
             recommended_action TEXT NOT NULL,
@@ -202,7 +208,25 @@ def init_db(conn) -> None:
     ]
     for statement in statements:
         conn.execute(statement)
+    _ensure_columns(conn, "job_opportunities", {
+        "country": "TEXT DEFAULT ''",
+        "compensation": "TEXT DEFAULT ''",
+        "benefits": "TEXT DEFAULT ''",
+        "package": "TEXT DEFAULT ''",
+        "company_size": "TEXT DEFAULT ''",
+        "company_coverage": "TEXT DEFAULT ''",
+    })
     conn.commit()
+
+
+def _ensure_columns(conn, table: str, columns: dict[str, str]) -> None:
+    existing = {
+        str(row_value(row, "name", 1))
+        for row in conn.execute(f"PRAGMA table_info({table})").fetchall()
+    }
+    for name, declaration in columns.items():
+        if name not in existing:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {declaration}")
 
 
 def upsert_source(conn, source: Source) -> int:
@@ -383,7 +407,8 @@ def upsert_job_opportunity(conn, opportunity: JobOpportunity) -> tuple[bool, boo
                    vietnam_eligibility=?, evidence_type=?, status=?, posted_date=?,
                    source_type=?, source_url=?, apply_url=?, contact_person=?,
                    contact_url=?, why_it_fits=?, what_to_verify=?, required_seniority=?,
-                   required_skills=?, domain=?, company_expansion_signal=?,
+                   required_skills=?, domain=?, country=?, compensation=?, benefits=?, package=?,
+                   company_size=?, company_coverage=?, company_expansion_signal=?,
                    linkedin_post_signal=?, recommended_action=?, outreach_angle=?,
                    confidence_score=?, should_alert=?, alert_fingerprint=?, raw_json=?,
                    updated_at=CURRENT_TIMESTAMP
@@ -399,10 +424,11 @@ def upsert_job_opportunity(conn, opportunity: JobOpportunity) -> tuple[bool, boo
                role_title, category, location, remote_policy, vietnam_eligibility,
                evidence_type, status, posted_date, source_type, source_url, apply_url,
                contact_person, contact_url, why_it_fits, what_to_verify,
-               required_seniority, required_skills, domain, company_expansion_signal,
+               required_seniority, required_skills, domain, country, compensation,
+               benefits, package, company_size, company_coverage, company_expansion_signal,
                linkedin_post_signal, recommended_action, outreach_angle,
                confidence_score, should_alert, alert_fingerprint, raw_json
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (opportunity.id, *values),
     )
     conn.commit()
@@ -435,6 +461,12 @@ def _job_opportunity_values(opportunity: JobOpportunity) -> tuple[Any, ...]:
         "required_seniority": opportunity.required_seniority,
         "required_skills": opportunity.required_skills,
         "domain": opportunity.domain,
+        "country": opportunity.country,
+        "compensation": opportunity.compensation,
+        "benefits": opportunity.benefits,
+        "package": opportunity.package,
+        "company_size": opportunity.company_size,
+        "company_coverage": opportunity.company_coverage,
         "company_expansion_signal": opportunity.company_expansion_signal,
         "linkedin_post_signal": opportunity.linkedin_post_signal,
         "recommended_action": opportunity.recommended_action,
@@ -466,6 +498,12 @@ def _job_opportunity_values(opportunity: JobOpportunity) -> tuple[Any, ...]:
         opportunity.required_seniority,
         json.dumps(opportunity.required_skills, ensure_ascii=True),
         json.dumps(opportunity.domain, ensure_ascii=True),
+        opportunity.country,
+        opportunity.compensation,
+        opportunity.benefits,
+        opportunity.package,
+        opportunity.company_size,
+        opportunity.company_coverage,
         opportunity.company_expansion_signal,
         opportunity.linkedin_post_signal,
         opportunity.recommended_action,
@@ -526,7 +564,8 @@ def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
                   role_title, category, location, remote_policy, vietnam_eligibility,
                   evidence_type, status, posted_date, source_type, source_url, apply_url,
                   contact_person, contact_url, why_it_fits, what_to_verify,
-                  required_seniority, required_skills, domain, company_expansion_signal,
+                  required_seniority, required_skills, domain, country, compensation,
+                  benefits, package, company_size, company_coverage, company_expansion_signal,
                   linkedin_post_signal, recommended_action, outreach_angle,
                   confidence_score, should_alert
            FROM job_opportunities jo
@@ -549,6 +588,55 @@ def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
            ORDER BY updated_at DESC
            LIMIT ?""",
         (limit,),
+    ).fetchall()
+    return [_job_opportunity_from_row(row) for row in rows]
+
+
+def search_job_opportunities(conn, query: str = "", limit: int = 5) -> list[JobOpportunity]:
+    normalized = " ".join(query.lower().split())
+    pattern = f"%{normalized}%"
+    filters = [
+        "status <> 'closed'",
+        "category <> 'Reject'",
+    ]
+    params: list[Any] = []
+    if normalized:
+        filters.append(
+            """(
+                lower(company) LIKE ?
+                OR lower(role_title) LIKE ?
+                OR lower(category) LIKE ?
+                OR lower(location) LIKE ?
+                OR lower(remote_policy) LIKE ?
+                OR lower(vietnam_eligibility) LIKE ?
+                OR lower(source_type) LIKE ?
+                OR lower(why_it_fits) LIKE ?
+                OR lower(required_skills) LIKE ?
+                OR lower(domain) LIKE ?
+                OR lower(country) LIKE ?
+                OR lower(compensation) LIKE ?
+                OR lower(benefits) LIKE ?
+                OR lower(package) LIKE ?
+                OR lower(company_size) LIKE ?
+                OR lower(company_coverage) LIKE ?
+            )"""
+        )
+        params.extend([pattern] * 16)
+    params.append(limit)
+    rows = conn.execute(
+        f"""SELECT id, source_item_id, source_fingerprint, crawled_at, priority, company,
+                  role_title, category, location, remote_policy, vietnam_eligibility,
+                  evidence_type, status, posted_date, source_type, source_url, apply_url,
+                  contact_person, contact_url, why_it_fits, what_to_verify,
+                  required_seniority, required_skills, domain, country, compensation,
+                  benefits, package, company_size, company_coverage, company_expansion_signal,
+                  linkedin_post_signal, recommended_action, outreach_angle,
+                  confidence_score, should_alert
+           FROM job_opportunities
+           WHERE {' AND '.join(filters)}
+           ORDER BY updated_at DESC, confidence_score DESC
+           LIMIT ?""",
+        tuple(params),
     ).fetchall()
     return [_job_opportunity_from_row(row) for row in rows]
 
@@ -579,12 +667,18 @@ def _job_opportunity_from_row(row) -> JobOpportunity:
         required_seniority=str(row_value(row, "required_seniority", 21) or ""),
         required_skills=_json_list(row_value(row, "required_skills", 22)),
         domain=_json_list(row_value(row, "domain", 23)),
-        company_expansion_signal=str(row_value(row, "company_expansion_signal", 24) or ""),
-        linkedin_post_signal=str(row_value(row, "linkedin_post_signal", 25) or ""),
-        recommended_action=str(row_value(row, "recommended_action", 26)),
-        outreach_angle=str(row_value(row, "outreach_angle", 27) or ""),
-        confidence_score=int(row_value(row, "confidence_score", 28)),
-        should_alert=bool(row_value(row, "should_alert", 29)),
+        country=str(row_value(row, "country", 24) or ""),
+        compensation=str(row_value(row, "compensation", 25) or ""),
+        benefits=str(row_value(row, "benefits", 26) or ""),
+        package=str(row_value(row, "package", 27) or ""),
+        company_size=str(row_value(row, "company_size", 28) or ""),
+        company_coverage=str(row_value(row, "company_coverage", 29) or ""),
+        company_expansion_signal=str(row_value(row, "company_expansion_signal", 30) or ""),
+        linkedin_post_signal=str(row_value(row, "linkedin_post_signal", 31) or ""),
+        recommended_action=str(row_value(row, "recommended_action", 32)),
+        outreach_angle=str(row_value(row, "outreach_angle", 33) or ""),
+        confidence_score=int(row_value(row, "confidence_score", 34)),
+        should_alert=bool(row_value(row, "should_alert", 35)),
     )
 
 

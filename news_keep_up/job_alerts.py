@@ -25,12 +25,14 @@ from .job_filters import (
     is_workable_from_vietnam_opportunity,
 )
 from .models import CandidateItem, JobOpportunity, Settings, Source
+from .scheduler import is_fde_job_alert_send_window
 from .sources import fetch_source
 from .telegram import send_telegram_message
 from .utils import ICT, now_ict
 
 DEFAULT_FDE_JOB_SOURCES_PATH = Path("config/fde_job_sources.json")
 USER_AGENT = "news-keep-up/0.1 (+https://github.com/baysavevl/news-keep-up)"
+JOB_ALERT_BATCH_LIMIT = 3
 
 JOB_TITLE_TERMS = (
     "forward deployed",
@@ -119,6 +121,7 @@ def run_fde_job_alerts(
     dry_run: bool = False,
     sources_path=DEFAULT_FDE_JOB_SOURCES_PATH,
     current: datetime | None = None,
+    send_window_current: datetime | None = None,
 ) -> str:
     conn = connect_database(settings)
     init_db(conn)
@@ -134,15 +137,18 @@ def run_fde_job_alerts(
             for opportunity in opportunities:
                 upsert_job_opportunity(conn, opportunity)
 
-        alert_limit = max(1, settings.max_llm_items_per_run)
-        alerts = [
+        alert_limit = min(JOB_ALERT_BATCH_LIMIT, max(1, settings.max_llm_items_per_run))
+        alert_candidates = [
             opportunity
             for opportunity in list_pending_job_alerts(conn, limit=alert_limit * 8)
             if is_workable_from_vietnam_opportunity(opportunity)
-        ][:alert_limit]
+        ]
+        alerts = _dedupe_opportunities_by_url(alert_candidates)[:alert_limit]
         messages = [format_job_alert(opportunity, current=current) for opportunity in alerts]
         delivery_configured = bool(settings.telegram_bot_token and settings.telegram_chat_id)
         if not dry_run:
+            if not is_fde_job_alert_send_window(send_window_current or current):
+                return ""
             if delivery_configured:
                 for opportunity, message in zip(alerts, messages):
                     send_telegram_message(message, settings)
@@ -163,32 +169,52 @@ def format_job_alert(opportunity: JobOpportunity, current: datetime | None = Non
     verify = ", ".join(opportunity.what_to_verify[:3]) or "Vietnam eligibility"
     action = _action_label(opportunity)
     source = opportunity.apply_url or opportunity.source_url
-    location_parts = [
-        opportunity.company,
-        opportunity.location or "Verify location",
-    ]
-    if opportunity.remote_policy:
-        location_parts.append(opportunity.remote_policy)
-    elif opportunity.vietnam_eligibility:
-        location_parts.append(f"VN: {opportunity.vietnam_eligibility}")
-    location_line = " · ".join(part for part in location_parts if part)
+    priority_icon = _priority_icon(opportunity.priority)
+    source_label = _pretty_label(opportunity.source_type)
+    status_label = _pretty_label(opportunity.status)
+    location = opportunity.location or "Verify location"
+    remote_policy = opportunity.remote_policy or "Verify"
+    compensation = _join_known([opportunity.compensation, opportunity.package]) or "Chưa thấy trong source"
+    benefits = opportunity.benefits or "Chưa thấy trong source"
+    footprint = _join_known([opportunity.company_size, opportunity.company_coverage]) or "Chưa thấy trong source"
     lines = [
-        "<b>🧭 FDE Job Alert</b>",
+        f"{priority_icon} <b>FDE Job Alert</b> · {escape(opportunity.priority)} · {opportunity.confidence_score}/100",
         f"Time: {escape(timestamp.strftime('%d %b %H:%M'))} ICT",
         "",
         f"<b>{escape(opportunity.role_title)}</b>",
-        escape(location_line),
-        f"Priority: <b>{escape(opportunity.priority)}</b> · Status: {escape(opportunity.status)} · Confidence: {opportunity.confidence_score}/100",
-        f"Category: {escape(opportunity.category)} · Source: {escape(opportunity.source_type)}",
-        f"Vietnam eligibility: {escape(opportunity.vietnam_eligibility)}",
-        f"Phân tích: {escape(opportunity.why_it_fits)}",
-        f"Verify: {escape(verify)}",
-        f"Action: {escape(action)}",
-        f'Link: <a href="{escape(source, quote=True)}">{escape(source)}</a>',
+        f"🏢 Công ty: {escape(opportunity.company)}",
+        f"🏷 Hạng mục: {escape(opportunity.category)}",
+        f"📍 Địa điểm: {escape(location)}",
+        f"🌍 Quốc gia: {escape(opportunity.country or _country_from_location(location) or 'Verify')}",
+        f"🌐 Remote: {escape(remote_policy)}",
+        f"💰 Lương/package: {escape(compensation)}",
+        f"🎁 Phúc lợi: {escape(benefits)}",
+        f"🏬 Company footprint: {escape(footprint)}",
+        f"🇻🇳 Khả năng từ VN: {escape(opportunity.vietnam_eligibility)} · {escape(opportunity.evidence_type)} signal",
+        f"📌 Trạng thái: {escape(status_label)} · Nguồn: {escape(source_label)}",
+        f"🔎 Phân tích: {escape(opportunity.why_it_fits)}",
+        f"❓ Cần verify: {escape(verify)}",
+        f"🎯 Hành động: {escape(action)}",
+        f'🔗 Link: <a href="{escape(source, quote=True)}">{escape(source)}</a>',
     ]
+    focus = _focus_line(opportunity)
+    if focus:
+        lines.insert(9, focus)
     if opportunity.outreach_angle:
-        lines.insert(-1, f"Outreach: {escape(opportunity.outreach_angle)}")
+        lines.insert(-1, f"✉️ Outreach: {escape(opportunity.outreach_angle)}")
     return "\n".join(lines).strip()
+
+
+def _dedupe_opportunities_by_url(opportunities: list[JobOpportunity]) -> list[JobOpportunity]:
+    deduped: list[JobOpportunity] = []
+    seen: set[str] = set()
+    for opportunity in opportunities:
+        key = opportunity.apply_url or opportunity.source_url or opportunity.id
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(opportunity)
+    return deduped
 
 
 def _new_job_candidates(
@@ -367,3 +393,49 @@ def _action_label(opportunity: JobOpportunity) -> str:
         "ignore": "Ignore",
     }
     return labels.get(opportunity.recommended_action, "Track and verify")
+
+
+def _priority_icon(priority: str) -> str:
+    return {
+        "High": "🔴",
+        "Medium": "🟡",
+        "Low": "⚪",
+    }.get(priority, "🟡")
+
+
+def _pretty_label(value: str) -> str:
+    return " ".join(str(value or "").replace("_", " ").split()) or "verify"
+
+
+def _focus_line(opportunity: JobOpportunity) -> str:
+    parts = [part for part in [*opportunity.domain[:2], *opportunity.required_skills[:2]] if part]
+    if not parts:
+        return ""
+    return f"🧩 Trọng tâm: {escape(', '.join(parts[:4]))}"
+
+
+def _join_known(parts: list[str]) -> str:
+    return " · ".join(part for part in parts if part)
+
+
+def _country_from_location(location: str) -> str:
+    lowered = location.lower()
+    country_terms = [
+        ("Vietnam", ("vietnam", "viet nam", "ho chi minh", "hcmc", "hanoi", "saigon")),
+        ("United States", ("united states", "usa", "u.s.")),
+        ("Singapore", ("singapore",)),
+        ("India", ("india", "bengaluru", "bangalore")),
+        ("Malaysia", ("malaysia",)),
+        ("Thailand", ("thailand",)),
+        ("Indonesia", ("indonesia",)),
+        ("Philippines", ("philippines",)),
+        ("Hong Kong", ("hong kong",)),
+        ("Taiwan", ("taiwan",)),
+        ("Japan", ("japan",)),
+        ("Korea", ("korea",)),
+        ("Australia", ("australia",)),
+    ]
+    for country, terms in country_terms:
+        if any(term in lowered for term in terms):
+            return country
+    return ""

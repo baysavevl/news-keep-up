@@ -148,6 +148,7 @@ def build_job_classification_prompt(
             "title": item.title,
             "url": item.url,
             "summary": _trim_for_prompt(item.summary or item.content, 700),
+            "parsed_metadata": item.raw if isinstance(item.raw, dict) else {},
             "published_at": item.published_at,
         }
         for item_id, item in candidates
@@ -167,7 +168,8 @@ def build_job_classification_prompt(
         "Low=loose, onsite outside Vietnam, weak/stale. Reject=closed/unrelated/pure sales/pure research/pure backend.\n"
         "Set should_alert=true for every non-Reject opportunity, watchlist, expansion, or hiring signal when status is not closed. "
         "Set should_alert=false only for Reject or closed items.\n"
-        "Use only provided evidence. Do not invent status, eligibility, dates, contacts, or apply links.\n\n"
+        "Use only provided evidence. Do not invent status, eligibility, dates, contacts, apply links, compensation, benefits, "
+        "or company footprint. If company size or regional coverage is not present in the candidate evidence, return an empty string.\n\n"
         "Return JSON only with this exact shape:\n"
         "{\n"
         '  "items": [\n'
@@ -194,6 +196,12 @@ def build_job_classification_prompt(
         '      "required_seniority": "",\n'
         '      "required_skills": [],\n'
         '      "domain": [],\n'
+        '      "country": "",\n'
+        '      "compensation": "",\n'
+        '      "benefits": "",\n'
+        '      "package": "",\n'
+        '      "company_size": "",\n'
+        '      "company_coverage": "",\n'
         '      "company_expansion_signal": "",\n'
         '      "linkedin_post_signal": "",\n'
         '      "recommended_action": "apply_now|dm_recruiter_first|follow_company|set_alert|ignore",\n'
@@ -349,6 +357,12 @@ def fallback_job_opportunities(
             "what_to_verify": _fallback_job_verify_items(location, remote_policy),
             "recommended_action": "set_alert",
             "confidence_score": confidence,
+            "country": _candidate_metadata(candidate, "country") or _country_from_location(location),
+            "compensation": _candidate_metadata(candidate, "compensation"),
+            "benefits": _candidate_metadata(candidate, "benefits"),
+            "package": _candidate_metadata(candidate, "package"),
+            "company_size": _candidate_metadata(candidate, "company_size"),
+            "company_coverage": _candidate_metadata(candidate, "company_coverage"),
         }
         opportunities.append(_job_opportunity_from_row(row, item_id, candidate, crawled_at))
     return opportunities
@@ -606,6 +620,12 @@ def _job_opportunity_from_row(
         required_seniority=clean_text(row.get("required_seniority", "")),
         required_skills=_string_list(row.get("required_skills")),
         domain=_string_list(row.get("domain")),
+        country=clean_text(row.get("country", "")) or _candidate_metadata(candidate, "country") or _country_from_location(location),
+        compensation=clean_text(row.get("compensation", "")) or _candidate_metadata(candidate, "compensation"),
+        benefits=clean_text(row.get("benefits", "")) or _candidate_metadata(candidate, "benefits"),
+        package=clean_text(row.get("package", "")) or _candidate_metadata(candidate, "package"),
+        company_size=clean_text(row.get("company_size", "")) or _candidate_metadata(candidate, "company_size"),
+        company_coverage=clean_text(row.get("company_coverage", "")) or _candidate_metadata(candidate, "company_coverage"),
         company_expansion_signal=clean_text(row.get("company_expansion_signal", "")),
         linkedin_post_signal=clean_text(row.get("linkedin_post_signal", "")),
         recommended_action=_enum_value(
@@ -705,6 +725,29 @@ def _fallback_location(item: CandidateItem) -> str:
     ):
         if location.lower() in text:
             return location
+    return ""
+
+
+def _country_from_location(location: str) -> str:
+    lowered = location.lower()
+    country_terms = [
+        ("Vietnam", ("vietnam", "viet nam", "ho chi minh", "hcmc", "hanoi", "saigon")),
+        ("United States", ("united states", "usa", "u.s.")),
+        ("Singapore", ("singapore",)),
+        ("India", ("india", "bengaluru", "bangalore")),
+        ("Malaysia", ("malaysia",)),
+        ("Thailand", ("thailand",)),
+        ("Indonesia", ("indonesia",)),
+        ("Philippines", ("philippines",)),
+        ("Hong Kong", ("hong kong",)),
+        ("Taiwan", ("taiwan",)),
+        ("Japan", ("japan",)),
+        ("Korea", ("korea",)),
+        ("Australia", ("australia",)),
+    ]
+    for country, terms in country_terms:
+        if any(term in lowered for term in terms):
+            return country
     return ""
 
 

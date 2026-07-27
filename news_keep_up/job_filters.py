@@ -90,7 +90,6 @@ def is_workable_from_vietnam_opportunity(opportunity: JobOpportunity) -> bool:
         text=" ".join([
             opportunity.role_title,
             opportunity.company,
-            opportunity.why_it_fits,
             opportunity.source_url,
             opportunity.apply_url,
         ]),
@@ -108,6 +107,7 @@ def _is_workable_from_vietnam(
     combined = " ".join([location, remote_policy, text]).lower()
     location_text = location.lower()
     remote_text = " ".join([location, remote_policy]).lower()
+    location_has_non_vietnam_scope = any(term in location_text for term in NON_VIETNAM_LOCATION_TERMS)
 
     if any(term in combined for term in NON_TECHNICAL_ROLE_TERMS):
         return False
@@ -117,6 +117,8 @@ def _is_workable_from_vietnam(
 
     if vietnam_eligibility == "explicit_yes":
         return True
+    if location_has_non_vietnam_scope:
+        return False
     if any(term in combined for term in VIETNAM_TERMS):
         return True
 
@@ -129,9 +131,6 @@ def _is_workable_from_vietnam(
 
     if _remote_scope_is_unspecified(location_text, remote_policy.lower()):
         return True
-
-    if any(term in location_text for term in NON_VIETNAM_LOCATION_TERMS):
-        return False
 
     return False
 

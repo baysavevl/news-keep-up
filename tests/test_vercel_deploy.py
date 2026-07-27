@@ -460,6 +460,40 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertEqual(finish.call_args.args[3], "done")
         conn.close.assert_called_once()
 
+    def test_scheduler_tick_passes_scheduled_time_to_job_alert_profile(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+
+        from news_keep_up.scheduler import ScheduledDigestJob
+        from news_keep_up.vercel_app import app
+
+        scheduled_for = datetime(2026, 7, 14, 20, 30, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        triggered_at = datetime(2026, 7, 14, 21, 31, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        job = ScheduledDigestJob(slot="fde-jobs", scheduled_for=scheduled_for)
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.now_ict", return_value=triggered_at),
+            patch("news_keep_up.vercel_app.load_settings"),
+            patch("news_keep_up.vercel_app.connect_database") as connect,
+            patch("news_keep_up.vercel_app.init_db"),
+            patch("news_keep_up.vercel_app.due_digest_jobs", return_value=[job]),
+            patch("news_keep_up.vercel_app.claim_scheduler_run", return_value=True),
+            patch("news_keep_up.vercel_app.finish_scheduler_run"),
+            patch("news_keep_up.vercel_app._run_digest_profile", return_value={
+                "delivery_configured": True,
+                "message_length": 123,
+            }) as run_profile,
+        ):
+            response = app.test_client().get(
+                "/api/scheduler/tick",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(run_profile.call_args.kwargs["current"], scheduled_for)
+        self.assertEqual(run_profile.call_args.kwargs["send_window_current"], triggered_at)
+        connect.return_value.close.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()

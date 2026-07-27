@@ -57,6 +57,23 @@ class SchedulerTest(unittest.TestCase):
             ["09:00", "09:30"],
         )
 
+    def test_due_digest_jobs_include_fde_jobs_only_between_7_and_21(self):
+        before_window = due_digest_jobs(datetime(2026, 7, 14, 6, 59, tzinfo=ICT), lookback_minutes=30)
+        window_start = due_digest_jobs(datetime(2026, 7, 14, 7, 1, tzinfo=ICT), lookback_minutes=5)
+        window_end = due_digest_jobs(datetime(2026, 7, 14, 21, 1, tzinfo=ICT), lookback_minutes=35)
+        after_window = due_digest_jobs(datetime(2026, 7, 14, 21, 31, tzinfo=ICT), lookback_minutes=30)
+
+        self.assertNotIn("fde-jobs", [job.slot for job in before_window])
+        self.assertEqual(
+            [job.scheduled_for.strftime("%H:%M") for job in window_start if job.slot == "fde-jobs"],
+            ["07:00"],
+        )
+        self.assertEqual(
+            [job.scheduled_for.strftime("%H:%M") for job in window_end if job.slot == "fde-jobs"],
+            ["20:30", "21:00"],
+        )
+        self.assertNotIn("fde-jobs", [job.slot for job in after_window])
+
     def test_due_digest_jobs_include_daily_fde_job_source_maintenance(self):
         jobs = due_digest_jobs(datetime(2026, 7, 14, 7, 11, tzinfo=ICT), lookback_minutes=5)
 

@@ -254,9 +254,35 @@ def _fwddeploy_metadata_from_values(values: list[str], company: str) -> dict[str
             location_values.append(value)
     if location_values:
         metadata["location"] = " ".join(location_values[:2])
+        country = _country_from_location(metadata["location"])
+        if country:
+            metadata["country"] = country
     if "remote" in metadata.get("location", "").lower():
         metadata["remote_policy"] = "Remote"
     return metadata
+
+
+def _country_from_location(location: str) -> str:
+    lowered = location.lower()
+    country_terms = [
+        ("Vietnam", ("vietnam", "viet nam", "ho chi minh", "hcmc", "hanoi", "saigon")),
+        ("United States", ("united states", "usa", "u.s.")),
+        ("Singapore", ("singapore",)),
+        ("India", ("india", "bengaluru", "bangalore")),
+        ("Malaysia", ("malaysia",)),
+        ("Thailand", ("thailand",)),
+        ("Indonesia", ("indonesia",)),
+        ("Philippines", ("philippines",)),
+        ("Hong Kong", ("hong kong",)),
+        ("Taiwan", ("taiwan",)),
+        ("Japan", ("japan",)),
+        ("Korea", ("korea",)),
+        ("Australia", ("australia",)),
+    ]
+    for country, terms in country_terms:
+        if any(term in lowered for term in terms):
+            return country
+    return ""
 
 
 def _job_board_summary(company: str, metadata: dict[str, str]) -> str:

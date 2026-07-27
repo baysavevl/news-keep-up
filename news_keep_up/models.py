@@ -111,6 +111,12 @@ class JobOpportunity:
     required_seniority: str = ""
     required_skills: list[str] = field(default_factory=list)
     domain: list[str] = field(default_factory=list)
+    country: str = ""
+    compensation: str = ""
+    benefits: str = ""
+    package: str = ""
+    company_size: str = ""
+    company_coverage: str = ""
     company_expansion_signal: str = ""
     linkedin_post_signal: str = ""
     recommended_action: str = "set_alert"

@@ -4,8 +4,15 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from news_keep_up.db import connect_database, get_profile_setting, init_db, upsert_enrichment, upsert_item
-from news_keep_up.models import CandidateItem, Enrichment, Settings
+from news_keep_up.db import (
+    connect_database,
+    get_profile_setting,
+    init_db,
+    upsert_enrichment,
+    upsert_item,
+    upsert_job_opportunity,
+)
+from news_keep_up.models import CandidateItem, Enrichment, JobOpportunity, Settings
 from news_keep_up.telegram_commands import handle_telegram_update
 
 
@@ -159,6 +166,156 @@ class TelegramCommandsTest(unittest.TestCase):
         self.assertIn("#", sent_text)
         self.assertIn("Building enterprise AI agents", sent_text)
         self.assertIn("Salesforce Engineering", sent_text)
+
+    def test_fde_jobs_job_search_command_returns_stored_opportunities(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Wonderful Careers",
+                source_kind="html",
+                source_category="company-careers",
+                title="Wonderful Forward Deployed Engineer",
+                url="https://wonderful.ai/jobs/fde",
+                canonical_url="https://wonderful.ai/jobs/fde",
+                summary="Remote Vietnam enterprise AI deployment role.",
+            ))
+            upsert_job_opportunity(conn, JobOpportunity(
+                id="wonderful-forward-deployed-engineer-vietnam",
+                source_item_id=item_id,
+                source_fingerprint="job-fp",
+                crawled_at="2026-07-27",
+                priority="High",
+                company="Wonderful",
+                role_title="Forward Deployed Engineer",
+                category="Exact FDE Role",
+                location="Ho Chi Minh City, Vietnam",
+                remote_policy="Hybrid HCMC",
+                vietnam_eligibility="explicit_yes",
+                evidence_type="Hard",
+                status="open",
+                posted_date="",
+                source_type="ATS",
+                source_url="https://wonderful.ai/jobs/fde",
+                apply_url="https://wonderful.ai/jobs/fde/apply",
+                contact_person="",
+                contact_url="",
+                why_it_fits="Exact FDE role in Vietnam for enterprise AI deployment.",
+                what_to_verify=["Compensation range"],
+                required_seniority="",
+                required_skills=["LLM", "customer deployment"],
+                domain=["enterprise AI"],
+                country="Vietnam",
+                compensation="Competitive salary",
+                benefits="Health insurance",
+                package="Base + equity",
+                company_size="51-200 employees",
+                company_coverage="Vietnam and US customers",
+                recommended_action="apply_now",
+                confidence_score=94,
+                should_alert=True,
+            ))
+            conn.close()
+
+            with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+                result = handle_telegram_update(
+                    update("/jobs wonderful"),
+                    slot="fde-jobs",
+                    sources_path="config/fde_job_sources.json",
+                    settings=settings,
+                )
+
+        self.assertEqual(result["command"], "jobsearch")
+        sent_text = send.call_args.args[0]
+        self.assertIn("<b>FDE job search: wonderful</b>", sent_text)
+        self.assertIn("Forward Deployed Engineer", sent_text)
+        self.assertIn("🏢 Wonderful", sent_text)
+        self.assertIn("📍 Ho Chi Minh City, Vietnam", sent_text)
+        self.assertIn("💰 Competitive salary", sent_text)
+        self.assertIn("🏬 51-200 employees", sent_text)
+        self.assertIn("🔗", sent_text)
+
+    def test_fde_jobs_salary_command_returns_compensated_opportunities(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, CandidateItem(
+                source_name="Wonderful Careers",
+                source_kind="html",
+                source_category="company-careers",
+                title="Wonderful Forward Deployed Engineer",
+                url="https://wonderful.ai/jobs/fde",
+                canonical_url="https://wonderful.ai/jobs/fde",
+                summary="Remote Vietnam enterprise AI deployment role.",
+            ))
+            base = {
+                "source_item_id": item_id,
+                "source_fingerprint": "job-fp",
+                "crawled_at": "2026-07-27",
+                "priority": "High",
+                "category": "Exact FDE Role",
+                "location": "Vietnam",
+                "remote_policy": "Remote Vietnam",
+                "vietnam_eligibility": "explicit_yes",
+                "evidence_type": "Hard",
+                "status": "open",
+                "posted_date": "",
+                "source_type": "ATS",
+                "contact_person": "",
+                "contact_url": "",
+                "why_it_fits": "Exact FDE role in Vietnam.",
+                "what_to_verify": [],
+                "required_seniority": "",
+                "required_skills": [],
+                "domain": [],
+                "country": "Vietnam",
+                "recommended_action": "apply_now",
+                "confidence_score": 90,
+                "should_alert": True,
+            }
+            upsert_job_opportunity(conn, JobOpportunity(
+                **base,
+                id="wonderful-paid-fde",
+                company="Wonderful",
+                role_title="Forward Deployed Engineer",
+                source_url="https://wonderful.ai/jobs/fde",
+                apply_url="https://wonderful.ai/jobs/fde/apply",
+                compensation="$120k-$160k",
+                package="Base + equity",
+            ))
+            upsert_job_opportunity(conn, JobOpportunity(
+                **base,
+                id="unknown-pay-fde",
+                company="UnknownPay",
+                role_title="Forward Deployed Engineer",
+                source_url="https://example.com/no-pay",
+                apply_url="https://example.com/no-pay",
+            ))
+            conn.close()
+
+            with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+                result = handle_telegram_update(
+                    update("/salary"),
+                    slot="fde-jobs",
+                    sources_path="config/fde_job_sources.json",
+                    settings=settings,
+                )
+
+        self.assertEqual(result["command"], "salarysearch")
+        sent_text = send.call_args.args[0]
+        self.assertIn("FDE job search: salary/package", sent_text)
+        self.assertIn("$120k-$160k", sent_text)
+        self.assertNotIn("UnknownPay", sent_text)
 
     def test_markread_command_marks_matching_items_delivered(self):
         with tempfile.TemporaryDirectory() as tmp:

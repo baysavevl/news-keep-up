@@ -4,11 +4,19 @@ from collections import Counter
 from html import escape
 
 from .config import load_sources
-from .db import connect_database, init_db, mark_delivered, row_value, upsert_profile_setting
+from .db import (
+    connect_database,
+    init_db,
+    mark_delivered,
+    row_value,
+    search_job_opportunities,
+    upsert_profile_setting,
+)
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
+from .job_filters import is_workable_from_vietnam_opportunity
 from .job_alerts import run_fde_job_alerts
-from .models import Settings
+from .models import JobOpportunity, Settings
 from .telegram import send_telegram_message
 
 COMMAND_ALIASES = {
@@ -20,6 +28,20 @@ COMMAND_ALIASES = {
     "run": "latest",
     "search": "search",
     "find": "search",
+    "jobs": "jobsearch",
+    "job": "jobsearch",
+    "opps": "jobsearch",
+    "opportunities": "jobsearch",
+    "open": "jobsearch",
+    "alerts": "jobsearch",
+    "company": "jobsearch",
+    "remote": "jobsearch",
+    "high": "jobsearch",
+    "salary": "salarysearch",
+    "comp": "salarysearch",
+    "package": "salarysearch",
+    "benefits": "benefitsearch",
+    "benefit": "benefitsearch",
     "analyze": "analyze",
     "why": "analyze",
     "chatid": "chatid",
@@ -74,7 +96,13 @@ def handle_telegram_update(
         else:
             response = run_digest(settings, slot, dry_run=True, sources_path=sources_path)
     elif command == "search":
-        response = _search_text(settings, args)
+        response = _job_search_text(settings, args) if slot == "fde-jobs" else _search_text(settings, args)
+    elif command == "jobsearch":
+        response = _job_search_text(settings, _job_search_query(command_name, args))
+    elif command == "salarysearch":
+        response = _job_search_text(settings, args, only_compensation=True)
+    elif command == "benefitsearch":
+        response = _job_search_text(settings, args, only_benefits=True)
     elif command == "analyze":
         response = _analysis_text(settings, slot, args)
     elif command == "sources":
@@ -106,6 +134,24 @@ def _parse_command(text: str) -> tuple[str, str]:
 
 
 def _help_text(slot: str) -> str:
+    if slot == "fde-jobs":
+        return "\n".join([
+            "<b>FDE jobs bot commands</b>",
+            "/latest - scan now and preview pending job alerts",
+            "/jobs keyword - search stored FDE opportunities",
+            "/jobs - show latest stored Vietnam-workable opportunities",
+            "/open - show latest stored Vietnam-workable opportunities",
+            "/salary - show stored jobs with salary/package",
+            "/benefits - show stored jobs with benefits",
+            "/company name - search by company",
+            "/remote - show remote/hybrid opportunities",
+            "/high - show high-priority opportunities",
+            "/search keyword - alias for /jobs keyword in this group",
+            "/sources - show job source coverage",
+            "/status - show schedule and delivery config",
+            "/chatid - show this Telegram chat id",
+            "/help - show this menu",
+        ])
     title = "FDE" if slot == "fde" else "Engineer"
     return "\n".join([
         f"<b>{title} news bot commands</b>",
@@ -220,6 +266,91 @@ def _search_text(settings: Settings, query: str) -> str:
             f"Read: <a href=\"{escape(row_value(row, 'url', 2), quote=True)}\">Read</a>"
         )
     return "\n\n".join(lines)
+
+
+def _job_search_query(command_name: str, args: str) -> str:
+    if args.strip():
+        return args
+    defaults = {
+        "remote": "remote",
+        "high": "High",
+    }
+    return defaults.get(command_name, args)
+
+
+def _job_search_text(
+    settings: Settings,
+    query: str,
+    limit: int = 5,
+    only_compensation: bool = False,
+    only_benefits: bool = False,
+) -> str:
+    conn = connect_database(settings)
+    init_db(conn)
+    try:
+        opportunities = [
+            opportunity
+            for opportunity in search_job_opportunities(conn, query, limit=limit * 8)
+            if is_workable_from_vietnam_opportunity(opportunity)
+        ]
+    finally:
+        conn.close()
+    if only_compensation:
+        opportunities = [
+            opportunity
+            for opportunity in opportunities
+            if opportunity.compensation or opportunity.package
+        ]
+    if only_benefits:
+        opportunities = [
+            opportunity
+            for opportunity in opportunities
+            if opportunity.benefits
+        ]
+    opportunities = opportunities[:limit]
+
+    label = query.strip() or "latest"
+    if only_compensation:
+        label = query.strip() or "salary/package"
+    if only_benefits:
+        label = query.strip() or "benefits"
+    if not opportunities:
+        return f"No stored FDE jobs found for: {escape(label)}"
+
+    lines = [f"<b>FDE job search: {escape(label)}</b>"]
+    for index, opportunity in enumerate(opportunities, start=1):
+        lines.append(_job_search_result_text(index, opportunity))
+    return "\n\n".join(lines)
+
+
+def _job_search_result_text(index: int, opportunity: JobOpportunity) -> str:
+    source = opportunity.apply_url or opportunity.source_url
+    compensation = _join_known([opportunity.compensation, opportunity.package])
+    footprint = _join_known([opportunity.company_size, opportunity.company_coverage])
+    extra_lines = []
+    if compensation:
+        extra_lines.append(f"💰 {escape(compensation)}")
+    if opportunity.benefits:
+        extra_lines.append(f"🎁 {escape(opportunity.benefits)}")
+    if footprint:
+        extra_lines.append(f"🏬 {escape(footprint)}")
+    return "\n".join([
+        f"{index}. <b>{escape(opportunity.role_title)}</b>",
+        f"🏢 {escape(opportunity.company)}",
+        f"📍 {escape(opportunity.location or 'Verify location')} · {escape(opportunity.remote_policy or 'Verify remote')}",
+        *extra_lines,
+        f"🏷 {escape(opportunity.category)} · {escape(_pretty_label(opportunity.status))} · {opportunity.confidence_score}/100",
+        f"🇻🇳 {escape(opportunity.vietnam_eligibility)} · {escape(opportunity.evidence_type)} signal",
+        f'🔗 <a href="{escape(source, quote=True)}">{escape(source)}</a>',
+    ])
+
+
+def _pretty_label(value: str) -> str:
+    return " ".join(str(value or "").replace("_", " ").split()) or "verify"
+
+
+def _join_known(parts: list[str]) -> str:
+    return " · ".join(part for part in parts if part)
 
 
 def _analysis_text(settings: Settings, slot: str, query: str) -> str:

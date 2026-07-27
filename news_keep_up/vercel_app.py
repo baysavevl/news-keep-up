@@ -145,7 +145,12 @@ def scheduler_tick_endpoint():
             triggered += 1
             profile = DIGEST_PROFILES[job.slot]
             try:
-                result = _run_digest_profile(profile, dry_run=False)
+                result = _run_digest_profile(
+                    profile,
+                    dry_run=False,
+                    current=job.scheduled_for,
+                    send_window_current=current,
+                )
             except Exception as exc:
                 app.logger.exception("Scheduled digest run failed")
                 finish_scheduler_run(
@@ -286,7 +291,7 @@ def _telegram_delivery_configured(settings) -> bool:
     return bool(settings.telegram_bot_token and settings.telegram_chat_id)
 
 
-def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
+def _run_digest_profile(profile: DigestProfile, dry_run: bool, current=None, send_window_current=None) -> dict:
     settings = _settings_for_profile(profile)
     delivery_configured = _telegram_delivery_configured(settings)
     if profile.mode in {"digest", "interview"} and not dry_run and not delivery_configured:
@@ -303,6 +308,8 @@ def _run_digest_profile(profile: DigestProfile, dry_run: bool) -> dict:
             settings,
             dry_run=dry_run,
             sources_path=profile.sources_path,
+            current=current,
+            send_window_current=send_window_current,
         )
     elif profile.mode == "source-intelligence":
         message = run_fde_job_source_intelligence(
