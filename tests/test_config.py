@@ -146,6 +146,32 @@ class ConfigTest(unittest.TestCase):
         self.assertIn("Upwork Artificial Intelligence Jobs", names)
         self.assertIn("FWDDeploy Remote Jobs", names)
 
+    def test_fde_job_sources_include_remote_job_boards_for_cron(self):
+        sources = load_sources("config/fde_job_sources.json")
+        by_name = {source.name: source for source in sources}
+        expected_kinds = {
+            "Wellfound Remote Jobs": "rss",
+            "RemoteOK API Jobs": "json",
+            "We Work Remotely Programming Jobs RSS": "rss",
+            "Jobspresso Remote Work RSS": "rss",
+            "FlexJobs AI Remote Jobs": "rss",
+            "Remotive Software Development API Jobs": "json",
+            "Remote.co Developer Jobs": "rss",
+            "Himalayas AI Remote Jobs": "rss",
+            "Working Nomads Remote Tech Jobs": "html",
+            "NoDesk Remote Jobs": "html",
+        }
+
+        self.assertEqual(set(by_name).intersection(expected_kinds), set(expected_kinds))
+        for name, expected_kind in expected_kinds.items():
+            source = by_name[name]
+            self.assertTrue(source.enabled)
+            self.assertEqual(source.kind, expected_kind)
+            self.assertEqual(source.category, "remote-job-board")
+            self.assertEqual(source.metadata["source_type"], "job_board")
+            self.assertTrue(source.metadata["url_host_include_any"])
+            self.assertTrue(source.metadata["text_include_any"])
+
     def test_engineer_sources_include_at_least_150_enabled_sources(self):
         sources = load_sources("config/sources.json")
 

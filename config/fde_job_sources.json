@@ -126,6 +126,106 @@
     "enabled": true
   },
   {
+    "name": "Wellfound Remote Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Awellfound.com%2Fjobs+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["wellfound.com"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "RemoteOK API Jobs",
+    "type": "json",
+    "url": "https://remoteok.com/api",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["remoteok.com"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "We Work Remotely Programming Jobs RSS",
+    "type": "rss",
+    "url": "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["weworkremotely.com"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "Jobspresso Remote Work RSS",
+    "type": "rss",
+    "url": "https://jobspresso.co/remote-work/feed/",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["jobspresso.co"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "FlexJobs AI Remote Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aflexjobs.com+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["flexjobs.com"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "Remotive Software Development API Jobs",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?category=software-dev",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["remotive.com"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "Remote.co Developer Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aremote.co%2Fremote-jobs+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["remote.co"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "Himalayas AI Remote Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ahimalayas.app%2Fjobs+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["himalayas.app"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "Working Nomads Remote Tech Jobs",
+    "type": "html",
+    "url": "https://www.workingnomads.com/jobs?search=ai",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["workingnomads.com"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
+    "name": "NoDesk Remote Jobs",
+    "type": "html",
+    "url": "https://nodesk.co/remote-jobs/",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": ["nodesk.co"],
+    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "enabled": true
+  },
+  {
     "name": "FWDDeploy Remote Jobs",
     "type": "html",
     "url": "https://www.fwddeploy.com/s/remote-jobs",

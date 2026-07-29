@@ -1,13 +1,80 @@
 import unittest
 import json
 from collections import Counter
+from unittest.mock import patch
 from pathlib import Path
 
 from news_keep_up.models import Source
-from news_keep_up.sources import parse_html_page, parse_rss_or_atom
+from news_keep_up.sources import fetch_source, parse_html_page, parse_json_feed, parse_rss_or_atom
 
 
 class SourcesTest(unittest.TestCase):
+    def test_fetch_source_parses_json_job_board_api(self):
+        source = Source(
+            "RemoteOK API Jobs",
+            "json",
+            "https://remoteok.com/api",
+            "remote-job-board",
+            metadata={"source_type": "job_board"},
+        )
+        payload = json.dumps([
+            {"legal": "metadata"},
+            {
+                "position": "AI Solutions Engineer",
+                "company": "Acme AI",
+                "url": "https://remoteOK.com/remote-jobs/remote-ai-solutions-engineer-acme-123",
+                "location": "Worldwide",
+                "description": "Deploy LLM and RAG workflows with enterprise customers.",
+                "date": "2026-07-28T06:05:16+00:00",
+                "tags": ["ai", "llm", "rag"],
+                "salary_min": 100000,
+                "salary_max": 140000,
+            },
+        ])
+
+        with patch("urllib.request.urlopen", return_value=_FakeResponse(payload)):
+            items = fetch_source(source, "test-agent", timeout_seconds=1)
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].title, "AI Solutions Engineer")
+        self.assertEqual(items[0].canonical_url, "https://remoteok.com/remote-jobs/remote-ai-solutions-engineer-acme-123")
+        self.assertIn("Company: Acme AI", items[0].summary)
+        self.assertIn("Compensation: 100000 - 140000", items[0].summary)
+        self.assertEqual(items[0].raw["company"], "Acme AI")
+        self.assertEqual(items[0].raw["location"], "Worldwide")
+        self.assertEqual(items[0].raw["remote_policy"], "Remote")
+
+    def test_parse_json_feed_extracts_remotive_jobs(self):
+        source = Source(
+            "Remotive Software Development API Jobs",
+            "json",
+            "https://remotive.com/api/remote-jobs?category=software-dev",
+            "remote-job-board",
+            metadata={"source_type": "job_board"},
+        )
+        payload = json.dumps({
+            "jobs": [
+                {
+                    "title": "Forward Deployed AI Engineer",
+                    "company_name": "Lamatic",
+                    "url": "https://remotive.com/remote-jobs/artificial-intelligence/forward-deployed-ai-engineer-123",
+                    "candidate_required_location": "Worldwide",
+                    "description": "Customer-facing agentic AI deployment work.",
+                    "publication_date": "2026-07-29T02:00:00",
+                    "salary": "$80k - $130k",
+                    "tags": ["agentic ai", "customer deployment"],
+                }
+            ],
+        })
+
+        items = parse_json_feed(payload, source)
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].title, "Forward Deployed AI Engineer")
+        self.assertIn("Lamatic", items[0].summary)
+        self.assertIn("$80k - $130k", items[0].summary)
+        self.assertEqual(items[0].published_at, "2026-07-29T02:00:00")
+
     def test_parse_rss_items_to_candidates(self):
         source = Source("Example Feed", "rss", "https://example.com/feed", "ai-engineering")
         xml = """<?xml version="1.0"?>
@@ -142,6 +209,20 @@ class SourcesTest(unittest.TestCase):
         self.assertGreaterEqual(categories["fde-interview"], 10)
         self.assertGreaterEqual(categories["agentic-interview"], 5)
         self.assertTrue(all(source["type"] in {"rss", "hackernews"} for source in sources))
+
+
+class _FakeResponse:
+    def __init__(self, text: str):
+        self._text = text
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+    def read(self):
+        return self._text.encode("utf-8")
 
 
 if __name__ == "__main__":

@@ -29,6 +29,16 @@ def parse_rss_or_atom(xml_text: str, source: Source) -> list[CandidateItem]:
     return candidates
 
 
+def parse_json_feed(json_text: str, source: Source) -> list[CandidateItem]:
+    data = json.loads(json_text)
+    candidates: list[CandidateItem] = []
+    for row in _json_job_rows(data):
+        candidate = _candidate_from_json_job(row, source)
+        if candidate is not None:
+            candidates.append(candidate)
+    return candidates
+
+
 def fetch_source(source: Source, user_agent: str, timeout_seconds: int = 15) -> list[CandidateItem]:
     if source.kind == "hackernews":
         return fetch_hackernews(source, user_agent, timeout_seconds)
@@ -36,6 +46,8 @@ def fetch_source(source: Source, user_agent: str, timeout_seconds: int = 15) -> 
     request = urllib.request.Request(source.url, headers={"User-Agent": user_agent})
     with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
         text = response.read().decode("utf-8", errors="replace")
+    if source.kind == "json":
+        return parse_json_feed(text, source)
     if source.kind == "html":
         return parse_html_page(text, source)
     return parse_rss_or_atom(text, source)
@@ -135,6 +147,129 @@ def _candidate_from_xml(node: ET.Element, source: Source) -> CandidateItem | Non
         fingerprint=fingerprint_text(title, summary, canonical),
         raw={"title": title, "url": link, "summary": summary, **source.metadata},
     )
+
+
+def _json_job_rows(data) -> Iterable[dict]:
+    if isinstance(data, list):
+        rows = data
+    elif isinstance(data, dict):
+        rows = []
+        for key in ("jobs", "items", "results", "data"):
+            value = data.get(key)
+            if isinstance(value, list):
+                rows = value
+                break
+    else:
+        rows = []
+
+    for row in rows:
+        if isinstance(row, dict):
+            yield row
+
+
+def _candidate_from_json_job(row: dict, source: Source) -> CandidateItem | None:
+    title = _first_json_value(row, ("title", "position", "name"))
+    raw_url = _first_json_value(row, ("url", "apply_url", "job_url", "absolute_url"))
+    if not title or not raw_url:
+        return None
+
+    url = urljoin(source.url, raw_url)
+    canonical = canonicalize_url(url)
+    company = _first_json_value(row, ("company", "company_name", "organization", "hiring_organization"))
+    location = _first_json_value(row, ("location", "candidate_required_location", "candidate_location", "region", "country"))
+    description = _first_json_value(row, ("description", "summary", "content"))
+    published = _first_json_value(row, ("date", "publication_date", "published_at", "created_at"))
+    compensation = _json_compensation(row)
+    tags = _json_tags(row)
+
+    summary_parts: list[str] = []
+    if company:
+        summary_parts.append(f"Company: {company}.")
+    if location:
+        summary_parts.append(f"Location: {location}.")
+    if compensation:
+        summary_parts.append(f"Compensation: {compensation}.")
+    if tags:
+        summary_parts.append(f"Tags: {tags}.")
+    if description:
+        summary_parts.append(description)
+    summary = clean_text(" ".join(summary_parts))
+
+    raw = {
+        **row,
+        **source.metadata,
+        "company": company,
+        "location": location,
+        "remote_policy": "Remote",
+    }
+    if compensation:
+        raw["compensation"] = compensation
+
+    return CandidateItem(
+        source_name=source.name,
+        source_kind=source.kind,
+        source_category=source.category,
+        title=title,
+        url=url,
+        canonical_url=canonical,
+        summary=summary,
+        content="",
+        author=company,
+        published_at=published,
+        fetched_at=now_ict().isoformat(),
+        fingerprint=fingerprint_text(title, summary, canonical),
+        raw=raw,
+    )
+
+
+def _first_json_value(row: dict, keys: Iterable[str]) -> str:
+    for key in keys:
+        value = row.get(key)
+        if value is None:
+            continue
+        if isinstance(value, dict):
+            for nested_key in ("name", "title", "value"):
+                nested_value = value.get(nested_key)
+                if nested_value:
+                    return clean_text(nested_value)
+            continue
+        if isinstance(value, list):
+            text = ", ".join(clean_text(item) for item in value if clean_text(item))
+        else:
+            text = clean_text(value)
+        if text:
+            return text
+    return ""
+
+
+def _json_tags(row: dict) -> str:
+    value = row.get("tags") or row.get("keywords")
+    if isinstance(value, list):
+        return ", ".join(clean_text(item) for item in value if clean_text(item))
+    return clean_text(value or "")
+
+
+def _json_compensation(row: dict) -> str:
+    salary = clean_text(row.get("salary") or row.get("compensation") or "")
+    if salary:
+        return salary
+
+    salary_min = row.get("salary_min")
+    salary_max = row.get("salary_max")
+    if _positive_number(salary_min) and _positive_number(salary_max):
+        return f"{salary_min} - {salary_max}"
+    if _positive_number(salary_min):
+        return f"{salary_min}+"
+    if _positive_number(salary_max):
+        return f"up to {salary_max}"
+    return ""
+
+
+def _positive_number(value) -> bool:
+    try:
+        return float(value) > 0
+    except (TypeError, ValueError):
+        return False
 
 
 def _fwddeploy_candidates(html_text: str, source: Source) -> list[CandidateItem]:
