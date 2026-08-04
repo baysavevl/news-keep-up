@@ -88,6 +88,46 @@ JOB_DOMAIN_TERMS = (
     "field engineering",
 )
 
+FREELANCE_PROJECT_TERMS = (
+    "agentic ai",
+    "ai agent",
+    "ai agents",
+    "artificial intelligence agent",
+    "generative ai",
+    "genai",
+    "llm",
+    "rag",
+    "openai",
+    "anthropic",
+    "gemini",
+    "langchain",
+    "langgraph",
+    "llamaindex",
+    "ai chatbot",
+    "chatbot",
+    "workflow automation",
+    "ai automation",
+    "ai integration",
+    "machine learning",
+)
+
+FREELANCE_IMPLEMENTATION_TERMS = (
+    "architect",
+    "automation",
+    "build",
+    "chatbot",
+    "contract",
+    "develop",
+    "engineer",
+    "freelance",
+    "implement",
+    "integration",
+    "platform",
+    "project",
+    "specialist",
+    "workflow",
+)
+
 JOB_LOCATION_TERMS = (
     "ho chi minh",
     "hcmc",
@@ -263,7 +303,30 @@ def is_fde_job_candidate(candidate: CandidateItem) -> bool:
     hidden_hiring_hit = any(term in text for term in ("hiring", "we are hiring", "dm me", "apply", "career", "job"))
     if _looks_like_search_noise(text):
         return False
+    if _is_freelance_project_candidate(candidate, text):
+        return True
     return title_hit and (domain_hit or location_hit or hidden_hiring_hit)
+
+
+def _is_freelance_project_candidate(candidate: CandidateItem, text: str) -> bool:
+    source_text = " ".join([
+        candidate.source_name,
+        candidate.source_category,
+        candidate.url,
+    ]).lower()
+    if not any(term in source_text for term in (
+        "freelance",
+        "upwork",
+        "freelancer.com",
+        "guru.com",
+        "peopleperhour",
+        "arc.dev",
+        "usebraintrust",
+    )):
+        return False
+    project_hit = any(term in text for term in FREELANCE_PROJECT_TERMS)
+    implementation_hit = any(term in text for term in FREELANCE_IMPLEMENTATION_TERMS)
+    return project_hit and implementation_hit
 
 
 def _candidate_matches_source_filters(source: Source, candidate: CandidateItem) -> bool:

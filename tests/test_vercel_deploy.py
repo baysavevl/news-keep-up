@@ -494,6 +494,36 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertEqual(run_profile.call_args.kwargs["send_window_current"], triggered_at)
         connect.return_value.close.assert_called_once()
 
+    def test_scheduler_tick_catches_daily_source_maintenance_after_delayed_start(self):
+        from datetime import datetime
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        from zoneinfo import ZoneInfo
+
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        current = datetime(2026, 8, 4, 9, 5, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        with TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db")
+            with (
+                patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+                patch("news_keep_up.vercel_app.now_ict", return_value=current),
+                patch("news_keep_up.vercel_app.load_settings", return_value=settings),
+                patch("news_keep_up.vercel_app._run_digest_profile", return_value={
+                    "delivery_configured": True,
+                    "message_length": 0,
+                }),
+            ):
+                response = app.test_client().get(
+                    "/api/scheduler/tick",
+                    headers={"Authorization": "Bearer test-secret"},
+                )
+
+        self.assertEqual(response.status_code, 200)
+        slots = [result["slot"] for result in response.get_json()["results"]]
+        self.assertIn("fde-job-sources", slots)
+
 
 if __name__ == "__main__":
     unittest.main()

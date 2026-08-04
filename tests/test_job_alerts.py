@@ -111,6 +111,21 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertFalse(is_fde_job_candidate(candidate))
 
+    def test_prefilter_accepts_freelance_ai_automation_gig(self):
+        candidate = CandidateItem(
+            source_name="PeoplePerHour AI Jobs",
+            source_kind="html",
+            source_category="freelance-job-board",
+            title="AI-Powered Deal Origination & Opportunity Intelligence Platform",
+            url="https://www.peopleperhour.com/freelance-jobs/artificial-intelligence/artificial-intelligence-agent-development/ai-powered-deal-origination",
+            canonical_url="https://www.peopleperhour.com/freelance-jobs/artificial-intelligence/artificial-intelligence-agent-development/ai-powered-deal-origination",
+            summary="Freelance remote project implementing OpenAI agents, RAG, and workflow automation.",
+            raw={"source_type": "job_board", "remote_policy": "Remote"},
+        )
+
+        self.assertTrue(is_fde_job_candidate(candidate))
+        self.assertTrue(is_workable_from_vietnam_candidate(candidate))
+
     def test_source_filters_require_configured_url_match(self):
         source = Source(
             "Bing Upwork FDE AI Deployment",
@@ -165,6 +180,20 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertFalse(is_workable_from_vietnam_candidate(onsite_india))
         self.assertFalse(is_workable_from_vietnam_candidate(remote_us))
+
+    def test_vietnam_workability_filter_rejects_remote_us_scope_in_summary(self):
+        candidate = CandidateItem(
+            source_name="We Work Remotely All Jobs RSS",
+            source_kind="rss",
+            source_category="remote-job-board",
+            title="Technical Solutions Engineer",
+            url="https://weworkremotely.com/remote-jobs/example-technical-solutions-engineer",
+            canonical_url="https://weworkremotely.com/remote-jobs/example-technical-solutions-engineer",
+            summary="Headquarters: Seattle, WA, Remote-US. Full-time solutions engineer role.",
+            raw={"source_type": "job_board", "remote_policy": "Remote"},
+        )
+
+        self.assertFalse(is_workable_from_vietnam_candidate(candidate))
 
     def test_vietnam_workability_filter_accepts_vietnam_and_remote_apac(self):
         vietnam = CandidateItem(

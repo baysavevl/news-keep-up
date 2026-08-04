@@ -50,6 +50,20 @@ NON_VIETNAM_LOCATION_TERMS = (
     "taiwan",
 )
 
+NON_VIETNAM_REMOTE_SCOPE_TERMS = (
+    "remote-us",
+    "remote us",
+    "remote usa",
+    "remote u.s.",
+    "remote united states",
+    "remote, usa",
+    "remote, united states",
+    "remote - usa",
+    "remote - united states",
+    "remote/usa",
+    "remote/united states",
+)
+
 NON_FULL_TIME_TERMS = (
     "part-time",
     "part time",
@@ -108,6 +122,7 @@ def _is_workable_from_vietnam(
     location_text = location.lower()
     remote_text = " ".join([location, remote_policy]).lower()
     location_has_non_vietnam_scope = any(term in location_text for term in NON_VIETNAM_LOCATION_TERMS)
+    combined_has_non_vietnam_remote_scope = any(term in combined for term in NON_VIETNAM_REMOTE_SCOPE_TERMS)
 
     if any(term in combined for term in NON_TECHNICAL_ROLE_TERMS):
         return False
@@ -117,7 +132,7 @@ def _is_workable_from_vietnam(
 
     if vietnam_eligibility == "explicit_yes":
         return True
-    if location_has_non_vietnam_scope:
+    if location_has_non_vietnam_scope or combined_has_non_vietnam_remote_scope:
         return False
     if any(term in combined for term in VIETNAM_TERMS):
         return True

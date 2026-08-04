@@ -17,7 +17,7 @@ from .db import (
 )
 from .models import CandidateItem, Settings, Source, SourceCandidate, SourceEvaluation
 from .sources import fetch_source
-from .utils import ICT, canonicalize_url, now_ict
+from .utils import ICT, canonicalize_url, fingerprint_text, now_ict
 
 DEFAULT_FDE_JOB_SOURCE_DISCOVERY_PATH = Path("config/fde_job_source_discovery_sources.json")
 DEFAULT_FDE_JOB_ACTIVE_SOURCES_PATH = Path("config/fde_job_sources.json")
@@ -175,7 +175,7 @@ def _source_candidate_from_item(item: CandidateItem, source: Source) -> SourceCa
     category = "ats-index-search" if source_type == "ATS" else "job-source-candidate"
     score = _source_candidate_score(item, source_type)
     return SourceCandidate(
-        id=_slug(name),
+        id=_source_candidate_id(name, item.url),
         name=name,
         kind=item.source_kind or source.kind,
         url=item.url,
@@ -209,6 +209,11 @@ def _source_candidate_reason(item: CandidateItem, source_type: str) -> str:
 def _source_candidate_name(item: CandidateItem) -> str:
     title = item.title.strip() or item.url
     return title[:80]
+
+
+def _source_candidate_id(name: str, url: str) -> str:
+    url_hash = fingerprint_text(canonicalize_url(url))[:12]
+    return _slug(f"{name}-{url_hash}")
 
 
 def _guess_source_type(url: str) -> str:

@@ -61,6 +61,7 @@ DIGEST_PROFILES = {
 }
 
 app = Flask(__name__)
+SCHEDULER_TICK_LOOKBACK_MINUTES = 180
 
 AVATAR_PATHS = {
     "engineer": Path(__file__).resolve().parent.parent / "assets" / "telegram" / "engineer-ai-avatar.png",
@@ -131,7 +132,7 @@ def scheduler_tick_endpoint():
     triggered = 0
     max_jobs_per_tick = 3
     try:
-        for job in due_digest_jobs(current):
+        for job in due_digest_jobs(current, lookback_minutes=SCHEDULER_TICK_LOOKBACK_MINUTES):
             if triggered >= max_jobs_per_tick:
                 break
             if not claim_scheduler_run(conn, job.slot, job.scheduled_for_key, current.isoformat()):
