@@ -89,7 +89,7 @@ class JobAlertsTest(unittest.TestCase):
         message = format_job_alert(make_opportunity(1))
 
         self.assertIn("<b>Forward Deployed Engineer</b>", message)
-        self.assertIn("🟡 <b>FDE Job Alert</b>", message)
+        self.assertIn("🟡 <b>Tech Job Alert</b>", message)
         self.assertIn("🏢 Công ty: Wonderful", message)
         self.assertIn("🏷 Hạng mục: Exact FDE Role", message)
         self.assertIn("🌍 Quốc gia: Vietnam", message)
@@ -103,6 +103,36 @@ class JobAlertsTest(unittest.TestCase):
         self.assertNotIn("Category:", message)
         self.assertNotIn("Vietnam eligibility:", message)
         self.assertNotIn("Role/Signal:", message)
+
+    def test_prefilter_accepts_solution_engineer_remote_candidate(self):
+        candidate = CandidateItem(
+            source_name="LinkedIn Solutions Engineer APAC Posts",
+            source_kind="rss",
+            source_category="linkedin-hidden-hiring-search",
+            title="We are hiring a Solutions Engineer (Remote APAC)",
+            url="https://www.linkedin.com/posts/example-solutions-engineer-apac",
+            canonical_url="https://www.linkedin.com/posts/example-solutions-engineer-apac",
+            summary="Customer-facing GenAI solutions engineer bridging product, business, and enterprise deployment. Remote.",
+            raw={"source_type": "aggregator", "location": "Remote APAC", "remote_policy": "Remote"},
+        )
+
+        self.assertTrue(is_fde_job_candidate(candidate))
+        self.assertTrue(is_workable_from_vietnam_candidate(candidate))
+
+    def test_prefilter_accepts_presales_engineer_candidate(self):
+        candidate = CandidateItem(
+            source_name="LinkedIn Presales Posts",
+            source_kind="rss",
+            source_category="linkedin-hidden-hiring-search",
+            title="Presales / Sales Engineer - AI Platform (Remote Vietnam)",
+            url="https://www.linkedin.com/posts/example-presales-engineer",
+            canonical_url="https://www.linkedin.com/posts/example-presales-engineer",
+            summary="Technical presales engineer running demos, POCs, and LLM integration with enterprise customers.",
+            raw={"source_type": "aggregator", "location": "Remote Vietnam", "remote_policy": "Remote"},
+        )
+
+        self.assertTrue(is_fde_job_candidate(candidate))
+        self.assertTrue(is_workable_from_vietnam_candidate(candidate))
 
     def test_prefilter_rejects_source_name_only_search_noise(self):
         candidate = CandidateItem(
@@ -451,7 +481,7 @@ class JobAlertsTest(unittest.TestCase):
                     current=datetime(2026, 7, 14, 10, 30, tzinfo=ICT),
                 )
 
-            self.assertIn("FDE Job Alert", first_message)
+            self.assertIn("Tech Job Alert", first_message)
             self.assertIn("Wonderful", first_message)
             self.assertEqual(second_message, "")
             self.assertEqual(send.call_count, 1)
@@ -498,7 +528,7 @@ class JobAlertsTest(unittest.TestCase):
                 )
 
             self.assertEqual(first_message, "")
-            self.assertIn("FDE Job Alert", second_message)
+            self.assertIn("Tech Job Alert", second_message)
             self.assertEqual(send.call_count, 1)
 
     def test_run_fde_job_alerts_sends_at_most_three_pending_alerts_per_run(self):
@@ -551,8 +581,8 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertEqual(first_count, 3)
         self.assertEqual(second_count, 2)
-        self.assertEqual(first_message.count("FDE Job Alert"), 3)
-        self.assertEqual(second_message.count("FDE Job Alert"), 2)
+        self.assertEqual(first_message.count("Tech Job Alert"), 3)
+        self.assertEqual(second_message.count("Tech Job Alert"), 2)
 
     def test_run_fde_job_alerts_dedupes_pending_batch_by_apply_url(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -600,7 +630,7 @@ class JobAlertsTest(unittest.TestCase):
                 )
 
         self.assertEqual(send.call_count, 2)
-        self.assertEqual(message.count("FDE Job Alert"), 2)
+        self.assertEqual(message.count("Tech Job Alert"), 2)
 
     def test_run_fde_job_alerts_does_not_send_outside_daily_window(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -717,7 +747,7 @@ class JobAlertsTest(unittest.TestCase):
             delivered = job_alert_was_delivered(conn, opportunity.id, opportunity.alert_fingerprint)
             conn.close()
 
-        self.assertIn("<b>FDE Job Alert</b>", message)
+        self.assertIn("<b>Tech Job Alert</b>", message)
         send.assert_called_once()
         self.assertTrue(delivered)
 

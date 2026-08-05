@@ -60,6 +60,24 @@ JOB_TITLE_TERMS = (
     "solutions architect",
     "solution engineer",
     "solutions engineer",
+    "enterprise solutions engineer",
+    "sales engineer",
+    "presales engineer",
+    "pre-sales engineer",
+    "presales",
+    "pre-sales",
+    "presales consultant",
+    "solutions consultant",
+    "solution consultant",
+    "technical consultant",
+    "technical account manager",
+    "customer success engineer",
+    "customer success architect",
+    "professional services engineer",
+    "professional services consultant",
+    "deployment engineer",
+    "field engineer",
+    "value engineer",
     "implementation engineer",
     "integration engineer",
     "agent ops",
@@ -274,7 +292,7 @@ def format_job_alert(opportunity: JobOpportunity, current: datetime | None = Non
     benefits = opportunity.benefits or "Chưa thấy trong source"
     footprint = _join_known([opportunity.company_size, opportunity.company_coverage]) or "Chưa thấy trong source"
     lines = [
-        f"{priority_icon} <b>FDE Job Alert</b> · {escape(opportunity.priority)} · {opportunity.confidence_score}/100",
+        f"{priority_icon} <b>Tech Job Alert</b> · {escape(opportunity.priority)} · {opportunity.confidence_score}/100",
         f"Time: {escape(timestamp.strftime('%d %b %H:%M'))} ICT",
         "",
         f"<b>{escape(opportunity.role_title)}</b>",
@@ -439,8 +457,24 @@ def _job_candidate_score(candidate: CandidateItem) -> int:
         score += 100
     if "fde" in text:
         score += 60
+    # Solution Engineer is the second-priority focus after FDE.
+    if any(term in text for term in ("solution engineer", "solutions engineer", "solution architect", "solutions architect")):
+        score += 45
+    # Broader FDE-adjacent roles (presales/SE/TAM/CS/professional services) rank below the core focus.
+    if any(term in text for term in (
+        "presales", "pre-sales", "sales engineer", "solutions consultant", "solution consultant",
+        "technical account manager", "customer success engineer", "professional services",
+        "implementation engineer", "integration engineer", "customer engineer", "field engineer",
+    )):
+        score += 25
+    # Hybrid tech/product/business scope is a priority signal for these roles.
+    if any(term in text for term in ("product", "business", "go-to-market", "gtm", "stakeholder", "customer-facing", "client-facing")):
+        score += 15
     if any(term in text for term in ("vietnam", "viet nam", "ho chi minh", "hcmc", "hanoi", "vietnamese", "remote vietnam")):
         score += 60
+    # WFH / fully remote is the most desirable arrangement.
+    if any(term in text for term in ("work from home", "wfh", "fully remote", "remote-first", "remote first")):
+        score += 25
     if any(term in text for term in ("apac", "southeast asia", "asean", "singapore", "malaysia", "philippines", "india", "remote")):
         score += 30
     if any(term in text for term in JOB_DOMAIN_TERMS):

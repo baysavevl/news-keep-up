@@ -164,7 +164,7 @@ class TelegramCommandsTest(unittest.TestCase):
         with (
             patch(
                 "news_keep_up.telegram_commands.run_fde_job_alerts",
-                return_value="<b>FDE Job Alert</b>\n<b>Forward Deployed Engineer</b>",
+                return_value="<b>Tech Job Alert</b>\n<b>Forward Deployed Engineer</b>",
             ) as run_jobs,
             patch("news_keep_up.telegram_commands.send_telegram_message") as send,
         ):

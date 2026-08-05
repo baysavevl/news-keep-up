@@ -4188,5 +4188,270 @@
     "url_include_any": [
       "upwork.com/freelance-jobs"
     ]
+  },
+  {
+    "name": "Bing LinkedIn Solutions Engineer APAC Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com/posts%20%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Engineer%22%29%20%28APAC%20OR%20%22Southeast%20Asia%22%20OR%20Vietnam%20OR%20remote%29%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Solution Architect Vietnam Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com/posts%20%28%22Solution%20Architect%22%20OR%20%22Solutions%20Architect%22%29%20%28Vietnam%20OR%20%22Ho%20Chi%20Minh%22%20OR%20APAC%20OR%20remote%29%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn FDE Solutions Remote Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com/posts%20%28%22Forward%20Deployed%20Engineer%22%20OR%20FDE%20OR%20%22Solutions%20Engineer%22%29%20%28remote%20OR%20%22work%20from%20home%22%20OR%20APAC%20OR%20Vietnam%29%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Presales Sales Engineer APAC Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com/posts%20%28Presales%20OR%20%22Sales%20Engineer%22%20OR%20%22Solutions%20Consultant%22%29%20%28APAC%20OR%20Vietnam%20OR%20%22Southeast%20Asia%22%20OR%20remote%29%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Technical Account Manager APAC Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com/posts%20%28%22Technical%20Account%20Manager%22%20OR%20%22Customer%20Success%20Engineer%22%29%20%28APAC%20OR%20Vietnam%20OR%20remote%29%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn AI Solutions Engineer SEA Posts",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com/posts%20%28%22AI%20Solutions%20Engineer%22%20OR%20%22AI%20Engineer%22%20OR%20GenAI%29%20%28%22Southeast%20Asia%22%20OR%20APAC%20OR%20Vietnam%29%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Jobs Solutions Engineer Remote",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com/jobs%20%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Forward%20Deployed%22%29%20%28remote%20OR%20APAC%20OR%20Vietnam%29&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Reddit r/forhire AI Solutions Hiring",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/forhire/search.rss?q=%28%22Solutions%20Engineer%22%20OR%20%22AI%22%20OR%20LLM%20OR%20RAG%20OR%20%22Forward%20Deployed%22%20OR%20automation%29&restrict_sr=1&sort=new&t=month",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Reddit r/PreSales Hiring",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/PreSales/search.rss?q=%28hiring%20OR%20%22we%27re%20hiring%22%20OR%20remote%20OR%20APAC%20OR%20Vietnam%29&restrict_sr=1&sort=new&t=month",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Reddit r/salesengineers Hiring",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/salesengineers/search.rss?q=%28hiring%20OR%20remote%20OR%20APAC%20OR%20%22solutions%20engineer%22%29&restrict_sr=1&sort=new&t=month",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Reddit r/remotejobs Solutions Engineer",
+    "type": "rss",
+    "url": "https://www.reddit.com/r/remotejobs/search.rss?q=%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Forward%20Deployed%22%20OR%20%22AI%20Engineer%22%29&restrict_sr=1&sort=new&t=month",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Reddit Search Solutions Engineer Remote",
+    "type": "rss",
+    "url": "https://www.reddit.com/search.rss?q=%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Forward%20Deployed%20Engineer%22%29%20%28remote%20OR%20APAC%20OR%20Vietnam%29%20hiring&sort=new&t=month",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Reddit Search Presales AI Remote Hiring",
+    "type": "rss",
+    "url": "https://www.reddit.com/search.rss?q=%28Presales%20OR%20%22Sales%20Engineer%22%20OR%20%22Technical%20Account%20Manager%22%29%20%28AI%20OR%20SaaS%20OR%20remote%20OR%20APAC%29%20hiring&sort=new&t=month",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Reddit Solutions Engineer Hiring",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%20%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Forward%20Deployed%22%20OR%20presales%29%20%28remote%20OR%20APAC%20OR%20Vietnam%29%20hiring&format=rss",
+    "category": "community-hiring-signal",
+    "source_type": "aggregator",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true,
+    "url_host_include_any": [
+      "reddit.com"
+    ]
+  },
+  {
+    "name": "Bing Dev Forums FDE Solutions Hiring APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28site%3Anews.ycombinator.com%20OR%20site%3Areddit.com%20OR%20site%3Adev.to%29%20%28%22Forward%20Deployed%22%20OR%20%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%29%20%28hiring%20OR%20remote%29%20%28APAC%20OR%20Vietnam%20OR%20%22Southeast%20Asia%22%29&format=rss",
+    "category": "community-hiring-signal",
+    "source_type": "aggregator",
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters",
+      "translation"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Solutions Engineer Hiring",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Presales Sales Engineer Hiring",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Sales%20Engineer%22%20OR%20presales%20OR%20%22Technical%20Account%20Manager%22%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "enabled": true
   }
 ]

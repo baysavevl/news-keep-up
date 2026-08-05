@@ -94,7 +94,7 @@ def handle_telegram_update(
         response = _help_text(slot)
     elif command == "latest":
         if slot == "fde-jobs":
-            response = run_fde_job_alerts(settings, dry_run=True, sources_path=sources_path) or "No pending FDE job alerts."
+            response = run_fde_job_alerts(settings, dry_run=True, sources_path=sources_path) or "No pending tech job alerts."
         else:
             response = run_digest(settings, slot, dry_run=True, sources_path=sources_path)
     elif command == "search":
@@ -419,11 +419,11 @@ def _force_text(settings: Settings, slot: str, sources_path: str) -> str:
         sources_path=sources_path,
         force=True,
     )
-    alert_count = message.count("<b>FDE Job Alert</b>")
+    alert_count = message.count("<b>Tech Job Alert</b>")
     if alert_count:
         noun = "alert" if alert_count == 1 else "alerts"
         return f"Force run complete: sent {alert_count} {noun}."
-    return "Force run complete: no pending FDE job alerts."
+    return "Force run complete: no pending tech job alerts."
 
 
 def _markread_text(settings: Settings, slot: str, query: str) -> str:

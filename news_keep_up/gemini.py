@@ -158,14 +158,20 @@ def build_job_classification_prompt(
         "Candidate can work Remote Vietnam, Remote APAC/SEA/Asia/global, or consider SEA/APAC relocation/contract/EOR "
         "only if evidence suggests it may be possible. Do not assume APAC, SEA, Singapore, or remote accepts Vietnam; "
         "mark vietnam_eligibility=verify unless explicit.\n\n"
-        "Relevant roles: Forward Deployed Engineer/FDE/Forward Deployment/Deployed Engineer/Deployment Strategist, "
-        "customer-facing AI engineer, applied AI engineer, AI solutions engineer, GenAI solution architect, "
-        "implementation/integration/field/customer engineer, AI deployment engineer, agent/LLM/RAG engineer with "
-        "enterprise/customer deployment.\n\n"
+        "Primary focus (rank highest): Forward Deployed Engineer/FDE/Forward Deployment/Deployed Engineer/Deployment "
+        "Strategist, then Solution/Solutions Engineer and Solution/Solutions Architect.\n"
+        "Also relevant (rank below the primary focus): customer-facing/applied AI engineer, AI solutions engineer, GenAI "
+        "solution architect, implementation/integration/field/customer engineer, AI deployment engineer, agent/LLM/RAG "
+        "engineer with enterprise/customer deployment, plus hybrid tech-product-business roles such as (technical) "
+        "presales/sales engineer, solutions consultant, technical account manager, and customer success engineer that "
+        "carry a technical/deployment/solutioning scope.\n"
+        "Prefer roles that blend engineering with product and business/customer work, and prioritize WFH / fully remote "
+        "(especially remote Vietnam / remote APAC/SEA/global) arrangements.\n\n"
         "Evidence: Hard=explicit Vietnam/HCMC/Hanoi/Remote Vietnam/Vietnam market/Vietnamese/global remote with no conflict. "
         "Medium=APAC/SEA/Asia/global remote/Singapore regional but Vietnam not explicit. Weak=relevant but eligibility unclear.\n"
         "Priority: High=Hard + exact/strong adjacent AI deployment role. Medium=strong role but Vietnam eligibility must be verified. "
-        "Low=loose, onsite outside Vietnam, weak/stale. Reject=closed/unrelated/pure sales/pure research/pure backend.\n"
+        "Low=loose, onsite outside Vietnam, weak/stale. Reject=closed/unrelated/pure non-technical or quota-carrying "
+        "sales with no technical/deployment/solutioning scope/pure research/pure backend.\n"
         "Set should_alert=true for every non-Reject opportunity, watchlist, expansion, or hiring signal when status is not closed. "
         "Set should_alert=false only for Reject or closed items.\n"
         "Use only provided evidence. Do not invent status, eligibility, dates, contacts, apply links, compensation, benefits, "
@@ -672,6 +678,27 @@ def _has_fde_job_signal(text: str) -> bool:
         "deployed engineer",
         "ai deployment",
         "ai forward deployed",
+        "solution engineer",
+        "solutions engineer",
+        "solution architect",
+        "solutions architect",
+        "sales engineer",
+        "presales",
+        "pre-sales",
+        "solutions consultant",
+        "solution consultant",
+        "technical consultant",
+        "technical account manager",
+        "customer success engineer",
+        "professional services",
+        "implementation engineer",
+        "integration engineer",
+        "customer engineer",
+        "field engineer",
+        "applied ai engineer",
+        "ai solutions",
+        "ai engineer",
+        "deployment engineer",
     ))
 
 
