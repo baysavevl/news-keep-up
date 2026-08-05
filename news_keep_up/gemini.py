@@ -325,6 +325,89 @@ def fallback_enrichment(item: CandidateItem, reason: str = "fallback") -> Enrich
     )
 
 
+# Exact FDE title signals (highest-priority category in fallback mode).
+_FALLBACK_EXACT_FDE_TITLE_SIGNALS = (
+    "forward deployed",
+    "forward-deployed",
+    "forward deployment",
+    "fde",
+    "deployment strategist",
+    "deployed engineer",
+)
+
+# Role-title signals that qualify an item as FDE or FDE-adjacent in fallback mode.
+_FALLBACK_ROLE_TITLE_SIGNALS = _FALLBACK_EXACT_FDE_TITLE_SIGNALS + (
+    "solution engineer",
+    "solutions engineer",
+    "solution architect",
+    "solutions architect",
+    "sales engineer",
+    "presales",
+    "pre-sales",
+    "solutions consultant",
+    "solution consultant",
+    "technical account manager",
+    "customer success engineer",
+    "professional services",
+    "implementation engineer",
+    "integration engineer",
+    "customer engineer",
+    "field engineer",
+    "applied ai engineer",
+    "ai solutions",
+    "ai deployment",
+    "deployment engineer",
+)
+
+# Off-topic engineering titles that are not FDE-adjacent; rejected in fallback mode
+# unless the title also carries an explicit role signal above.
+_FALLBACK_OFFTOPIC_TITLE_TERMS = (
+    "devops",
+    "site reliability",
+    "sre",
+    "backend engineer",
+    "back-end engineer",
+    "back end engineer",
+    "frontend engineer",
+    "front-end engineer",
+    "front end engineer",
+    "full-stack",
+    "full stack",
+    "fullstack",
+    "mobile engineer",
+    "ios engineer",
+    "android engineer",
+    "data engineer",
+    "qa engineer",
+    "test engineer",
+    "security engineer",
+    "network engineer",
+    "database engineer",
+    "react",
+    "angular",
+    "vue",
+    "node.js developer",
+    "php developer",
+    "java developer",
+    ".net developer",
+    "golang developer",
+    "wordpress",
+    "game developer",
+    "embedded",
+)
+
+
+def _fallback_job_category(role_title: str, text: str) -> str:
+    lowered_title = role_title.lower()
+    if any(signal in lowered_title for signal in _FALLBACK_EXACT_FDE_TITLE_SIGNALS):
+        return "Exact FDE Role"
+    if any(signal in lowered_title for signal in _FALLBACK_ROLE_TITLE_SIGNALS):
+        return "FDE-Adjacent Role"
+    if any(signal in text for signal in _FALLBACK_ROLE_TITLE_SIGNALS):
+        return "Hidden Hiring Signal"
+    return "Watchlist Company"
+
+
 def fallback_job_opportunities(
     candidates: list[tuple[int, CandidateItem]],
     crawled_at: str,
@@ -338,6 +421,12 @@ def fallback_job_opportunities(
             continue
         company = _candidate_metadata(candidate, "company") or _company_from_source_name(candidate.source_name)
         role_title = _candidate_metadata(candidate, "role_title") or candidate.title
+        role_lower = role_title.lower()
+        title_has_role_signal = any(signal in role_lower for signal in _FALLBACK_ROLE_TITLE_SIGNALS)
+        # Drop clearly off-topic engineering roles (DevOps, backend, full-stack, ...)
+        # unless the title itself names an FDE/solution/presales role.
+        if not title_has_role_signal and any(term in role_lower for term in _FALLBACK_OFFTOPIC_TITLE_TERMS):
+            continue
         location = _candidate_metadata(candidate, "location") or _fallback_location(candidate)
         remote_policy = _candidate_metadata(candidate, "remote_policy") or ("Remote" if "remote" in f"{location} {text}".lower() else "")
         source_type = _source_type_hint(candidate)
@@ -349,7 +438,7 @@ def fallback_job_opportunities(
             "priority": _fallback_job_priority(location, text),
             "company": company,
             "role_title": role_title,
-            "category": "Exact FDE Role",
+            "category": _fallback_job_category(role_title, text),
             "location": location,
             "remote_policy": remote_policy,
             "vietnam_eligibility": "verify",

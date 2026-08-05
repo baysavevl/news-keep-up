@@ -337,6 +337,39 @@ class GeminiTest(unittest.TestCase):
 
         self.assertEqual(fallback_job_opportunities([(43, candidate)], "2026-07-27"), [])
 
+    def test_fallback_job_opportunities_rejects_offtopic_devops_role(self):
+        candidate = CandidateItem(
+            source_name="Remotive DevOps Jobs",
+            source_kind="json",
+            source_category="remote-job-board",
+            title="Senior DevOps Engineer",
+            url="https://remotive.com/remote-jobs/devops/senior-devops-engineer-2091067",
+            canonical_url="https://remotive.com/remote-jobs/devops/senior-devops-engineer-2091067",
+            summary="Remote APAC role. Mentions ai deployment and ml engineer keywords in the listing body.",
+            fingerprint="devops-1",
+            raw={"company": "Lemon.io", "location": "Remote APAC", "remote_policy": "Remote", "source_type": "job_board"},
+        )
+
+        self.assertEqual(fallback_job_opportunities([(44, candidate)], "2026-07-27"), [])
+
+    def test_fallback_job_opportunities_labels_solution_engineer_as_adjacent(self):
+        candidate = CandidateItem(
+            source_name="AIJobs.net Remote AI Jobs",
+            source_kind="json",
+            source_category="remote-job-board",
+            title="AI Solutions Engineer",
+            url="https://aijobs.net/job/ai-solutions-engineer-apac-remote-264742/",
+            canonical_url="https://aijobs.net/job/ai-solutions-engineer-apac-remote-264742/",
+            summary="Remote APAC customer-facing GenAI implementation and deployment role.",
+            fingerprint="se-1",
+            raw={"company": "Example AI", "location": "Remote APAC", "remote_policy": "Remote", "source_type": "job_board"},
+        )
+
+        opportunities = fallback_job_opportunities([(45, candidate)], "2026-07-27")
+
+        self.assertEqual(len(opportunities), 1)
+        self.assertEqual(opportunities[0].category, "FDE-Adjacent Role")
+
 
 if __name__ == "__main__":
     unittest.main()
