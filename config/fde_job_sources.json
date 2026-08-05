@@ -5,7 +5,12 @@
     "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+Vietnam+job&format=rss",
     "category": "fde-job-search",
     "source_type": "aggregator",
-    "text_exclude_any": ["dictionary", "wikipedia", "cambridge", "news that matters"],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters"
+    ],
     "enabled": true
   },
   {
@@ -14,7 +19,12 @@
     "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+%22Ho+Chi+Minh%22&format=rss",
     "category": "fde-job-search",
     "source_type": "aggregator",
-    "text_exclude_any": ["dictionary", "wikipedia", "cambridge", "news that matters"],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters"
+    ],
     "enabled": true
   },
   {
@@ -23,7 +33,12 @@
     "url": "https://www.bing.com/search?q=%22Forward+Deployed+Engineer%22+%28APAC+OR+%22Southeast+Asia%22+OR+Singapore+OR+Remote%29&format=rss",
     "category": "fde-job-search",
     "source_type": "aggregator",
-    "text_exclude_any": ["dictionary", "wikipedia", "cambridge", "news that matters"],
+    "text_exclude_any": [
+      "dictionary",
+      "wikipedia",
+      "cambridge",
+      "news that matters"
+    ],
     "enabled": true
   },
   {
@@ -32,7 +47,11 @@
     "url": "https://www.bing.com/search?q=%28%22AI+Deployment+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22GenAI+Solutions+Engineer%22%29+Vietnam+job&format=rss",
     "category": "fde-adjacent-job-search",
     "source_type": "aggregator",
-    "text_exclude_any": ["wikipedia", "chatgpt", "gemini.google.com"],
+    "text_exclude_any": [
+      "wikipedia",
+      "chatgpt",
+      "gemini.google.com"
+    ],
     "enabled": true
   },
   {
@@ -41,7 +60,11 @@
     "url": "https://www.bing.com/search?q=%28%22AI+Solution+Architect%22+OR+%22Solutions+Architect%22%29+Vietnam+GenAI+job&format=rss",
     "category": "fde-adjacent-job-search",
     "source_type": "aggregator",
-    "text_exclude_any": ["wikipedia", "chatgpt", "gemini.google.com"],
+    "text_exclude_any": [
+      "wikipedia",
+      "chatgpt",
+      "gemini.google.com"
+    ],
     "enabled": true
   },
   {
@@ -50,7 +73,10 @@
     "url": "https://www.bing.com/search?q=%28%22Vietnam+Market%22+OR+%22Vietnamese+speaker%22%29+%28%22Customer+Engineer%22+OR+%22Solution+Engineer%22+OR+%22Solutions+Engineer%22%29+AI+Cloud&format=rss",
     "category": "vietnam-ai-expansion-search",
     "source_type": "aggregator",
-    "text_exclude_any": ["wikipedia", "government portal"],
+    "text_exclude_any": [
+      "wikipedia",
+      "government portal"
+    ],
     "enabled": true
   },
   {
@@ -59,7 +85,11 @@
     "url": "https://www.bing.com/search?q=%28%22Southeast+Asia%22+OR+ASEAN+OR+APAC%29+%28%22AI+agents%22+OR+%22enterprise+AI%22+OR+GenAI%29+hiring&format=rss",
     "category": "fde-expansion-search",
     "source_type": "aggregator",
-    "text_exclude_any": ["wikipedia", "worldatlas", "university"],
+    "text_exclude_any": [
+      "wikipedia",
+      "worldatlas",
+      "university"
+    ],
     "enabled": true
   },
   {
@@ -68,7 +98,9 @@
     "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%22Forward+Deployed+Engineer%22+APAC&format=rss",
     "category": "ats-index-search",
     "source_type": "ATS",
-    "url_include_any": ["jobs.ashbyhq.com"],
+    "url_include_any": [
+      "jobs.ashbyhq.com"
+    ],
     "enabled": true
   },
   {
@@ -77,7 +109,9 @@
     "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%22Forward+Deployed+Engineer%22+Singapore&format=rss",
     "category": "ats-index-search",
     "source_type": "ATS",
-    "url_include_any": ["job-boards.greenhouse.io"],
+    "url_include_any": [
+      "job-boards.greenhouse.io"
+    ],
     "enabled": true
   },
   {
@@ -86,7 +120,9 @@
     "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%22Forward+Deployed+Engineer%22+Asia&format=rss",
     "category": "ats-index-search",
     "source_type": "ATS",
-    "url_include_any": ["jobs.lever.co"],
+    "url_include_any": [
+      "jobs.lever.co"
+    ],
     "enabled": true
   },
   {
@@ -95,7 +131,9 @@
     "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%22Forward+Deployed+Engineer%22+Vietnam&format=rss",
     "category": "linkedin-hidden-hiring-search",
     "source_type": "LinkedIn_post",
-    "url_include_any": ["linkedin.com/posts"],
+    "url_include_any": [
+      "linkedin.com/posts"
+    ],
     "enabled": true
   },
   {
@@ -104,7 +142,9 @@
     "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%28%22Forward+Deployed+Engineer%22+OR+FDE%29+APAC+hiring&format=rss",
     "category": "linkedin-hidden-hiring-search",
     "source_type": "LinkedIn_post",
-    "url_include_any": ["linkedin.com/posts"],
+    "url_include_any": [
+      "linkedin.com/posts"
+    ],
     "enabled": true
   },
   {
@@ -113,7 +153,9 @@
     "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts+%22Vietnamese+speaker%22+GenAI+hiring&format=rss",
     "category": "linkedin-hidden-hiring-search",
     "source_type": "LinkedIn_post",
-    "url_include_any": ["linkedin.com/posts"],
+    "url_include_any": [
+      "linkedin.com/posts"
+    ],
     "enabled": true
   },
   {
@@ -122,7 +164,9 @@
     "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs+%28%22Forward+Deployed%22+OR+FDE+OR+%22AI+Deployment%22+OR+%22AI+Solutions%22+OR+%22LLM%22+OR+%22RAG%22%29+%28Vietnam+OR+APAC+OR+remote+OR+%22Southeast+Asia%22%29&format=rss",
     "category": "freelance-job-search",
     "source_type": "job_board",
-    "url_include_any": ["upwork.com/freelance-jobs"],
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ],
     "enabled": true
   },
   {
@@ -131,8 +175,23 @@
     "url": "https://www.bing.com/search?q=site%3Awellfound.com%2Fjobs+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["wellfound.com"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "wellfound.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -141,8 +200,23 @@
     "url": "https://remoteok.com/api",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["remoteok.com"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "remoteok.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -151,8 +225,23 @@
     "url": "https://weworkremotely.com/categories/remote-programming-jobs.rss",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["weworkremotely.com"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "weworkremotely.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -161,8 +250,23 @@
     "url": "https://jobspresso.co/remote-work/feed/",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["jobspresso.co"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "jobspresso.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -171,8 +275,23 @@
     "url": "https://www.bing.com/search?q=site%3Aflexjobs.com+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["flexjobs.com"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "flexjobs.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -181,8 +300,23 @@
     "url": "https://remotive.com/api/remote-jobs?category=software-dev",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["remotive.com"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -191,8 +325,23 @@
     "url": "https://www.bing.com/search?q=site%3Aremote.co%2Fremote-jobs+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["remote.co"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "remote.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -201,8 +350,23 @@
     "url": "https://www.bing.com/search?q=site%3Ahimalayas.app%2Fjobs+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22AI+Deployment+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22Solution+Architect%22+OR+LLM+OR+RAG%29+%28remote+OR+worldwide+OR+global+OR+APAC+OR+Asia+OR+Vietnam%29&format=rss",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["himalayas.app"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "himalayas.app"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -211,8 +375,23 @@
     "url": "https://www.workingnomads.com/jobs?search=ai",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["workingnomads.com"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "workingnomads.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -221,8 +400,23 @@
     "url": "https://nodesk.co/remote-jobs/",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "url_host_include_any": ["nodesk.co"],
-    "text_include_any": ["forward deployed", "ai deployment", "ai solutions", "genai", "llm", "rag", "agent", "solution engineer", "solutions engineer", "solution architect", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "nodesk.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "llm",
+      "rag",
+      "agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -231,7 +425,9 @@
     "url": "https://www.fwddeploy.com/s/remote-jobs",
     "category": "fde-job-board",
     "source_type": "job_board",
-    "url_include_any": ["fwddeploy.com/jobs/"],
+    "url_include_any": [
+      "fwddeploy.com/jobs/"
+    ],
     "enabled": true
   },
   {
@@ -240,7 +436,9 @@
     "url": "https://www.fwddeploy.com/jobs",
     "category": "fde-job-board",
     "source_type": "job_board",
-    "url_include_any": ["fwddeploy.com/jobs/"],
+    "url_include_any": [
+      "fwddeploy.com/jobs/"
+    ],
     "enabled": true
   },
   {
@@ -249,19 +447,59 @@
     "url": "https://www.fwddeploy.com/jobs?page=2",
     "category": "fde-job-board",
     "source_type": "job_board",
-    "url_include_any": ["fwddeploy.com/jobs/"],
+    "url_include_any": [
+      "fwddeploy.com/jobs/"
+    ],
     "enabled": true
   },
   {
     "name": "Indeed Singapore FDE Jobs",
-    "type": "html",
-    "url": "https://sg.indeed.com/q-forward-deployed-engineer-jobs.html",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Asg.indeed.com+%28%22Forward+Deployed+Engineer%22+OR+%22AI+Solutions+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Solutions+Engineer%22%29+%28Singapore+OR+APAC+OR+remote%29&format=rss",
     "category": "apac-job-board",
     "source_type": "job_board",
-    "title_include_any": ["forward deployed", "fde", "deployment strategist", "ai deployment"],
-    "title_exclude_any": ["salary", "salaries"],
-    "url_exclude_any": ["salary", "salaries"],
-    "enabled": true
+    "title_include_any": [
+      "forward deployed",
+      "fde",
+      "deployment strategist",
+      "ai deployment"
+    ],
+    "title_exclude_any": [
+      "salary",
+      "salaries"
+    ],
+    "url_exclude_any": [
+      "salary",
+      "salaries"
+    ],
+    "enabled": true,
+    "url_host_include_any": [
+      "sg.indeed.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "remote_policy": "Remote"
   },
   {
     "name": "Wonderful Careers",
@@ -269,7 +507,10 @@
     "url": "https://www.wonderful.ai/careers",
     "category": "company-careers",
     "source_type": "official_career_page",
-    "title_include_any": ["forward deployed", "deployment strategist"],
+    "title_include_any": [
+      "forward deployed",
+      "deployment strategist"
+    ],
     "enabled": true
   },
   {
@@ -278,7 +519,9 @@
     "url": "https://jobs.ashbyhq.com/runpod/25e7d414-e338-42dc-a206-ca4727f3f98f",
     "category": "ats-direct-job",
     "source_type": "ATS",
-    "title_include_any": ["forward deployed"],
+    "title_include_any": [
+      "forward deployed"
+    ],
     "enabled": true
   },
   {
@@ -287,7 +530,10 @@
     "url": "https://vercel.com/careers/forward-deployed-engineer-5752684004",
     "category": "company-careers",
     "source_type": "official_career_page",
-    "title_include_any": ["forward-deployed", "forward deployed"],
+    "title_include_any": [
+      "forward-deployed",
+      "forward deployed"
+    ],
     "enabled": true
   },
   {
@@ -296,7 +542,9 @@
     "url": "https://www.tryprofound.com/careers/b076c997-0ba3-4d3c-9dc9-ad0b3ed49b05",
     "category": "company-careers",
     "source_type": "official_career_page",
-    "title_include_any": ["forward deployed"],
+    "title_include_any": [
+      "forward deployed"
+    ],
     "enabled": true
   },
   {
@@ -306,9 +554,26 @@
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["freelancer.com"],
-    "url_include_any": ["freelancer.com/projects/", "freelancer.com/contest/"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning"],
+    "url_host_include_any": [
+      "freelancer.com"
+    ],
+    "url_include_any": [
+      "freelancer.com/projects/",
+      "freelancer.com/contest/"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning"
+    ],
     "enabled": true
   },
   {
@@ -318,9 +583,26 @@
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["freelancer.com"],
-    "url_include_any": ["freelancer.com/projects/", "freelancer.com/contest/"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning"],
+    "url_host_include_any": [
+      "freelancer.com"
+    ],
+    "url_include_any": [
+      "freelancer.com/projects/",
+      "freelancer.com/contest/"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning"
+    ],
     "enabled": true
   },
   {
@@ -330,9 +612,25 @@
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["guru.com"],
-    "url_include_any": ["guru.com/jobs/"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning"],
+    "url_host_include_any": [
+      "guru.com"
+    ],
+    "url_include_any": [
+      "guru.com/jobs/"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning"
+    ],
     "enabled": true
   },
   {
@@ -342,10 +640,28 @@
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["peopleperhour.com"],
-    "url_include_any": ["peopleperhour.com/freelance-jobs/"],
-    "url_exclude_any": ["peopleperhour.com/freelancer/"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning"],
+    "url_host_include_any": [
+      "peopleperhour.com"
+    ],
+    "url_include_any": [
+      "peopleperhour.com/freelance-jobs/"
+    ],
+    "url_exclude_any": [
+      "peopleperhour.com/freelancer/"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning"
+    ],
     "enabled": true
   },
   {
@@ -355,9 +671,25 @@
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["arc.dev"],
-    "url_include_any": ["arc.dev/remote-jobs/"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning"],
+    "url_host_include_any": [
+      "arc.dev"
+    ],
+    "url_include_any": [
+      "arc.dev/remote-jobs/"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning"
+    ],
     "enabled": true
   },
   {
@@ -367,9 +699,25 @@
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["usebraintrust.com"],
-    "url_include_any": ["usebraintrust.com/jobs"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning"],
+    "url_host_include_any": [
+      "usebraintrust.com"
+    ],
+    "url_include_any": [
+      "usebraintrust.com/jobs"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning"
+    ],
     "enabled": true
   },
   {
@@ -379,8 +727,26 @@
     "category": "remote-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["remoteok.com"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning", "solution engineer", "solutions engineer", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "remoteok.com"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -390,8 +756,26 @@
     "category": "remote-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["remotive.com"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning", "solution engineer", "solutions engineer", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
@@ -401,29 +785,251 @@
     "category": "remote-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "url_host_include_any": ["weworkremotely.com"],
-    "text_include_any": ["artificial intelligence", "agentic", "automation", "chatbot", "generative", "genai", "llm", "rag", "openai", "langchain", "machine learning", "solution engineer", "solutions engineer", "implementation engineer", "integration engineer"],
+    "url_host_include_any": [
+      "weworkremotely.com"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy Developer Remote Jobs",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=developer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "remote_policy": "Remote",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy Python Remote Jobs",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=python",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "remote_policy": "Remote",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy Machine Learning Remote Jobs",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=machine-learning",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "remote_policy": "Remote",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "AIJobs.net Remote AI Jobs",
+    "type": "html",
+    "url": "https://aijobs.net/?prefill_remote=1",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "remote_policy": "Remote",
+    "url_host_include_any": [
+      "aijobs.net"
+    ],
+    "url_include_any": [
+      "aijobs.net/job/"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Working Nomads AI Jobs",
+    "type": "html",
+    "url": "https://www.workingnomads.com/remote-artificial-intelligence-jobs",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "remote_policy": "Remote",
+    "url_host_include_any": [
+      "workingnomads.com"
+    ],
+    "text_include_any": [
+      "artificial intelligence",
+      "agentic",
+      "automation",
+      "chatbot",
+      "generative",
+      "genai",
+      "llm",
+      "rag",
+      "openai",
+      "langchain",
+      "machine learning",
+      "solution engineer",
+      "solutions engineer",
+      "implementation engineer",
+      "integration engineer"
+    ],
     "enabled": true
   },
   {
     "name": "Upwork Artificial Intelligence Jobs",
-    "type": "html",
-    "url": "https://www.upwork.com/freelance-jobs/artificial-intelligence/",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fartificial-intelligence+%28AI+OR+LLM+OR+RAG+OR+OpenAI+OR+ChatGPT+OR+automation%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "text_include_any": ["ai", "automation", "agent", "llm", "rag", "openai", "langchain"],
-    "enabled": true
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "enabled": true,
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
   },
   {
     "name": "Upwork Automation Jobs",
-    "type": "html",
-    "url": "https://www.upwork.com/freelance-jobs/automation/",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fautomation+%28AI+OR+n8n+OR+Zapier+OR+Make+OR+workflow+OR+integration%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
     "category": "freelance-job-board",
     "source_type": "job_board",
     "remote_policy": "Remote",
-    "text_include_any": ["ai", "automation", "agent", "llm", "rag", "openai", "langchain"],
-    "enabled": true
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "enabled": true,
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
   },
   {
     "name": "Hacker News FDE Hiring",
@@ -440,5 +1046,3147 @@
     "category": "community-hiring-signal",
     "source_type": "social",
     "enabled": true
+  },
+  {
+    "name": "Bing ATS Ashby FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.ashbyhq.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Ashby AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.ashbyhq.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Ashby AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.ashbyhq.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Ashby GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.ashbyhq.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Ashby LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.ashbyhq.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Ashby AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.ashbyhq.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.ashbyhq.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Job Boards FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "job-boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Job Boards AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "job-boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Job Boards AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "job-boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Job Boards GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "job-boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Job Boards LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "job-boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Job Boards AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajob-boards.greenhouse.io+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "job-boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Boards FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aboards.greenhouse.io+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Boards AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aboards.greenhouse.io+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Boards AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aboards.greenhouse.io+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Boards GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aboards.greenhouse.io+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Boards LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aboards.greenhouse.io+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Greenhouse Boards AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aboards.greenhouse.io+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "boards.greenhouse.io"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Lever FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.lever.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Lever AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.lever.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Lever AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.lever.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Lever GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.lever.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Lever LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.lever.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Lever AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.lever.co+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.lever.co"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS SmartRecruiters FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.smartrecruiters.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.smartrecruiters.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS SmartRecruiters AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.smartrecruiters.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.smartrecruiters.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS SmartRecruiters AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.smartrecruiters.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.smartrecruiters.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS SmartRecruiters GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.smartrecruiters.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.smartrecruiters.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS SmartRecruiters LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.smartrecruiters.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.smartrecruiters.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS SmartRecruiters AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.smartrecruiters.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.smartrecruiters.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Apply FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aapply.workable.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "apply.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Apply AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aapply.workable.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "apply.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Apply AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aapply.workable.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "apply.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Apply GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aapply.workable.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "apply.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Apply LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aapply.workable.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "apply.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Apply AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aapply.workable.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "apply.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Jobs FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.workable.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Jobs AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.workable.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Jobs AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.workable.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Jobs GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.workable.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Jobs LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.workable.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workable Jobs AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobs.workable.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "jobs.workable.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workday FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amyworkdayjobs.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "myworkdayjobs.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workday AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amyworkdayjobs.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "myworkdayjobs.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workday AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amyworkdayjobs.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "myworkdayjobs.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workday GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amyworkdayjobs.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "myworkdayjobs.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workday LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amyworkdayjobs.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "myworkdayjobs.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Workday AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amyworkdayjobs.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "myworkdayjobs.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Teamtailor FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ateamtailor.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "teamtailor.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Teamtailor AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ateamtailor.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "teamtailor.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Teamtailor AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ateamtailor.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "teamtailor.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Teamtailor GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ateamtailor.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "teamtailor.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Teamtailor LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ateamtailor.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "teamtailor.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Teamtailor AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ateamtailor.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "teamtailor.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Recruitee FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arecruitee.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "recruitee.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Recruitee AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arecruitee.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "recruitee.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Recruitee AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arecruitee.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "recruitee.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Recruitee GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arecruitee.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "recruitee.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Recruitee LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arecruitee.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "recruitee.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Recruitee AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arecruitee.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "recruitee.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Rippling ATS FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arippling-ats.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "rippling-ats.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Rippling ATS AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arippling-ats.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "rippling-ats.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Rippling ATS AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arippling-ats.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "rippling-ats.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Rippling ATS GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arippling-ats.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "rippling-ats.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Rippling ATS LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arippling-ats.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "rippling-ats.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS Rippling ATS AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Arippling-ats.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "rippling-ats.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS BambooHR FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Abamboohr.com+%22Forward+Deployed+Engineer%22+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "bamboohr.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS BambooHR AI Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Abamboohr.com+%28%22AI+Solutions+Engineer%22+OR+%22AI+Solution+Architect%22+OR+%22AI+Solutions+Architect%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "bamboohr.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS BambooHR AI Deployment",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Abamboohr.com+%28%22AI+Deployment+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "bamboohr.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS BambooHR GenAI Customer Engineering",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Abamboohr.com+%28%22GenAI%22+OR+%22Generative+AI%22%29+%28%22Customer+Engineer%22+OR+%22Solutions+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "bamboohr.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS BambooHR LLM RAG Engineer",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Abamboohr.com+%28%22LLM+Engineer%22+OR+%22RAG+Engineer%22+OR+%22AI+Agent+Engineer%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "bamboohr.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing ATS BambooHR AI Implementation Integration",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Abamboohr.com+%28%22Implementation+Engineer%22+OR+%22Integration+Engineer%22+OR+%22Technical+Solutions+Engineer%22%29+%28AI+OR+LLM+OR+GenAI%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "ats-index-search",
+    "source_type": "ATS",
+    "url_include_any": [
+      "bamboohr.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Palantir Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Apalantir.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "palantir.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Scale AI Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ascale.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "scale.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Databricks Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Adatabricks.com%2Fcompany%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "databricks.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Anthropic Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aanthropic.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "anthropic.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company OpenAI Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aopenai.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "openai.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Sierra Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Asierra.ai%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "sierra.ai"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Glean Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aglean.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "glean.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Dust Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Adust.tt%2Fjobs+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "dust.tt"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Cursor Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Acursor.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "cursor.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company LangChain Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alangchain.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "langchain.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company LlamaIndex Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Allamaindex.ai%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "llamaindex.ai"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Braintrust Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Abraintrust.dev%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "braintrust.dev"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Cohere Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Acohere.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "cohere.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Mistral Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amistral.ai%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "mistral.ai"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Perplexity Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aperplexity.ai%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "perplexity.ai"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Bing Company Modal Careers AI FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amodal.com%2Fcareers+%28%22Forward+Deployed+Engineer%22+OR+%22Solutions+Engineer%22+OR+%22AI+Engineer%22+OR+%22Customer+Engineer%22+OR+%22Implementation+Engineer%22+OR+%22Deployment+Strategist%22%29+%28APAC+OR+Asia+OR+%22Southeast+Asia%22+OR+ASEAN+OR+Vietnam+OR+Singapore+OR+Remote+OR+worldwide+OR+global%29&format=rss",
+    "category": "company-careers-index",
+    "source_type": "official_career_page",
+    "url_host_include_any": [
+      "modal.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Remotive Machine Learning Remote Jobs",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=machine+learning",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Remotive LLM Remote Jobs",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=llm",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Remotive RAG Remote Jobs",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=rag",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Remotive AI Agent Remote Jobs",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=ai+agent",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Remotive Automation Remote Jobs",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=automation",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Remotive Solutions Engineer Remote Jobs",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=solutions+engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true
+  },
+  {
+    "name": "Upwork AI Automation Freelance Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fai-automation+%28OpenAI+OR+ChatGPT+OR+LLM+OR+n8n+OR+workflow%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true,
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
+  },
+  {
+    "name": "Upwork AI Integration Freelance Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fai-integration+%28OpenAI+OR+Claude+OR+API+OR+LLM+OR+automation%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true,
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
+  },
+  {
+    "name": "Upwork ChatGPT Freelance Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fchatgpt+%28automation+OR+integration+OR+API+OR+chatbot+OR+workflow%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true,
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
+  },
+  {
+    "name": "Upwork OpenAI Freelance Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fopenai+%28integration+OR+RAG+OR+chatbot+OR+automation+OR+API%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true,
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
+  },
+  {
+    "name": "Upwork Machine Learning Freelance Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fmachine-learning+%28LLM+OR+AI+OR+Python+OR+deployment+OR+automation%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true,
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
+  },
+  {
+    "name": "Upwork n8n Automation Freelance Jobs",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aupwork.com%2Ffreelance-jobs%2Fn8n+%28AI+OR+OpenAI+OR+workflow+OR+automation+OR+integration%29+%28remote+OR+hourly+OR+fixed-price%29&format=rss",
+    "category": "freelance-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "upwork.com"
+    ],
+    "text_include_any": [
+      "forward deployed",
+      "ai deployment",
+      "ai solutions",
+      "genai",
+      "generative ai",
+      "llm",
+      "rag",
+      "agent",
+      "ai agent",
+      "solution engineer",
+      "solutions engineer",
+      "solution architect",
+      "implementation engineer",
+      "integration engineer",
+      "technical solutions engineer",
+      "customer engineer",
+      "machine learning",
+      "automation",
+      "openai",
+      "chatgpt",
+      "n8n"
+    ],
+    "remote_policy": "Remote",
+    "enabled": true,
+    "url_include_any": [
+      "upwork.com/freelance-jobs"
+    ]
   }
 ]

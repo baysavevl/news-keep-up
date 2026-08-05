@@ -104,8 +104,9 @@ def digest_endpoint(slot: str):
         return auth_error
 
     dry_run = request.args.get("dry_run", "").lower() in {"1", "true", "yes"}
+    force = request.args.get("force", "").lower() in {"1", "true", "yes"}
     try:
-        result = _run_digest_profile(profile, dry_run=dry_run)
+        result = _run_digest_profile(profile, dry_run=dry_run, force=force)
     except Exception as exc:
         app.logger.exception("Digest run failed")
         return jsonify({"ok": False, "slot": slot, "error": str(exc)}), 500
@@ -114,6 +115,7 @@ def digest_endpoint(slot: str):
         "ok": True,
         "slot": slot,
         "dry_run": dry_run,
+        "force": force,
         **result,
     })
 
@@ -292,7 +294,13 @@ def _telegram_delivery_configured(settings) -> bool:
     return bool(settings.telegram_bot_token and settings.telegram_chat_id)
 
 
-def _run_digest_profile(profile: DigestProfile, dry_run: bool, current=None, send_window_current=None) -> dict:
+def _run_digest_profile(
+    profile: DigestProfile,
+    dry_run: bool,
+    current=None,
+    send_window_current=None,
+    force: bool = False,
+) -> dict:
     settings = _settings_for_profile(profile)
     delivery_configured = _telegram_delivery_configured(settings)
     if profile.mode in {"digest", "interview"} and not dry_run and not delivery_configured:
@@ -311,6 +319,7 @@ def _run_digest_profile(profile: DigestProfile, dry_run: bool, current=None, sen
             sources_path=profile.sources_path,
             current=current,
             send_window_current=send_window_current,
+            force=force,
         )
     elif profile.mode == "source-intelligence":
         message = run_fde_job_source_intelligence(

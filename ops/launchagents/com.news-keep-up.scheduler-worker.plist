@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.news-keep-up.scheduler-worker</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/lap14894/Documents/VinhL/Code/Personal/news-keep-up/.venv/bin/python</string>
+    <string>-m</string>
+    <string>news_keep_up.main</string>
+    <string>scheduler-worker</string>
+    <string>--env-file</string>
+    <string>/Users/lap14894/Documents/VinhL/Code/Personal/news-keep-up/.vercel/.env.production.local</string>
+    <string>--interval-seconds</string>
+    <string>60</string>
+    <string>--lookback-minutes</string>
+    <string>180</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/lap14894/Documents/VinhL/Code/Personal/news-keep-up</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/lap14894/Library/Logs/news-keep-up/scheduler-worker.launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/lap14894/Library/Logs/news-keep-up/scheduler-worker.launchd.err.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+</dict>
+</plist>

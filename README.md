@@ -130,36 +130,86 @@ Each profile can also receive Telegram commands through Vercel:
 - `/analyze keyword` analyzes stored matches through the profile lens
 - `/markread id|keyword|all` marks stored news as read so it will not be sent again
 - `/interview` shows the next FDE interview guideline in the FDE group
-- `/sources` shows source coverage
+- `/sources` shows source coverage and recent problem sources when fetch logs exist
 - `/status` shows schedule and config status
 - `/focus` explains relevance criteria
+- `/force` in the FDE jobs group scans and sends pending job alerts immediately, even outside the normal send window
 
 Webhook endpoints:
 
 - `/api/telegram/engineer`
 - `/api/telegram/fde`
+- `/api/telegram/fde-jobs`
 
 Telegram must send `X-Telegram-Bot-Api-Secret-Token` matching `TELEGRAM_WEBHOOK_SECRET` or `CRON_SECRET`. Command responses are restricted to the configured profile chat ID when `ENGINEER_TELEGRAM_CHAT_ID` or `FDE_TELEGRAM_CHAT_ID` is set.
 
-## GitHub Actions
+## Scheduler Service
 
-Configure repository secrets:
+Run the scheduler as a long-lived worker service. This is the primary production path for frequent jobs; it runs ticks in-process, catches up delayed slots with Turso `scheduler_runs`, and avoids depending on GitHub Actions or Vercel Cron cadence.
 
-- `CRON_SECRET`
+One-shot check:
 
-The workflow is in `.github/workflows/digest.yml`. It is a fallback scheduler that calls `/api/scheduler/tick` at `:00`, `:15`, and `:35` from `00:00` through `15:35` UTC. The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
+```bash
+.venv/bin/python -m news_keep_up.main scheduler-tick \
+  --env-file .vercel/.env.production.local \
+  --lookback-minutes 180
+```
+
+Long-running worker:
+
+```bash
+.venv/bin/python -m news_keep_up.main scheduler-worker \
+  --env-file .vercel/.env.production.local \
+  --interval-seconds 60 \
+  --lookback-minutes 180
+```
+
+Force the FDE jobs flow outside the normal send window:
+
+```bash
+.venv/bin/python -m news_keep_up.main run-digest \
+  --env-file .vercel/.env.production.local \
+  --slot fde-jobs \
+  --force
+```
+
+Inspect source health from recent fetch logs:
+
+```bash
+.venv/bin/python -m news_keep_up.main source-health \
+  --env-file .vercel/.env.production.local \
+  --slot fde-jobs
+```
+
+Fetch all FDE job sources and log source health without Gemini classification or Telegram delivery:
+
+```bash
+.venv/bin/python -m news_keep_up.main probe-job-sources \
+  --env-file .vercel/.env.production.local
+```
+
+The app decides which profile is due in Asia/Ho_Chi_Minh time and stores each scheduled run in Turso so retries do not resend the same slot:
 
 - FDE news: twice daily at `08:00` and `14:00`
-- FDE interview guidelines: hourly from `07:35` through `22:35`
+- FDE interview guidelines: `08:35`, `11:35`, and `14:35`
+- FDE job alerts: every 30 minutes from `07:00` through `21:00`
+- FDE job source maintenance: daily at `07:10`
 - Engineer/AI news: twice daily at `09:15` and `16:00`
 
-Vercel Cron is not configured because the current Vercel Hobby plan only supports once-per-day cron cadence. On Vercel Pro, configure a frequent cron against `/api/scheduler/tick`; GitHub Actions and the local LaunchAgent can keep running as idempotent fallbacks.
+Service templates:
+
+- macOS launchd: `ops/launchagents/com.news-keep-up.scheduler-worker.plist`
+- Linux systemd: `ops/systemd/news-keep-up-scheduler.service`
+
+## GitHub Actions
+
+The workflow in `.github/workflows/digest.yml` is manual fallback only. It still calls `/api/scheduler/tick` when triggered with `workflow_dispatch`, but it no longer owns the periodic schedule.
 
 ## Local LaunchAgent Scheduler
 
-For a local always-on macOS agent, install `ops/launchagents/com.news-keep-up.scheduler-tick.plist` into `~/Library/LaunchAgents/`. It runs `scripts/trigger_scheduler_tick.py` every 5 minutes and calls `/api/scheduler/tick`; the app still controls exact send times and uses Turso `scheduler_runs` to avoid duplicate sends. If a due slot has no qualifying news, scheduled delivery stays silent.
+For a local always-on macOS agent, install `ops/launchagents/com.news-keep-up.scheduler-worker.plist` into `~/Library/LaunchAgents/`. It runs `scheduler-worker` continuously and reads production environment variables from `.vercel/.env.production.local`. If a due slot has no qualifying news, scheduled delivery stays silent.
 
-The installed runtime copy should live under `~/Library/Application Support/news-keep-up/` with a private `.env` containing `CRON_SECRET`. Logs are written to `~/Library/Logs/news-keep-up/`.
+The older `ops/launchagents/com.news-keep-up.scheduler-tick.plist` remains only for endpoint fallback testing. Logs are written to `~/Library/Logs/news-keep-up/`.
 
 ## Vercel
 
@@ -169,9 +219,11 @@ The Vercel deployment exposes `news_keep_up.vercel_app:app`:
 - `/api/digest/engineer` runs the engineer digest
 - `/api/digest/fde` runs the Forward Deployed Engineer digest
 - `/api/digest/fde-interview` sends the compact FDE interview guideline
-- `/api/scheduler/tick` runs at most one due scheduled profile and records it in Turso
+- `/api/digest/fde-jobs?force=true` runs FDE job alerts immediately and bypasses the send window
+- `/api/scheduler/tick` runs due scheduled profiles as a manual/fallback trigger and records them in Turso
 - `/api/telegram/engineer` handles Engineer bot commands
 - `/api/telegram/fde` handles FDE bot commands
+- `/api/telegram/fde-jobs` handles FDE jobs bot commands
 - `?dry_run=true` formats the digest without sending Telegram
 
 Configure the Vercel environment variables listed above for production. `CRON_SECRET` must be set so scheduled callers can authenticate requests with `Authorization: Bearer $CRON_SECRET`.

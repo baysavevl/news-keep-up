@@ -14,6 +14,7 @@ from .db import (
     init_db,
     list_pending_job_alerts,
     mark_job_alert_delivered,
+    record_source_fetch_logs,
     upsert_item,
     upsert_job_opportunity,
     upsert_source,
@@ -24,8 +25,9 @@ from .job_filters import (
     is_workable_from_vietnam_candidate,
     is_workable_from_vietnam_opportunity,
 )
-from .models import CandidateItem, JobOpportunity, Settings, Source
+from .models import CandidateItem, JobOpportunity, Settings, Source, SourceFetchLog
 from .scheduler import is_fde_job_alert_send_window
+from .source_health import failed_source_fetch_log, successful_source_fetch_log
 from .sources import fetch_source
 from .telegram import send_telegram_message
 from .utils import ICT, now_ict
@@ -43,11 +45,17 @@ JOB_TITLE_TERMS = (
     "deployed engineer",
     "ai deployment",
     "ai field engineer",
+    "ai engineer",
+    "ai architect",
+    "ai consultant",
     "customer engineer",
     "customer-facing ai",
     "applied ai engineer",
+    "machine learning engineer",
+    "ml engineer",
     "ai solutions engineer",
     "genai solutions",
+    "technical solutions engineer",
     "solution architect",
     "solutions architect",
     "solution engineer",
@@ -66,6 +74,8 @@ JOB_DOMAIN_TERMS = (
     "agentic ai",
     "enterprise ai",
     "genai",
+    "generative ai",
+    "machine learning",
     "llm",
     "rag",
     "langchain",
@@ -162,6 +172,7 @@ def run_fde_job_alerts(
     sources_path=DEFAULT_FDE_JOB_SOURCES_PATH,
     current: datetime | None = None,
     send_window_current: datetime | None = None,
+    force: bool = False,
 ) -> str:
     conn = connect_database(settings)
     init_db(conn)
@@ -187,7 +198,7 @@ def run_fde_job_alerts(
         messages = [format_job_alert(opportunity, current=current) for opportunity in alerts]
         delivery_configured = bool(settings.telegram_bot_token and settings.telegram_chat_id)
         if not dry_run:
-            if not is_fde_job_alert_send_window(send_window_current or current):
+            if not force and not is_fde_job_alert_send_window(send_window_current or current):
                 return ""
             if delivery_configured:
                 for opportunity, message in zip(alerts, messages):
@@ -198,6 +209,51 @@ def run_fde_job_alerts(
         return "\n\n".join(messages)
     finally:
         conn.close()
+
+
+def probe_fde_job_sources(
+    settings: Settings,
+    sources_path=DEFAULT_FDE_JOB_SOURCES_PATH,
+) -> dict:
+    conn = connect_database(settings)
+    init_db(conn)
+    rows: list[dict] = []
+    try:
+        sources = load_sources(sources_path)
+        for source, candidates in _fetch_candidates(sources, settings, conn):
+            source_filtered = [
+                candidate
+                for candidate in candidates
+                if _candidate_matches_source_filters(source, candidate)
+            ]
+            fde_candidates = [
+                candidate
+                for candidate in source_filtered
+                if is_fde_job_candidate(candidate)
+            ]
+            workable_candidates = [
+                candidate
+                for candidate in fde_candidates
+                if is_workable_from_vietnam_candidate(candidate)
+            ]
+            rows.append({
+                "source": source.name,
+                "fetched_items": len(candidates),
+                "source_filtered_candidates": len(source_filtered),
+                "fde_candidates": len(fde_candidates),
+                "workable_candidates": len(workable_candidates),
+            })
+    finally:
+        conn.close()
+
+    return {
+        "sources": len(rows),
+        "fetched_items": sum(row["fetched_items"] for row in rows),
+        "source_filtered_candidates": sum(row["source_filtered_candidates"] for row in rows),
+        "fde_candidates": sum(row["fde_candidates"] for row in rows),
+        "workable_candidates": sum(row["workable_candidates"] for row in rows),
+        "rows": rows,
+    }
 
 
 def format_job_alert(opportunity: JobOpportunity, current: datetime | None = None) -> str:
@@ -265,7 +321,7 @@ def _new_job_candidates(
     queued: list[tuple[int, CandidateItem]] = []
     seen_candidate_urls: set[str] = set()
     per_source_limit = max(1, settings.max_candidates_per_source)
-    for source, candidates in _fetch_candidates(sources, settings):
+    for source, candidates in _fetch_candidates(sources, settings, conn):
         source_queued: list[tuple[int, CandidateItem]] = []
         for candidate in candidates:
             if not _candidate_matches_source_filters(source, candidate):
@@ -409,33 +465,44 @@ def _looks_like_search_noise(text: str) -> bool:
     return any(term in text for term in noise_terms)
 
 
-def _fetch_candidates(sources: list[Source], settings: Settings) -> Iterable[tuple[Source, list[CandidateItem]]]:
+def _fetch_candidates(
+    sources: list[Source],
+    settings: Settings,
+    conn,
+) -> Iterable[tuple[Source, list[CandidateItem]]]:
     timeout_seconds = max(1, settings.source_fetch_timeout_seconds)
     max_workers = max(1, min(settings.max_source_workers, len(sources) or 1))
+    results: list[tuple[Source, list[CandidateItem], SourceFetchLog]] = []
     if max_workers == 1:
         for source in sources:
-            yield source, _fetch_source_candidates(source, timeout_seconds)
-        return
+            candidates, log = _fetch_source_candidates(source, timeout_seconds)
+            results.append((source, candidates, log))
+    else:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_fetch_source_candidates, source, timeout_seconds): source
+                for source in sources
+            }
+            for future in as_completed(futures):
+                source = futures[future]
+                try:
+                    candidates, log = future.result()
+                except Exception:
+                    candidates = []
+                    log = failed_source_fetch_log("fde-jobs", source, RuntimeError("source fetch worker failed"))
+                results.append((source, candidates, log))
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(_fetch_source_candidates, source, timeout_seconds): source
-            for source in sources
-        }
-        for future in as_completed(futures):
-            source = futures[future]
-            try:
-                candidates = future.result()
-            except Exception:
-                candidates = []
-            yield source, candidates
+    record_source_fetch_logs(conn, [log for _, _, log in results])
+    for source, candidates, _ in results:
+        yield source, candidates
 
 
-def _fetch_source_candidates(source: Source, timeout_seconds: int) -> list[CandidateItem]:
+def _fetch_source_candidates(source: Source, timeout_seconds: int) -> tuple[list[CandidateItem], SourceFetchLog]:
     try:
-        return fetch_source(source, USER_AGENT, timeout_seconds)
-    except Exception:
-        return []
+        candidates = fetch_source(source, USER_AGENT, timeout_seconds)
+        return candidates, successful_source_fetch_log("fde-jobs", source, len(candidates))
+    except Exception as exc:
+        return [], failed_source_fetch_log("fde-jobs", source, exc)
 
 
 def _crawled_at(current: datetime | None) -> str:

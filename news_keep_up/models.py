@@ -179,3 +179,31 @@ class SourceEvaluation:
     score: int
     verdict: str
     reason: str
+
+
+@dataclass(frozen=True)
+class SourceFetchLog:
+    slot: str
+    source_name: str
+    source_url: str
+    source_kind: str
+    status: str
+    item_count: int
+    error_type: str = ""
+    error_message: str = ""
+    fetched_at: str = ""
+
+
+@dataclass(frozen=True)
+class SourceFetchHealth:
+    source_name: str
+    source_url: str
+    source_kind: str
+    total_runs: int
+    ok_runs: int
+    failed_runs: int
+    empty_runs: int
+    total_items: int
+    last_status: str
+    last_error: str
+    last_fetched_at: str

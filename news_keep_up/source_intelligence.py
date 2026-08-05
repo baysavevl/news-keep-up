@@ -11,11 +11,13 @@ from .db import (
     connect_database,
     init_db,
     record_source_evaluation,
+    record_source_fetch_logs,
     row_value,
     upsert_source,
     upsert_source_candidate,
 )
-from .models import CandidateItem, Settings, Source, SourceCandidate, SourceEvaluation
+from .models import CandidateItem, Settings, Source, SourceCandidate, SourceEvaluation, SourceFetchLog
+from .source_health import failed_source_fetch_log, successful_source_fetch_log
 from .sources import fetch_source
 from .utils import ICT, canonicalize_url, fingerprint_text, now_ict
 
@@ -76,7 +78,7 @@ def run_fde_job_source_intelligence(
 
         source_candidates: list[SourceCandidate] = []
         active_urls = {canonicalize_url(source.url) for source in active_sources}
-        for source, candidates in _fetch_candidates(discovery_sources, settings):
+        for source, candidates in _fetch_candidates(discovery_sources, settings, conn):
             for candidate in candidates:
                 if not is_source_candidate(candidate):
                     continue
@@ -227,33 +229,40 @@ def _guess_source_type(url: str) -> str:
     return "aggregator"
 
 
-def _fetch_candidates(sources: list[Source], settings: Settings) -> Iterable[tuple[Source, list[CandidateItem]]]:
+def _fetch_candidates(sources: list[Source], settings: Settings, conn) -> Iterable[tuple[Source, list[CandidateItem]]]:
     timeout_seconds = max(1, settings.source_fetch_timeout_seconds)
     max_workers = max(1, min(settings.max_source_workers, len(sources) or 1))
+    results: list[tuple[Source, list[CandidateItem], SourceFetchLog]] = []
     if max_workers == 1:
         for source in sources:
-            yield source, _fetch_source_candidates(source, timeout_seconds)
-        return
+            candidates, log = _fetch_source_candidates(source, timeout_seconds)
+            results.append((source, candidates, log))
+    else:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_fetch_source_candidates, source, timeout_seconds): source
+                for source in sources
+            }
+            for future in as_completed(futures):
+                source = futures[future]
+                try:
+                    candidates, log = future.result()
+                except Exception as exc:
+                    candidates = []
+                    log = failed_source_fetch_log("fde-job-sources", source, exc)
+                results.append((source, candidates, log))
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(_fetch_source_candidates, source, timeout_seconds): source
-            for source in sources
-        }
-        for future in as_completed(futures):
-            source = futures[future]
-            try:
-                candidates = future.result()
-            except Exception:
-                candidates = []
-            yield source, candidates
+    record_source_fetch_logs(conn, [log for _, _, log in results])
+    for source, candidates, _ in results:
+        yield source, candidates
 
 
-def _fetch_source_candidates(source: Source, timeout_seconds: int) -> list[CandidateItem]:
+def _fetch_source_candidates(source: Source, timeout_seconds: int) -> tuple[list[CandidateItem], SourceFetchLog]:
     try:
-        return fetch_source(source, USER_AGENT, timeout_seconds)
-    except Exception:
-        return []
+        candidates = fetch_source(source, USER_AGENT, timeout_seconds)
+        return candidates, successful_source_fetch_log("fde-job-sources", source, len(candidates))
+    except Exception as exc:
+        return [], failed_source_fetch_log("fde-job-sources", source, exc)
 
 
 def _date_key(current: datetime | None) -> str:

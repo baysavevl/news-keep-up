@@ -1,0 +1,16 @@
+[Unit]
+Description=News Keep Up scheduler worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/news-keep-up
+EnvironmentFile=/etc/news-keep-up.env
+ExecStart=/opt/news-keep-up/.venv/bin/python -m news_keep_up.main scheduler-worker --interval-seconds 60 --lookback-minutes 180
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

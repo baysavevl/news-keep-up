@@ -8,11 +8,12 @@ from news_keep_up.db import (
     connect_database,
     get_profile_setting,
     init_db,
+    record_source_fetch_log,
     upsert_enrichment,
     upsert_item,
     upsert_job_opportunity,
 )
-from news_keep_up.models import CandidateItem, Enrichment, JobOpportunity, Settings
+from news_keep_up.models import CandidateItem, Enrichment, JobOpportunity, Settings, SourceFetchLog
 from news_keep_up.telegram_commands import handle_telegram_update
 
 
@@ -121,6 +122,64 @@ class TelegramCommandsTest(unittest.TestCase):
 
         sent_text = send.call_args.args[0]
         self.assertIn("twice daily at 08:00 and 14:00", sent_text)
+
+    def test_sources_command_reports_recent_failing_sources(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            record_source_fetch_log(conn, SourceFetchLog(
+                slot="fde-jobs",
+                source_name="Blocked Upwork",
+                source_url="https://www.upwork.com/nx/search/jobs/?q=fde",
+                source_kind="html",
+                status="failed",
+                item_count=0,
+                error_type="HTTPError",
+                error_message="HTTP Error 403: Forbidden",
+                fetched_at="2026-08-04T08:00:00+07:00",
+            ))
+            conn.close()
+
+            with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+                handle_telegram_update(
+                    update("/sources"),
+                    slot="fde-jobs",
+                    sources_path="config/fde_job_sources.json",
+                    settings=settings,
+                )
+
+        sent_text = send.call_args.args[0]
+        self.assertIn("Problem sources", sent_text)
+        self.assertIn("Blocked Upwork", sent_text)
+        self.assertIn("failed=1", sent_text)
+
+    def test_fde_jobs_force_command_sends_alert_run_and_replies_summary(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+
+        with (
+            patch(
+                "news_keep_up.telegram_commands.run_fde_job_alerts",
+                return_value="<b>FDE Job Alert</b>\n<b>Forward Deployed Engineer</b>",
+            ) as run_jobs,
+            patch("news_keep_up.telegram_commands.send_telegram_message") as send,
+        ):
+            result = handle_telegram_update(
+                update("/force"),
+                slot="fde-jobs",
+                sources_path="config/fde_job_sources.json",
+                settings=settings,
+            )
+
+        self.assertEqual(result["command"], "force")
+        self.assertFalse(run_jobs.call_args.kwargs["dry_run"])
+        self.assertTrue(run_jobs.call_args.kwargs["force"])
+        self.assertIn("Force run complete", send.call_args.args[0])
+        self.assertIn("sent 1 alert", send.call_args.args[0])
 
     def test_search_command_returns_recent_stored_news(self):
         with tempfile.TemporaryDirectory() as tmp:

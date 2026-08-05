@@ -5,7 +5,13 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
-from news_keep_up.db import connect_database, init_db, upsert_item, upsert_job_opportunity
+from news_keep_up.db import (
+    connect_database,
+    init_db,
+    job_alert_was_delivered,
+    upsert_item,
+    upsert_job_opportunity,
+)
 from news_keep_up.job_alerts import (
     _candidate_matches_source_filters,
     _new_job_candidates,
@@ -13,6 +19,7 @@ from news_keep_up.job_alerts import (
     is_fde_job_candidate,
     is_workable_from_vietnam_candidate,
     is_workable_from_vietnam_opportunity,
+    probe_fde_job_sources,
     run_fde_job_alerts,
 )
 from news_keep_up.models import CandidateItem, JobOpportunity, Settings, Source
@@ -126,6 +133,21 @@ class JobAlertsTest(unittest.TestCase):
         self.assertTrue(is_fde_job_candidate(candidate))
         self.assertTrue(is_workable_from_vietnam_candidate(candidate))
 
+    def test_prefilter_accepts_remote_ai_engineering_candidate(self):
+        candidate = CandidateItem(
+            source_name="AIJobs.net Remote AI Jobs",
+            source_kind="html",
+            source_category="remote-job-board",
+            title="Senior Machine Learning Engineer, APAC",
+            url="https://aijobs.net/job/senior-machine-learning-engineer-apac-remote-262983/",
+            canonical_url="https://aijobs.net/job/senior-machine-learning-engineer-apac-remote-262983/",
+            summary="Remote APAC role building LLM and generative AI workflows for enterprise users.",
+            raw={"source_type": "job_board", "location": "Remote APAC", "remote_policy": "Remote"},
+        )
+
+        self.assertTrue(is_fde_job_candidate(candidate))
+        self.assertTrue(is_workable_from_vietnam_candidate(candidate))
+
     def test_source_filters_require_configured_url_match(self):
         source = Source(
             "Bing Upwork FDE AI Deployment",
@@ -195,6 +217,20 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertFalse(is_workable_from_vietnam_candidate(candidate))
 
+    def test_vietnam_workability_filter_rejects_non_apac_remote_country_scope(self):
+        candidate = CandidateItem(
+            source_name="Jobicy Python Remote Jobs",
+            source_kind="json",
+            source_category="remote-job-board",
+            title="Python & React Engineer with AI",
+            url="https://jobicy.com/jobs/142967-python-react-engineer-with-ai-remote-latam",
+            canonical_url="https://jobicy.com/jobs/142967-python-react-engineer-with-ai-remote-latam",
+            summary="Remote AI product engineering role.",
+            raw={"source_type": "job_board", "location": "LATAM, Brazil, Portugal, Sweden", "remote_policy": "Remote"},
+        )
+
+        self.assertFalse(is_workable_from_vietnam_candidate(candidate))
+
     def test_vietnam_workability_filter_accepts_vietnam_and_remote_apac(self):
         vietnam = CandidateItem(
             source_name="Wonderful Careers",
@@ -219,6 +255,20 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertTrue(is_workable_from_vietnam_candidate(vietnam))
         self.assertTrue(is_workable_from_vietnam_candidate(remote_apac))
+
+    def test_vietnam_workability_filter_accepts_remote_apac_even_with_emea_scope(self):
+        candidate = CandidateItem(
+            source_name="Jobicy Python Remote Jobs",
+            source_kind="json",
+            source_category="remote-job-board",
+            title="AI Solutions Engineer, APAC",
+            url="https://jobicy.com/jobs/150123-ai-solutions-engineer-apac",
+            canonical_url="https://jobicy.com/jobs/150123-ai-solutions-engineer-apac",
+            summary="Remote customer-facing GenAI implementation work.",
+            raw={"source_type": "job_board", "location": "APAC, EMEA", "remote_policy": "Remote"},
+        )
+
+        self.assertTrue(is_workable_from_vietnam_candidate(candidate))
 
     def test_vietnam_workability_filter_rejects_part_time_roles(self):
         part_time = CandidateItem(
@@ -602,6 +652,123 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertEqual(message, "")
         send.assert_not_called()
+
+    def test_run_fde_job_alerts_records_failed_source_fetches(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text(json.dumps([{
+                "name": "Blocked Upwork",
+                "type": "html",
+                "url": "https://www.upwork.com/nx/search/jobs/?q=fde",
+                "category": "freelance-job-board",
+                "enabled": True,
+            }]), encoding="utf-8")
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                max_source_workers=1,
+                source_fetch_timeout_seconds=1,
+            )
+
+            with patch("news_keep_up.job_alerts.fetch_source", side_effect=TimeoutError("timed out")):
+                run_fde_job_alerts(settings, dry_run=True, sources_path=sources_path)
+
+            conn = connect_database(settings)
+            row = conn.execute(
+                """SELECT slot, source_name, status, item_count, error_type, error_message
+                   FROM source_fetch_logs
+                   WHERE source_name=?""",
+                ("Blocked Upwork",),
+            ).fetchone()
+            conn.close()
+
+        self.assertEqual(row["slot"], "fde-jobs")
+        self.assertEqual(row["status"], "failed")
+        self.assertEqual(row["item_count"], 0)
+        self.assertEqual(row["error_type"], "TimeoutError")
+        self.assertIn("timed out", row["error_message"])
+
+    def test_run_fde_job_alerts_force_sends_pending_alert_outside_window(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text("[]", encoding="utf-8")
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_job_candidate())
+            opportunity = make_opportunity(item_id)
+            upsert_job_opportunity(conn, opportunity)
+            conn.close()
+            outside_window = datetime(2026, 8, 4, 23, 45, tzinfo=ICT)
+
+            with patch("news_keep_up.job_alerts.send_telegram_message") as send:
+                message = run_fde_job_alerts(
+                    settings,
+                    dry_run=False,
+                    sources_path=sources_path,
+                    send_window_current=outside_window,
+                    force=True,
+                )
+
+            conn = connect_database(settings)
+            delivered = job_alert_was_delivered(conn, opportunity.id, opportunity.alert_fingerprint)
+            conn.close()
+
+        self.assertIn("<b>FDE Job Alert</b>", message)
+        send.assert_called_once()
+        self.assertTrue(delivered)
+
+    def test_probe_fde_job_sources_logs_fetch_health_without_classifying(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text(json.dumps([
+                {
+                    "name": "Remote AI Board",
+                    "type": "html",
+                    "url": "https://example.com/jobs",
+                    "category": "remote-job-board",
+                    "source_type": "job_board",
+                    "text_include_any": ["forward deployed", "ai deployment"],
+                    "enabled": True,
+                },
+                {
+                    "name": "Blocked Board",
+                    "type": "html",
+                    "url": "https://blocked.example.com/jobs",
+                    "category": "remote-job-board",
+                    "source_type": "job_board",
+                    "enabled": True,
+                },
+            ]), encoding="utf-8")
+            settings = Settings(db_path=Path(tmp) / "test.db", max_source_workers=1)
+            candidate = make_job_candidate()
+            candidate = CandidateItem(**{
+                **candidate.__dict__,
+                "source_name": "Remote AI Board",
+                "source_category": "remote-job-board",
+            })
+
+            with patch("news_keep_up.job_alerts.fetch_source", side_effect=[[candidate], TimeoutError("blocked")]):
+                summary = probe_fde_job_sources(settings, sources_path=sources_path)
+
+            conn = connect_database(settings)
+            failed = conn.execute(
+                "SELECT status, error_type FROM source_fetch_logs WHERE source_name=?",
+                ("Blocked Board",),
+            ).fetchone()
+            opportunities = conn.execute("SELECT COUNT(*) AS count FROM job_opportunities").fetchone()
+            conn.close()
+
+        self.assertEqual(summary["sources"], 2)
+        self.assertEqual(summary["fetched_items"], 1)
+        self.assertEqual(summary["fde_candidates"], 1)
+        self.assertEqual(summary["workable_candidates"], 1)
+        self.assertEqual(failed["status"], "failed")
+        self.assertEqual(failed["error_type"], "TimeoutError")
+        self.assertEqual(opportunities["count"], 0)
 
 
 if __name__ == "__main__":

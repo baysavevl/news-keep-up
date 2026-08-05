@@ -23,10 +23,11 @@ class VercelDeployConfigTest(unittest.TestCase):
     def test_python_runtime_is_pinned_to_github_actions_version(self):
         self.assertEqual(Path(".python-version").read_text(encoding="utf-8").strip(), "3.12")
 
-    def test_github_actions_triggers_fallback_scheduler_tick_from_7_to_22_ict(self):
+    def test_github_actions_scheduler_tick_is_manual_fallback_only(self):
         workflow = Path(".github/workflows/digest.yml").read_text(encoding="utf-8")
 
-        self.assertIn('cron: "0,15,35 0-15 * * *"', workflow)
+        self.assertNotIn("schedule:", workflow)
+        self.assertNotIn("cron:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("concurrency:", workflow)
         self.assertIn("https://news-keep-up.vercel.app/api/scheduler/tick", workflow)
@@ -158,6 +159,27 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertEqual(run_jobs.call_args.args[0].telegram_bot_token, "token")
         self.assertEqual(run_jobs.call_args.kwargs["sources_path"], "config/fde_job_sources.json")
         run_digest.assert_not_called()
+
+    def test_fde_jobs_endpoint_passes_force_query_to_job_alert_flow(self):
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import app
+
+        with (
+            patch.dict("os.environ", {
+                "CRON_SECRET": "test-secret",
+                "TELEGRAM_BOT_TOKEN": "token",
+                "FDE_JOBS_TELEGRAM_CHAT_ID": "-100999",
+            }, clear=False),
+            patch("news_keep_up.vercel_app.load_settings", return_value=Settings()),
+            patch("news_keep_up.vercel_app.run_fde_job_alerts", return_value="job alert") as run_jobs,
+        ):
+            response = app.test_client().get(
+                "/api/digest/fde-jobs?force=true",
+                headers={"Authorization": "Bearer test-secret"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(run_jobs.call_args.kwargs["force"])
 
     def test_fde_job_sources_endpoint_runs_without_telegram_delivery(self):
         from news_keep_up.models import Settings

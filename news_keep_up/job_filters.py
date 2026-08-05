@@ -23,6 +23,15 @@ REMOTE_SCOPE_TERMS = (
     "anywhere",
 )
 
+REMOTE_REGION_TERMS = (
+    "apac",
+    "apj",
+    "asia",
+    "southeast asia",
+    "south east asia",
+    "asean",
+)
+
 NON_VIETNAM_LOCATION_TERMS = (
     "united states",
     "usa",
@@ -130,6 +139,13 @@ def _is_workable_from_vietnam(
     if any(term in combined for term in NON_FULL_TIME_TERMS):
         return False
 
+    has_remote_or_hybrid = "remote" in remote_text or "hybrid" in remote_text
+    if has_remote_or_hybrid and (
+        any(term in remote_text for term in REMOTE_SCOPE_TERMS)
+        or any(term in remote_text for term in REMOTE_REGION_TERMS)
+    ):
+        return True
+
     if vietnam_eligibility == "explicit_yes":
         return True
     if location_has_non_vietnam_scope or combined_has_non_vietnam_remote_scope:
@@ -137,7 +153,6 @@ def _is_workable_from_vietnam(
     if any(term in combined for term in VIETNAM_TERMS):
         return True
 
-    has_remote_or_hybrid = "remote" in remote_text or "hybrid" in remote_text
     if not has_remote_or_hybrid:
         return False
 

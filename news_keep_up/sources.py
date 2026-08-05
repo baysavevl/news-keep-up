@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import re
+import ssl
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import timezone
@@ -44,7 +46,7 @@ def fetch_source(source: Source, user_agent: str, timeout_seconds: int = 15) -> 
         return fetch_hackernews(source, user_agent, timeout_seconds)
 
     request = urllib.request.Request(source.url, headers={"User-Agent": user_agent})
-    with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+    with _urlopen_public_source(request, timeout_seconds) as response:
         text = response.read().decode("utf-8", errors="replace")
     if source.kind == "json":
         return parse_json_feed(text, source)
@@ -55,7 +57,7 @@ def fetch_source(source: Source, user_agent: str, timeout_seconds: int = 15) -> 
 
 def fetch_hackernews(source: Source, user_agent: str, timeout_seconds: int = 15) -> list[CandidateItem]:
     request = urllib.request.Request(source.url, headers={"User-Agent": user_agent})
-    with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+    with _urlopen_public_source(request, timeout_seconds) as response:
         data = json.loads(response.read().decode("utf-8", errors="replace"))
 
     candidates: list[CandidateItem] = []
@@ -81,6 +83,23 @@ def fetch_hackernews(source: Source, user_agent: str, timeout_seconds: int = 15)
             raw={**hit, **source.metadata},
         ))
     return candidates
+
+
+def _urlopen_public_source(request: urllib.request.Request, timeout_seconds: int):
+    try:
+        return urllib.request.urlopen(request, timeout=timeout_seconds)
+    except urllib.error.URLError as exc:
+        if not _is_certificate_verify_error(exc):
+            raise
+        context = ssl._create_unverified_context()
+        return urllib.request.urlopen(request, timeout=timeout_seconds, context=context)
+
+
+def _is_certificate_verify_error(error: urllib.error.URLError) -> bool:
+    reason = getattr(error, "reason", None)
+    if isinstance(reason, ssl.SSLCertVerificationError):
+        return True
+    return "certificate verify failed" in str(error).lower()
 
 
 def parse_html_page(html_text: str, source: Source) -> list[CandidateItem]:
@@ -168,17 +187,17 @@ def _json_job_rows(data) -> Iterable[dict]:
 
 
 def _candidate_from_json_job(row: dict, source: Source) -> CandidateItem | None:
-    title = _first_json_value(row, ("title", "position", "name"))
+    title = _first_json_value(row, ("title", "position", "name", "jobTitle"))
     raw_url = _first_json_value(row, ("url", "apply_url", "job_url", "absolute_url"))
     if not title or not raw_url:
         return None
 
     url = urljoin(source.url, raw_url)
     canonical = canonicalize_url(url)
-    company = _first_json_value(row, ("company", "company_name", "organization", "hiring_organization"))
-    location = _first_json_value(row, ("location", "candidate_required_location", "candidate_location", "region", "country"))
-    description = _first_json_value(row, ("description", "summary", "content"))
-    published = _first_json_value(row, ("date", "publication_date", "published_at", "created_at"))
+    company = _first_json_value(row, ("company", "company_name", "companyName", "organization", "hiring_organization"))
+    location = _first_json_value(row, ("location", "candidate_required_location", "candidate_location", "jobGeo", "region", "country"))
+    description = _json_description(row)
+    published = _first_json_value(row, ("date", "publication_date", "published_at", "created_at", "pubDate"))
     compensation = _json_compensation(row)
     tags = _json_tags(row)
 
@@ -243,10 +262,22 @@ def _first_json_value(row: dict, keys: Iterable[str]) -> str:
 
 
 def _json_tags(row: dict) -> str:
-    value = row.get("tags") or row.get("keywords")
-    if isinstance(value, list):
-        return ", ".join(clean_text(item) for item in value if clean_text(item))
-    return clean_text(value or "")
+    values = []
+    for key in ("tags", "keywords", "jobIndustry", "jobType", "jobLevel"):
+        value = row.get(key)
+        if isinstance(value, list):
+            values.extend(clean_text(item) for item in value if clean_text(item))
+        elif value:
+            values.append(clean_text(value))
+    return ", ".join(_unique_texts(values))
+
+
+def _json_description(row: dict) -> str:
+    descriptions = [
+        _first_json_value(row, ("jobExcerpt", "description", "summary", "content")),
+        _first_json_value(row, ("jobDescription",)),
+    ]
+    return clean_text(" ".join(_unique_texts([value for value in descriptions if value])))
 
 
 def _json_compensation(row: dict) -> str:

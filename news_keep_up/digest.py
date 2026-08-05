@@ -14,6 +14,7 @@ from .db import (
     get_enrichment,
     init_db,
     mark_delivered,
+    record_source_fetch_logs,
     record_llm_usage,
     row_value,
     upsert_enrichment,
@@ -21,8 +22,9 @@ from .db import (
     upsert_source,
 )
 from .gemini import GeminiClient, fallback_enrichment
-from .models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings, Source
+from .models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings, Source, SourceFetchLog
 from .prefilter import is_candidate_relevant_for_slot
+from .source_health import failed_source_fetch_log, successful_source_fetch_log
 from .sources import fetch_source
 from .telegram import send_telegram_message
 from .utils import ICT, now_ict
@@ -873,7 +875,7 @@ def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources: list[S
     for source in sources:
         upsert_source(conn, source)
 
-    for source, candidates in _fetch_candidates(sources, settings):
+    for source, candidates in _fetch_candidates(sources, settings, slot, conn):
         for candidate in candidates:
             if not is_candidate_relevant_for_slot(candidate, slot):
                 continue
@@ -897,30 +899,49 @@ def _fetch_store_and_enrich(conn, settings: Settings, slot: str, sources: list[S
     return current_item_ids
 
 
-def _fetch_candidates(sources: list[Source], settings: Settings) -> Iterable[tuple[Source, list[CandidateItem]]]:
+def _fetch_candidates(
+    sources: list[Source],
+    settings: Settings,
+    slot: str,
+    conn,
+) -> Iterable[tuple[Source, list[CandidateItem]]]:
     timeout_seconds = max(1, settings.source_fetch_timeout_seconds)
     max_workers = max(1, min(settings.max_source_workers, len(sources) or 1))
+    results: list[tuple[Source, list[CandidateItem], SourceFetchLog]] = []
     if max_workers == 1:
         for source in sources:
-            try:
-                candidates = fetch_source(source, USER_AGENT, timeout_seconds)[:settings.max_candidates_per_source]
-            except Exception:
-                candidates = []
-            yield source, candidates
-        return
+            candidates, log = _fetch_source_candidates(source, timeout_seconds, slot)
+            results.append((source, candidates[:settings.max_candidates_per_source], log))
+    else:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_fetch_source_candidates, source, timeout_seconds, slot): source
+                for source in sources
+            }
+            for future in as_completed(futures):
+                source = futures[future]
+                try:
+                    candidates, log = future.result()
+                except Exception as exc:
+                    candidates = []
+                    log = failed_source_fetch_log(slot, source, exc)
+                results.append((source, candidates[:settings.max_candidates_per_source], log))
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(fetch_source, source, USER_AGENT, timeout_seconds): source
-            for source in sources
-        }
-        for future in as_completed(futures):
-            source = futures[future]
-            try:
-                candidates = future.result()[:settings.max_candidates_per_source]
-            except Exception:
-                candidates = []
-            yield source, candidates
+    record_source_fetch_logs(conn, [log for _, _, log in results])
+    for source, candidates, _ in results:
+        yield source, candidates
+
+
+def _fetch_source_candidates(
+    source: Source,
+    timeout_seconds: int,
+    slot: str,
+) -> tuple[list[CandidateItem], SourceFetchLog]:
+    try:
+        candidates = fetch_source(source, USER_AGENT, timeout_seconds)
+        return candidates, successful_source_fetch_log(slot, source, len(candidates))
+    except Exception as exc:
+        return [], failed_source_fetch_log(slot, source, exc)
 
 
 def _should_refresh_enrichment(settings: Settings, enrichment: Enrichment) -> bool:

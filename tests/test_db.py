@@ -17,7 +17,10 @@ from news_keep_up.db import (
     mark_job_alert_delivered,
     mark_delivered,
     record_source_evaluation,
+    record_source_fetch_log,
+    record_source_fetch_logs,
     record_llm_usage,
+    list_source_fetch_health,
     upsert_enrichment,
     upsert_item,
     upsert_job_opportunity,
@@ -25,7 +28,16 @@ from news_keep_up.db import (
     upsert_source_candidate,
     upsert_source,
 )
-from news_keep_up.models import CandidateItem, Enrichment, JobOpportunity, SourceCandidate, SourceEvaluation, Settings, Source
+from news_keep_up.models import (
+    CandidateItem,
+    Enrichment,
+    JobOpportunity,
+    SourceCandidate,
+    SourceEvaluation,
+    SourceFetchLog,
+    Settings,
+    Source,
+)
 
 
 def make_item(title: str = "AI agents for engineers") -> CandidateItem:
@@ -321,6 +333,97 @@ class DatabaseTest(unittest.TestCase):
             ).fetchone()
             self.assertEqual(row["score"], 88)
             self.assertEqual(row["verdict"], "keep")
+
+    def test_source_fetch_health_ranks_failed_and_empty_sources(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+
+            record_source_fetch_log(conn, SourceFetchLog(
+                slot="fde-jobs",
+                source_name="Upwork Direct Search",
+                source_url="https://www.upwork.com/nx/search/jobs/?q=fde",
+                source_kind="html",
+                status="failed",
+                item_count=0,
+                error_type="HTTPError",
+                error_message="HTTP Error 403: Forbidden",
+                fetched_at="2026-08-04T08:00:00+07:00",
+            ))
+            record_source_fetch_log(conn, SourceFetchLog(
+                slot="fde-jobs",
+                source_name="Upwork Direct Search",
+                source_url="https://www.upwork.com/nx/search/jobs/?q=fde",
+                source_kind="html",
+                status="failed",
+                item_count=0,
+                error_type="HTTPError",
+                error_message="HTTP Error 403: Forbidden",
+                fetched_at="2026-08-04T08:30:00+07:00",
+            ))
+            record_source_fetch_log(conn, SourceFetchLog(
+                slot="fde-jobs",
+                source_name="Bing FDE Vietnam",
+                source_url="https://www.bing.com/search?q=fde&format=rss",
+                source_kind="rss",
+                status="ok",
+                item_count=0,
+                fetched_at="2026-08-04T08:30:00+07:00",
+            ))
+            record_source_fetch_log(conn, SourceFetchLog(
+                slot="fde-jobs",
+                source_name="FWDDeploy Remote Jobs",
+                source_url="https://www.fwddeploy.com/jobs",
+                source_kind="html",
+                status="ok",
+                item_count=7,
+                fetched_at="2026-08-04T08:30:00+07:00",
+            ))
+
+            health = list_source_fetch_health(
+                conn,
+                slot="fde-jobs",
+                since="2026-08-03T00:00:00+07:00",
+                limit=3,
+            )
+
+        self.assertEqual(health[0].source_name, "Upwork Direct Search")
+        self.assertEqual(health[0].failed_runs, 2)
+        self.assertEqual(health[0].last_status, "failed")
+        self.assertIn("403", health[0].last_error)
+        self.assertEqual(health[1].source_name, "Bing FDE Vietnam")
+        self.assertEqual(health[1].empty_runs, 1)
+
+    def test_source_fetch_logs_can_be_recorded_in_batch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+
+            record_source_fetch_logs(conn, [
+                SourceFetchLog(
+                    slot="fde-jobs",
+                    source_name="RemoteOK AI API Jobs",
+                    source_url="https://remoteok.com/api?tags=ai",
+                    source_kind="json",
+                    status="ok",
+                    item_count=12,
+                    fetched_at="2026-08-04T08:00:00+07:00",
+                ),
+                SourceFetchLog(
+                    slot="fde-jobs",
+                    source_name="AIJobs.net Remote AI Jobs",
+                    source_url="https://aijobs.net/?prefill_remote=1",
+                    source_kind="html",
+                    status="ok",
+                    item_count=0,
+                    fetched_at="2026-08-04T08:00:00+07:00",
+                ),
+            ])
+
+            health = list_source_fetch_health(conn, slot="fde-jobs", limit=2)
+
+        self.assertEqual(len(health), 2)
+        self.assertEqual(sum(row.total_runs for row in health), 2)
 
 
 if __name__ == "__main__":

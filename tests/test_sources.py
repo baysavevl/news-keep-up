@@ -1,5 +1,7 @@
 import unittest
 import json
+import ssl
+import urllib.error
 from collections import Counter
 from unittest.mock import patch
 from pathlib import Path
@@ -44,6 +46,32 @@ class SourcesTest(unittest.TestCase):
         self.assertEqual(items[0].raw["location"], "Worldwide")
         self.assertEqual(items[0].raw["remote_policy"], "Remote")
 
+    def test_fetch_source_retries_public_source_with_unverified_ssl_on_cert_error(self):
+        source = Source("Example Feed", "rss", "https://example.com/feed.xml", "ai-engineering")
+        payload = """<?xml version="1.0"?>
+        <rss version="2.0"><channel>
+          <item>
+            <title>AI deployment job</title>
+            <link>https://example.com/jobs/ai-deployment</link>
+          </item>
+        </channel></rss>
+        """
+        cert_error = ssl.SSLCertVerificationError("certificate verify failed")
+
+        with patch(
+            "urllib.request.urlopen",
+            side_effect=[
+                urllib.error.URLError(cert_error),
+                _FakeResponse(payload),
+            ],
+        ) as urlopen:
+            items = fetch_source(source, "test-agent", timeout_seconds=1)
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].title, "AI deployment job")
+        self.assertEqual(urlopen.call_count, 2)
+        self.assertIn("context", urlopen.call_args.kwargs)
+
     def test_parse_json_feed_extracts_remotive_jobs(self):
         source = Source(
             "Remotive Software Development API Jobs",
@@ -74,6 +102,44 @@ class SourcesTest(unittest.TestCase):
         self.assertIn("Lamatic", items[0].summary)
         self.assertIn("$80k - $130k", items[0].summary)
         self.assertEqual(items[0].published_at, "2026-07-29T02:00:00")
+
+    def test_parse_json_feed_extracts_jobicy_jobs(self):
+        source = Source(
+            "Jobicy Python Remote Jobs",
+            "json",
+            "https://jobicy.com/api/v2/remote-jobs?count=50&tag=python",
+            "remote-job-board",
+            metadata={"source_type": "job_board"},
+        )
+        payload = json.dumps({
+            "jobs": [
+                {
+                    "jobTitle": "AI Solutions Engineer, APAC",
+                    "companyName": "Acme AI",
+                    "url": "https://jobicy.com/jobs/150123-ai-solutions-engineer-apac",
+                    "jobGeo": "APAC, EMEA",
+                    "jobType": ["Full-Time"],
+                    "jobIndustry": ["Software Engineering"],
+                    "jobLevel": "Senior",
+                    "jobExcerpt": "Remote customer-facing GenAI implementation work.",
+                    "jobDescription": "<p>Deploy OpenAI, LLM, and RAG workflows with enterprise customers.</p>",
+                    "pubDate": "2026-08-03T10:21:24+00:00",
+                }
+            ],
+        })
+
+        items = parse_json_feed(payload, source)
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].title, "AI Solutions Engineer, APAC")
+        self.assertIn("Company: Acme AI", items[0].summary)
+        self.assertIn("Location: APAC, EMEA", items[0].summary)
+        self.assertIn("Tags: Software Engineering", items[0].summary)
+        self.assertIn("Deploy OpenAI, LLM, and RAG workflows", items[0].summary)
+        self.assertEqual(items[0].raw["company"], "Acme AI")
+        self.assertEqual(items[0].raw["location"], "APAC, EMEA")
+        self.assertEqual(items[0].raw["remote_policy"], "Remote")
+        self.assertEqual(items[0].published_at, "2026-08-03T10:21:24+00:00")
 
     def test_parse_rss_items_to_candidates(self):
         source = Source("Example Feed", "rss", "https://example.com/feed", "ai-engineering")

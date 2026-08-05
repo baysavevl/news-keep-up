@@ -7,6 +7,7 @@ from .config import load_sources
 from .db import (
     connect_database,
     init_db,
+    list_source_fetch_health,
     mark_delivered,
     row_value,
     search_job_opportunities,
@@ -51,6 +52,7 @@ COMMAND_ALIASES = {
     "focus": "focus",
     "interview": "interview",
     "prep": "interview",
+    "force": "force",
     "markread": "markread",
     "read": "markread",
     "skip": "markread",
@@ -106,13 +108,15 @@ def handle_telegram_update(
     elif command == "analyze":
         response = _analysis_text(settings, slot, args)
     elif command == "sources":
-        response = _sources_text(sources_path)
+        response = _sources_text(sources_path, settings=settings, slot=slot)
     elif command == "status":
         response = _status_text(settings, slot, sources_path)
     elif command == "focus":
         response = _focus_text(slot)
     elif command == "interview":
         response = _interview_text(settings, slot)
+    elif command == "force":
+        response = _force_text(settings, slot, sources_path)
     elif command == "markread":
         response = _markread_text(settings, slot, args)
     else:
@@ -138,6 +142,7 @@ def _help_text(slot: str) -> str:
         return "\n".join([
             "<b>FDE jobs bot commands</b>",
             "/latest - scan now and preview pending job alerts",
+            "/force - scan now and send pending alerts even outside the normal window",
             "/jobs keyword - search stored FDE opportunities",
             "/jobs - show latest stored Vietnam-workable opportunities",
             "/open - show latest stored Vietnam-workable opportunities",
@@ -229,13 +234,33 @@ def _focus_text(slot: str) -> str:
     ])
 
 
-def _sources_text(sources_path: str) -> str:
+def _sources_text(sources_path: str, settings: Settings | None = None, slot: str = "") -> str:
     sources = load_sources(sources_path)
     categories = Counter(source.category for source in sources)
     lines = [f"<b>Sources</b>: {len(sources)} enabled"]
     for category, count in sorted(categories.items(), key=lambda item: (-item[1], item[0]))[:10]:
         lines.append(f"• {escape(category)}: {count}")
+    if settings is not None:
+        problem_sources = _problem_source_health(settings, slot)
+        if problem_sources:
+            lines.extend(["", "<b>Problem sources</b>"])
+            for row in problem_sources[:5]:
+                suffix = f" · {escape(row.last_error)}" if row.last_error else ""
+                lines.append(
+                    f"• {escape(row.source_name)}: failed={row.failed_runs} "
+                    f"empty={row.empty_runs} items={row.total_items} last={escape(row.last_status)}{suffix}"
+                )
     return "\n".join(lines)
+
+
+def _problem_source_health(settings: Settings, slot: str):
+    conn = connect_database(settings)
+    init_db(conn)
+    try:
+        health = list_source_fetch_health(conn, slot=slot, limit=10)
+    finally:
+        conn.close()
+    return [row for row in health if row.failed_runs or row.empty_runs]
 
 
 def _status_text(settings: Settings, slot: str, sources_path: str) -> str:
@@ -383,6 +408,22 @@ def _interview_text(settings: Settings, slot: str) -> str:
     if slot != "fde":
         return "FDE interview guidelines are available in the FDE group."
     return run_fde_interview_guideline(settings, dry_run=True)
+
+
+def _force_text(settings: Settings, slot: str, sources_path: str) -> str:
+    if slot != "fde-jobs":
+        return "Force run is only enabled for the FDE jobs flow."
+    message = run_fde_job_alerts(
+        settings,
+        dry_run=False,
+        sources_path=sources_path,
+        force=True,
+    )
+    alert_count = message.count("<b>FDE Job Alert</b>")
+    if alert_count:
+        noun = "alert" if alert_count == 1 else "alerts"
+        return f"Force run complete: sent {alert_count} {noun}."
+    return "Force run complete: no pending FDE job alerts."
 
 
 def _markread_text(settings: Settings, slot: str, query: str) -> str:

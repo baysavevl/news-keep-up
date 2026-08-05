@@ -6,7 +6,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from .models import CandidateItem, Enrichment, JobOpportunity, Settings, Source, SourceCandidate, SourceEvaluation
+from .models import (
+    CandidateItem,
+    Enrichment,
+    JobOpportunity,
+    Settings,
+    Source,
+    SourceCandidate,
+    SourceEvaluation,
+    SourceFetchHealth,
+    SourceFetchLog,
+)
 
 
 def row_value(row, key: str, index: int):
@@ -205,6 +215,23 @@ def init_db(conn) -> None:
         )""",
         """CREATE UNIQUE INDEX IF NOT EXISTS idx_source_evaluations_source_date
            ON source_evaluations(source_url, evaluation_date)""",
+        """CREATE TABLE IF NOT EXISTS source_fetch_logs (
+            id INTEGER PRIMARY KEY,
+            slot TEXT NOT NULL,
+            source_name TEXT NOT NULL,
+            source_url TEXT NOT NULL,
+            source_kind TEXT NOT NULL,
+            status TEXT NOT NULL,
+            item_count INTEGER NOT NULL,
+            error_type TEXT DEFAULT '',
+            error_message TEXT DEFAULT '',
+            fetched_at TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )""",
+        """CREATE INDEX IF NOT EXISTS idx_source_fetch_logs_slot_time
+           ON source_fetch_logs(slot, fetched_at)""",
+        """CREATE INDEX IF NOT EXISTS idx_source_fetch_logs_source_time
+           ON source_fetch_logs(source_url, fetched_at)""",
     ]
     for statement in statements:
         conn.execute(statement)
@@ -805,6 +832,107 @@ def record_source_evaluation(conn, evaluation: SourceEvaluation) -> None:
         ),
     )
     conn.commit()
+
+
+def record_source_fetch_log(conn, log: SourceFetchLog) -> None:
+    record_source_fetch_logs(conn, [log])
+
+
+def record_source_fetch_logs(conn, logs: list[SourceFetchLog]) -> None:
+    if not logs:
+        return
+    conn.executemany(
+        """INSERT INTO source_fetch_logs (
+               slot, source_name, source_url, source_kind, status, item_count,
+               error_type, error_message, fetched_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        [
+            (
+                log.slot,
+                log.source_name,
+                log.source_url,
+                log.source_kind,
+                log.status,
+                int(log.item_count),
+                log.error_type[:120],
+                log.error_message[:500],
+                log.fetched_at,
+            )
+            for log in logs
+        ],
+    )
+    conn.commit()
+
+
+def list_source_fetch_health(
+    conn,
+    slot: str = "",
+    since: str = "",
+    limit: int = 10,
+) -> list[SourceFetchHealth]:
+    conditions: list[str] = []
+    params: list[object] = []
+    if slot:
+        conditions.append("slot=?")
+        params.append(slot)
+    if since:
+        conditions.append("fetched_at >= ?")
+        params.append(since)
+    where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    rows = conn.execute(
+        f"""SELECT source_name, source_url, source_kind,
+                  COUNT(*) AS total_runs,
+                  SUM(CASE WHEN status='ok' THEN 1 ELSE 0 END) AS ok_runs,
+                  SUM(CASE WHEN status='failed' THEN 1 ELSE 0 END) AS failed_runs,
+                  SUM(CASE WHEN status='ok' AND item_count=0 THEN 1 ELSE 0 END) AS empty_runs,
+                  SUM(item_count) AS total_items,
+                  MAX(fetched_at) AS last_fetched_at
+           FROM source_fetch_logs
+           {where}
+           GROUP BY source_url
+           ORDER BY failed_runs DESC, empty_runs DESC, total_items ASC, last_fetched_at DESC
+           LIMIT ?""",
+        (*params, max(1, limit)),
+    ).fetchall()
+
+    health: list[SourceFetchHealth] = []
+    for row in rows:
+        source_url = str(row_value(row, "source_url", 1))
+        last_row = _last_source_fetch_log(conn, source_url, slot=slot)
+        last_status = str(row_value(last_row, "status", 0)) if last_row else ""
+        last_error_type = str(row_value(last_row, "error_type", 1) or "") if last_row else ""
+        last_error_message = str(row_value(last_row, "error_message", 2) or "") if last_row else ""
+        last_error = ": ".join(part for part in (last_error_type, last_error_message) if part)
+        health.append(SourceFetchHealth(
+            source_name=str(row_value(row, "source_name", 0)),
+            source_url=source_url,
+            source_kind=str(row_value(row, "source_kind", 2)),
+            total_runs=int(row_value(row, "total_runs", 3) or 0),
+            ok_runs=int(row_value(row, "ok_runs", 4) or 0),
+            failed_runs=int(row_value(row, "failed_runs", 5) or 0),
+            empty_runs=int(row_value(row, "empty_runs", 6) or 0),
+            total_items=int(row_value(row, "total_items", 7) or 0),
+            last_status=last_status,
+            last_error=last_error,
+            last_fetched_at=str(row_value(row, "last_fetched_at", 8) or ""),
+        ))
+    return health
+
+
+def _last_source_fetch_log(conn, source_url: str, slot: str = ""):
+    conditions = ["source_url=?"]
+    params: list[object] = [source_url]
+    if slot:
+        conditions.append("slot=?")
+        params.append(slot)
+    return conn.execute(
+        f"""SELECT status, error_type, error_message
+            FROM source_fetch_logs
+            WHERE {' AND '.join(conditions)}
+            ORDER BY fetched_at DESC, id DESC
+            LIMIT 1""",
+        tuple(params),
+    ).fetchone()
 
 
 def claim_scheduler_run(
