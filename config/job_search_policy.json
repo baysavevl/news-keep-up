@@ -1,0 +1,304 @@
+{
+  "version": 1,
+  "base_location": "Ho Chi Minh City, Vietnam",
+  "decisions": [
+    "APPLY_NOW",
+    "VERIFY_FIRST",
+    "DM_FIRST",
+    "WATCH",
+    "REJECT"
+  ],
+  "source_trust_order": [
+    "official_career_page",
+    "ATS",
+    "LinkedIn_job",
+    "LinkedIn_post",
+    "company_blog",
+    "job_board",
+    "community",
+    "aggregator"
+  ],
+  "seniority": {
+    "accept_terms": [
+      "mid-level",
+      "mid level",
+      "senior",
+      "sr.",
+      "staff",
+      "lead"
+    ],
+    "reject_terms": [
+      "intern",
+      "internship",
+      "graduate",
+      "entry-level",
+      "entry level",
+      "junior",
+      "manager",
+      "director",
+      "head of",
+      "vice president",
+      "vp ",
+      "chief "
+    ],
+    "lead_management_terms": [
+      "people manager",
+      "manage a team",
+      "direct reports",
+      "hiring and performance management"
+    ]
+  },
+  "domain_terms": [
+    "ai",
+    "artificial intelligence",
+    "enterprise ai",
+    "generative ai",
+    "genai",
+    "ai agent",
+    "agentic ai",
+    "llm",
+    "rag",
+    "machine learning",
+    "enterprise automation",
+    "workflow automation",
+    "enterprise saas",
+    "b2b saas",
+    "enterprise software",
+    "saas platform",
+    "enterprise platform"
+  ],
+  "location": {
+    "vietnam_terms": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hcmc",
+      "saigon",
+      "hanoi"
+    ],
+    "regional_remote_terms": [
+      "remote apac",
+      "remote asia",
+      "remote southeast asia",
+      "remote south east asia",
+      "remote asean",
+      "global remote",
+      "remote global",
+      "worldwide",
+      "anywhere"
+    ],
+    "relocation_terms": [
+      "relocation",
+      "relocation assistance",
+      "visa sponsorship",
+      "work visa",
+      "sponsor visa",
+      "mobility package"
+    ],
+    "explicit_remote_exclusions": [
+      "remote us",
+      "remote-us",
+      "remote usa",
+      "remote united states",
+      "us only",
+      "united states only",
+      "remote canada",
+      "canada only",
+      "remote emea",
+      "emea only",
+      "remote europe",
+      "europe only"
+    ],
+    "disallowed_employment_terms": [
+      "part-time",
+      "part time",
+      "temporary"
+    ]
+  },
+  "search_noise_terms": [
+    "dictionary",
+    "wikipedia",
+    "cambridge dictionary",
+    "translation",
+    "stock price",
+    "course syllabus"
+  ],
+  "offtopic_title_terms": [
+    "account executive",
+    "sales representative",
+    "marketing manager",
+    "designer",
+    "creative director",
+    "backend engineer",
+    "frontend engineer",
+    "full stack engineer",
+    "devops engineer",
+    "site reliability engineer",
+    "mobile engineer",
+    "data engineer",
+    "qa engineer"
+  ],
+  "hidden_hiring_terms": [
+    "we are hiring",
+    "we're hiring",
+    "hiring",
+    "join our team",
+    "dm me",
+    "reach out",
+    "building the team",
+    "expanding our team"
+  ],
+  "role_families": [
+    {
+      "id": "forward_deployed_engineering",
+      "label": "Forward Deployed Engineering",
+      "priority": 1,
+      "title_aliases": [
+        "forward deployed engineer",
+        "forward-deployed engineer",
+        "forward deployment engineer",
+        "deployed engineer",
+        "deployment strategist",
+        "ai deployment engineer",
+        "fde"
+      ],
+      "technical_signals": [
+        "customer deployment",
+        "implementation",
+        "integration",
+        "production rollout",
+        "solution design",
+        "technical discovery",
+        "api"
+      ],
+      "negative_signals": [
+        "forward deployed designer",
+        "creative ads"
+      ],
+      "requires_technical_evidence": false
+    },
+    {
+      "id": "solutions_engineering_architecture",
+      "label": "Solutions Engineering and Architecture",
+      "priority": 2,
+      "title_aliases": [
+        "solution engineer",
+        "solutions engineer",
+        "customer engineer",
+        "field engineer",
+        "solution architect",
+        "solutions architect",
+        "customer success architect",
+        "delivery solutions architect"
+      ],
+      "technical_signals": [
+        "demo",
+        "proof of concept",
+        "poc",
+        "architecture",
+        "system design",
+        "api",
+        "integration",
+        "troubleshooting",
+        "technical discovery",
+        "implementation",
+        "deployment"
+      ],
+      "negative_signals": [
+        "cold calling",
+        "pipeline generation",
+        "customer service only"
+      ],
+      "requires_technical_evidence": false
+    },
+    {
+      "id": "ai_consulting",
+      "label": "AI Consulting",
+      "priority": 3,
+      "title_aliases": [
+        "ai consultant",
+        "genai consultant",
+        "technical consultant",
+        "implementation consultant",
+        "ai implementation specialist",
+        "ai automation specialist",
+        "freelance"
+      ],
+      "technical_signals": [
+        "ai implementation",
+        "workflow design",
+        "llm",
+        "rag",
+        "ai agent",
+        "architecture",
+        "integration",
+        "productionize",
+        "build",
+        "implement"
+      ],
+      "negative_signals": [
+        "strategy only",
+        "management consulting",
+        "market research"
+      ],
+      "requires_technical_evidence": true
+    },
+    {
+      "id": "technical_presales",
+      "label": "Technical Presales",
+      "priority": 4,
+      "title_aliases": [
+        "presales engineer",
+        "pre-sales engineer",
+        "sales engineer",
+        "solutions consultant",
+        "solution consultant"
+      ],
+      "technical_signals": [
+        "demo",
+        "proof of concept",
+        "poc",
+        "solutioning",
+        "technical discovery",
+        "api",
+        "integration",
+        "architecture",
+        "security review"
+      ],
+      "negative_signals": [
+        "cold calling",
+        "prospecting",
+        "quota carrying",
+        "pipeline ownership",
+        "renewals"
+      ],
+      "requires_technical_evidence": true
+    },
+    {
+      "id": "technical_account_management",
+      "label": "Technical Account Management",
+      "priority": 5,
+      "title_aliases": [
+        "technical account manager",
+        "technical success manager",
+        "customer success engineer"
+      ],
+      "technical_signals": [
+        "technical adoption",
+        "troubleshooting",
+        "architecture",
+        "api",
+        "integration",
+        "incident escalation",
+        "implementation guidance"
+      ],
+      "negative_signals": [
+        "renewals",
+        "upsell",
+        "relationship management",
+        "quota carrying"
+      ],
+      "requires_technical_evidence": true
+    }
+  ]
+}
