@@ -3,7 +3,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from news_keep_up.job_search_policy import evaluate_job_text, load_job_search_policy
+from news_keep_up.job_search_policy import (
+    evaluate_job_text,
+    load_job_search_policy,
+    policy_prompt_fragment,
+)
 
 
 class JobSearchPolicyTest(unittest.TestCase):
@@ -119,6 +123,33 @@ class JobSearchPolicyTest(unittest.TestCase):
             ).reject_reason,
             "offtopic-title",
         )
+
+    def test_standalone_prompt_matches_policy_and_has_no_template_tokens(self):
+        policy = load_job_search_policy()
+        prompt = Path("docs/prompts/tech-job-headhunter-master-prompt.md").read_text(
+            encoding="utf-8"
+        )
+
+        for family in policy.role_families:
+            self.assertIn(family.label, prompt)
+        for decision in policy.decisions:
+            self.assertIn(decision, prompt)
+        self.assertIn("enterprise SaaS", prompt)
+        self.assertIn("không yêu cầu CV", prompt)
+        self.assertIn("LinkedIn Posts", prompt)
+        self.assertIn("official ATS", prompt)
+        self.assertNotIn("{{", prompt)
+        self.assertNotIn("}}", prompt)
+
+    def test_policy_prompt_fragment_is_compact_and_complete(self):
+        fragment = policy_prompt_fragment()
+
+        self.assertIn("Forward Deployed Engineering", fragment)
+        self.assertIn("Technical Account Management", fragment)
+        self.assertIn("APPLY_NOW", fragment)
+        self.assertIn("REJECT", fragment)
+        self.assertIn("enterprise saas", fragment.lower())
+        self.assertLess(len(fragment), 6500)
 
 
 if __name__ == "__main__":

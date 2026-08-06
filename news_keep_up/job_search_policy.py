@@ -196,6 +196,37 @@ def domain_terms(policy: JobSearchPolicy | None = None) -> tuple[str, ...]:
     return (policy or load_job_search_policy()).domain_terms
 
 
+def policy_prompt_fragment(policy: JobSearchPolicy | None = None) -> str:
+    active = policy or load_job_search_policy()
+    role_lines = []
+    for family in active.role_families:
+        role_lines.append(
+            f"{family.priority}. {family.label}; "
+            f"titles={', '.join(family.title_aliases)}; "
+            f"technical evidence={', '.join(family.technical_signals)}; "
+            f"negative signals={', '.join(family.negative_signals)}; "
+            "technical evidence required="
+            f"{str(family.requires_technical_evidence).lower()}"
+        )
+    return "\n".join(
+        [
+            f"Base location: {active.base_location}.",
+            "No CV matching. Alert every valid opportunity.",
+            "Role families:",
+            *role_lines,
+            f"Accepted domains: {', '.join(active.domain_terms)}.",
+            f"Accepted seniority: {', '.join(active.seniority_accept_terms)}.",
+            f"Rejected seniority: {', '.join(active.seniority_reject_terms)}.",
+            "Never assume remote/APAC/SEA/global accepts Vietnam.",
+            "Unknown but not explicitly incompatible evidence maps to VERIFY_FIRST.",
+            f"Decisions: {', '.join(active.decisions)}.",
+            "REJECT only for closed/expired, wrong role/domain/seniority, "
+            "insufficient technical scope, or explicit Vietnam incompatibility "
+            "without relocation.",
+        ]
+    )
+
+
 def evaluate_job_text(
     title: str,
     body: str,
