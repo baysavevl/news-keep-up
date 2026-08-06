@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
+
+from .models import CandidateItem
 
 
 DEFAULT_JOB_SEARCH_POLICY_PATH = Path("config/job_search_policy.json")
@@ -39,6 +42,23 @@ class JobSearchPolicy:
     offtopic_title_terms: tuple[str, ...]
     hidden_hiring_terms: tuple[str, ...]
     role_families: tuple[RoleFamilyPolicy, ...]
+
+
+@dataclass(frozen=True)
+class JobPolicyMatch:
+    role_family_id: str = ""
+    role_family_label: str = ""
+    role_priority: int = 999
+    technical_evidence: tuple[str, ...] = ()
+    negative_evidence: tuple[str, ...] = ()
+    domain_evidence: tuple[str, ...] = ()
+    seniority: str = "unknown"
+    hidden_hiring: bool = False
+    reject_reason: str = ""
+
+    @property
+    def is_eligible(self) -> bool:
+        return not self.reject_reason and bool(self.role_family_id)
 
 
 def _strings(value: object, field: str) -> tuple[str, ...]:
@@ -174,3 +194,122 @@ def role_terms(policy: JobSearchPolicy | None = None) -> tuple[str, ...]:
 
 def domain_terms(policy: JobSearchPolicy | None = None) -> tuple[str, ...]:
     return (policy or load_job_search_policy()).domain_terms
+
+
+def evaluate_job_text(
+    title: str,
+    body: str,
+    policy: JobSearchPolicy | None = None,
+) -> JobPolicyMatch:
+    active = policy or load_job_search_policy()
+    normalized_title = _normalize(title)
+    combined = _normalize(f"{title} {body}")
+
+    if _matches_any(combined, active.search_noise_terms):
+        return JobPolicyMatch(reject_reason="search-noise")
+    if _matches_any(normalized_title, active.offtopic_title_terms):
+        return JobPolicyMatch(reject_reason="offtopic-title")
+    if _matches_any(combined, active.disallowed_employment_terms):
+        return JobPolicyMatch(reject_reason="disallowed-employment")
+
+    family = _matching_family(normalized_title, combined, active)
+    if family is None:
+        return JobPolicyMatch(reject_reason="outside-role-scope")
+
+    rejected_seniority = _matching_terms(
+        normalized_title, active.seniority_reject_terms
+    )
+    tam_manager_exception = (
+        family.id == "technical_account_management"
+        and set(rejected_seniority).issubset({"manager"})
+    )
+    if rejected_seniority and not tam_manager_exception:
+        return JobPolicyMatch(reject_reason="disallowed-seniority")
+    if family.id == "technical_account_management" and _matches_any(
+        combined, active.lead_management_terms
+    ):
+        return JobPolicyMatch(reject_reason="disallowed-seniority")
+    if "lead" in normalized_title and _matches_any(
+        combined, active.lead_management_terms
+    ):
+        return JobPolicyMatch(reject_reason="management-lead")
+
+    domains = _matching_terms(combined, active.domain_terms)
+    if not domains:
+        return JobPolicyMatch(reject_reason="outside-domain-scope")
+
+    technical = _matching_terms(combined, family.technical_signals)
+    negative = _matching_terms(combined, family.negative_signals)
+    if (family.requires_technical_evidence or negative) and not technical:
+        return JobPolicyMatch(reject_reason="insufficient-technical-evidence")
+
+    seniority = next(
+        (
+            term
+            for term in active.seniority_accept_terms
+            if _has_term(normalized_title, term)
+        ),
+        "unknown",
+    )
+    return JobPolicyMatch(
+        role_family_id=family.id,
+        role_family_label=family.label,
+        role_priority=family.priority,
+        technical_evidence=technical,
+        negative_evidence=negative,
+        domain_evidence=domains,
+        seniority=seniority,
+        hidden_hiring=_matches_any(combined, active.hidden_hiring_terms),
+    )
+
+
+def evaluate_job_candidate(
+    candidate: CandidateItem,
+    policy: JobSearchPolicy | None = None,
+) -> JobPolicyMatch:
+    raw = candidate.raw if isinstance(candidate.raw, dict) else {}
+    body = " ".join(
+        [
+            candidate.summary,
+            candidate.content,
+            candidate.author,
+            candidate.source_category,
+            str(raw.get("company") or ""),
+            str(raw.get("location") or ""),
+            str(raw.get("remote_policy") or ""),
+        ]
+    )
+    return evaluate_job_text(candidate.title, body, policy)
+
+
+def _normalize(value: str) -> str:
+    return " ".join(str(value or "").lower().split())
+
+
+def _has_term(text: str, term: str) -> bool:
+    normalized = _normalize(term)
+    if normalized.isalnum() and len(normalized) <= 3:
+        return re.search(rf"\b{re.escape(normalized)}\b", text) is not None
+    return normalized in text
+
+
+def _matches_any(text: str, terms: tuple[str, ...]) -> bool:
+    return any(_has_term(text, term) for term in terms)
+
+
+def _matching_terms(text: str, terms: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(term for term in terms if _has_term(text, term))
+
+
+def _matching_family(
+    normalized_title: str,
+    combined: str,
+    policy: JobSearchPolicy,
+) -> RoleFamilyPolicy | None:
+    for family in policy.role_families:
+        if _matches_any(normalized_title, family.title_aliases):
+            return family
+    for family in policy.role_families:
+        if _matches_any(combined, family.title_aliases):
+            return family
+    return None

@@ -17,10 +17,15 @@ from news_keep_up.job_alerts import (
     _new_job_candidates,
     format_job_alert,
     is_fde_job_candidate,
+    is_target_job_candidate,
     is_workable_from_vietnam_candidate,
     is_workable_from_vietnam_opportunity,
     probe_fde_job_sources,
     run_fde_job_alerts,
+)
+from news_keep_up.job_filters import (
+    vietnam_workability_for_candidate,
+    vietnam_workability_for_opportunity,
 )
 from news_keep_up.models import CandidateItem, JobOpportunity, Settings, Source
 from news_keep_up.utils import ICT
@@ -168,7 +173,7 @@ class JobAlertsTest(unittest.TestCase):
             source_name="AIJobs.net Remote AI Jobs",
             source_kind="html",
             source_category="remote-job-board",
-            title="Senior Machine Learning Engineer, APAC",
+            title="Senior AI Solutions Engineer, APAC",
             url="https://aijobs.net/job/senior-machine-learning-engineer-apac-remote-262983/",
             canonical_url="https://aijobs.net/job/senior-machine-learning-engineer-apac-remote-262983/",
             summary="Remote APAC role building LLM and generative AI workflows for enterprise users.",
@@ -177,6 +182,34 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertTrue(is_fde_job_candidate(candidate))
         self.assertTrue(is_workable_from_vietnam_candidate(candidate))
+
+    def test_workability_accepts_unknown_as_verify_and_apac_relocation(self):
+        unknown = CandidateItem(
+            source_name="Company Careers",
+            source_kind="html",
+            source_category="job-board",
+            title="Senior Solutions Engineer",
+            url="https://example.com/jobs/se",
+            canonical_url="https://example.com/jobs/se",
+            summary="Enterprise SaaS architecture and API integration.",
+        )
+        relocation = CandidateItem(
+            source_name="Company Careers",
+            source_kind="html",
+            source_category="job-board",
+            title="Staff Solution Architect",
+            url="https://example.com/jobs/sa-singapore",
+            canonical_url="https://example.com/jobs/sa-singapore",
+            summary="Onsite Singapore with visa sponsorship and relocation assistance.",
+            raw={"location": "Singapore", "remote_policy": "Onsite"},
+        )
+
+        self.assertEqual(vietnam_workability_for_candidate(unknown), "verify")
+        self.assertEqual(
+            vietnam_workability_for_candidate(relocation), "likely_possible"
+        )
+        self.assertTrue(is_workable_from_vietnam_candidate(unknown))
+        self.assertTrue(is_workable_from_vietnam_candidate(relocation))
 
     def test_source_filters_require_configured_url_match(self):
         source = Source(
@@ -286,7 +319,7 @@ class JobAlertsTest(unittest.TestCase):
         self.assertTrue(is_workable_from_vietnam_candidate(vietnam))
         self.assertTrue(is_workable_from_vietnam_candidate(remote_apac))
 
-    def test_vietnam_workability_filter_accepts_remote_apac_even_with_emea_scope(self):
+    def test_vietnam_workability_filter_rejects_explicit_emea_scope(self):
         candidate = CandidateItem(
             source_name="Jobicy Python Remote Jobs",
             source_kind="json",
@@ -298,7 +331,7 @@ class JobAlertsTest(unittest.TestCase):
             raw={"source_type": "job_board", "location": "APAC, EMEA", "remote_policy": "Remote"},
         )
 
-        self.assertTrue(is_workable_from_vietnam_candidate(candidate))
+        self.assertFalse(is_workable_from_vietnam_candidate(candidate))
 
     def test_vietnam_workability_filter_rejects_part_time_roles(self):
         part_time = CandidateItem(
@@ -314,7 +347,7 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertFalse(is_workable_from_vietnam_candidate(part_time))
 
-    def test_vietnam_workability_filter_rejects_nontechnical_role_in_summary(self):
+    def test_target_filter_rejects_nontechnical_role_while_location_stays_verify(self):
         designer = CandidateItem(
             source_name="FWDDeploy Remote Jobs",
             source_kind="html",
@@ -326,9 +359,11 @@ class JobAlertsTest(unittest.TestCase):
             raw={"company": "Jobgether", "location": "Remote", "remote_policy": "Remote", "employment_type": "Full-time"},
         )
 
-        self.assertFalse(is_workable_from_vietnam_candidate(designer))
+        self.assertFalse(is_target_job_candidate(designer))
+        self.assertEqual(vietnam_workability_for_candidate(designer), "verify")
+        self.assertTrue(is_workable_from_vietnam_candidate(designer))
 
-    def test_vietnam_workability_filter_rejects_nontechnical_opportunity(self):
+    def test_opportunity_workability_does_not_own_role_scope(self):
         opportunity = make_opportunity(1)
         opportunity = JobOpportunity(
             **{
@@ -343,7 +378,8 @@ class JobAlertsTest(unittest.TestCase):
             }
         )
 
-        self.assertFalse(is_workable_from_vietnam_opportunity(opportunity))
+        self.assertEqual(vietnam_workability_for_opportunity(opportunity), "verify")
+        self.assertTrue(is_workable_from_vietnam_opportunity(opportunity))
 
     def test_vietnam_workability_filter_rejects_remote_us_opportunity_even_if_analysis_mentions_vietnam(self):
         opportunity = make_opportunity(1)
@@ -364,7 +400,7 @@ class JobAlertsTest(unittest.TestCase):
 
         self.assertFalse(is_workable_from_vietnam_opportunity(opportunity))
 
-    def test_vietnam_workability_filter_rejects_unknown_location_opportunity_even_if_analysis_mentions_vietnam(self):
+    def test_vietnam_workability_filter_keeps_unknown_location_for_verification(self):
         opportunity = make_opportunity(1)
         opportunity = JobOpportunity(
             **{
@@ -381,7 +417,8 @@ class JobAlertsTest(unittest.TestCase):
             }
         )
 
-        self.assertFalse(is_workable_from_vietnam_opportunity(opportunity))
+        self.assertEqual(vietnam_workability_for_opportunity(opportunity), "verify")
+        self.assertTrue(is_workable_from_vietnam_opportunity(opportunity))
 
     def test_prefilter_rejects_forward_deployed_designer_roles(self):
         designer = CandidateItem(
@@ -418,7 +455,10 @@ class JobAlertsTest(unittest.TestCase):
                 title="Founding Forward Deployed Engineer",
                 url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
                 canonical_url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
-                summary="Company: Clera. Location: Remote APAC. Employment: Full-time.",
+                summary=(
+                    "Company: Clera. Location: Remote APAC. Employment: Full-time. "
+                    "Enterprise AI customer deployment and API integration."
+                ),
                 fingerprint="same-job",
                 raw={"company": "Clera", "location": "Remote APAC", "remote_policy": "Remote", "source_type": "job_board"},
             )
@@ -429,7 +469,10 @@ class JobAlertsTest(unittest.TestCase):
                 title="Founding Forward Deployed Engineer",
                 url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
                 canonical_url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
-                summary="Company: Clera. Location: Remote APAC. Employment: Full-time.",
+                summary=(
+                    "Company: Clera. Location: Remote APAC. Employment: Full-time. "
+                    "Enterprise AI customer deployment and API integration."
+                ),
                 fingerprint="same-job",
                 raw={"company": "Clera", "location": "Remote APAC", "remote_policy": "Remote", "source_type": "job_board"},
             )

@@ -21,10 +21,10 @@ from .db import (
 )
 from .gemini import GeminiClient
 from .job_filters import (
-    NON_TECHNICAL_ROLE_TERMS,
     is_workable_from_vietnam_candidate,
     is_workable_from_vietnam_opportunity,
 )
+from .job_search_policy import evaluate_job_candidate
 from .models import CandidateItem, JobOpportunity, Settings, Source, SourceFetchLog
 from .scheduler import is_fde_job_alert_send_window
 from .source_health import failed_source_fetch_log, successful_source_fetch_log
@@ -35,154 +35,6 @@ from .utils import ICT, now_ict
 DEFAULT_FDE_JOB_SOURCES_PATH = Path("config/fde_job_sources.json")
 USER_AGENT = "news-keep-up/0.1 (+https://github.com/baysavevl/news-keep-up)"
 JOB_ALERT_BATCH_LIMIT = 3
-
-JOB_TITLE_TERMS = (
-    "forward deployed",
-    "forward-deployed",
-    "forward deployment",
-    "fde",
-    "deployment strategist",
-    "deployed engineer",
-    "ai deployment",
-    "ai field engineer",
-    "ai engineer",
-    "ai architect",
-    "ai consultant",
-    "customer engineer",
-    "customer-facing ai",
-    "applied ai engineer",
-    "machine learning engineer",
-    "ml engineer",
-    "ai solutions engineer",
-    "genai solutions",
-    "technical solutions engineer",
-    "solution architect",
-    "solutions architect",
-    "solution engineer",
-    "solutions engineer",
-    "enterprise solutions engineer",
-    "sales engineer",
-    "presales engineer",
-    "pre-sales engineer",
-    "presales",
-    "pre-sales",
-    "presales consultant",
-    "solutions consultant",
-    "solution consultant",
-    "technical consultant",
-    "technical account manager",
-    "customer success engineer",
-    "customer success architect",
-    "professional services engineer",
-    "professional services consultant",
-    "deployment engineer",
-    "field engineer",
-    "value engineer",
-    "implementation engineer",
-    "integration engineer",
-    "agent ops",
-    "ai agent engineer",
-    "llm engineer",
-    "rag engineer",
-    "delivery solutions architect",
-)
-
-JOB_DOMAIN_TERMS = (
-    "ai agents",
-    "agentic ai",
-    "enterprise ai",
-    "genai",
-    "generative ai",
-    "machine learning",
-    "llm",
-    "rag",
-    "langchain",
-    "langgraph",
-    "llamaindex",
-    "openai",
-    "anthropic",
-    "gemini",
-    "bedrock",
-    "vertex ai",
-    "databricks",
-    "llmops",
-    "ai implementation",
-    "ai deployment",
-    "production ai",
-    "customer deployment",
-    "enterprise integration",
-    "workflow automation",
-    "professional services",
-    "field engineering",
-)
-
-FREELANCE_PROJECT_TERMS = (
-    "agentic ai",
-    "ai agent",
-    "ai agents",
-    "artificial intelligence agent",
-    "generative ai",
-    "genai",
-    "llm",
-    "rag",
-    "openai",
-    "anthropic",
-    "gemini",
-    "langchain",
-    "langgraph",
-    "llamaindex",
-    "ai chatbot",
-    "chatbot",
-    "workflow automation",
-    "ai automation",
-    "ai integration",
-    "machine learning",
-)
-
-FREELANCE_IMPLEMENTATION_TERMS = (
-    "architect",
-    "automation",
-    "build",
-    "chatbot",
-    "contract",
-    "develop",
-    "engineer",
-    "freelance",
-    "implement",
-    "integration",
-    "platform",
-    "project",
-    "specialist",
-    "workflow",
-)
-
-JOB_LOCATION_TERMS = (
-    "ho chi minh",
-    "hcmc",
-    "saigon",
-    "hanoi",
-    "vietnam",
-    "viet nam",
-    "vietnamese",
-    "remote",
-    "apac",
-    "apj",
-    "asia",
-    "southeast asia",
-    "south east asia",
-    "asean",
-    "singapore",
-    "malaysia",
-    "thailand",
-    "indonesia",
-    "philippines",
-    "hong kong",
-    "taiwan",
-    "japan",
-    "korea",
-    "australia",
-    "india",
-)
 
 def run_fde_job_alerts(
     settings: Settings,
@@ -344,7 +196,7 @@ def _new_job_candidates(
         for candidate in candidates:
             if not _candidate_matches_source_filters(source, candidate):
                 continue
-            if not is_fde_job_candidate(candidate):
+            if not is_target_job_candidate(candidate):
                 continue
             if not is_workable_from_vietnam_candidate(candidate):
                 continue
@@ -361,46 +213,12 @@ def _new_job_candidates(
     return sorted(queued, key=lambda pair: _job_candidate_score(pair[1]), reverse=True)[:max(1, settings.max_llm_items_per_run)]
 
 
+def is_target_job_candidate(candidate: CandidateItem) -> bool:
+    return evaluate_job_candidate(candidate).is_eligible
+
+
 def is_fde_job_candidate(candidate: CandidateItem) -> bool:
-    text = " ".join([
-        candidate.title,
-        candidate.summary,
-        candidate.content,
-        candidate.author,
-        candidate.url,
-    ]).lower()
-    if any(term in text for term in NON_TECHNICAL_ROLE_TERMS):
-        return False
-    title_hit = any(term in text for term in JOB_TITLE_TERMS)
-    domain_hit = any(term in text for term in JOB_DOMAIN_TERMS)
-    location_hit = any(term in text for term in JOB_LOCATION_TERMS)
-    hidden_hiring_hit = any(term in text for term in ("hiring", "we are hiring", "dm me", "apply", "career", "job"))
-    if _looks_like_search_noise(text):
-        return False
-    if _is_freelance_project_candidate(candidate, text):
-        return True
-    return title_hit and (domain_hit or location_hit or hidden_hiring_hit)
-
-
-def _is_freelance_project_candidate(candidate: CandidateItem, text: str) -> bool:
-    source_text = " ".join([
-        candidate.source_name,
-        candidate.source_category,
-        candidate.url,
-    ]).lower()
-    if not any(term in source_text for term in (
-        "freelance",
-        "upwork",
-        "freelancer.com",
-        "guru.com",
-        "peopleperhour",
-        "arc.dev",
-        "usebraintrust",
-    )):
-        return False
-    project_hit = any(term in text for term in FREELANCE_PROJECT_TERMS)
-    implementation_hit = any(term in text for term in FREELANCE_IMPLEMENTATION_TERMS)
-    return project_hit and implementation_hit
+    return is_target_job_candidate(candidate)
 
 
 def _candidate_matches_source_filters(source: Source, candidate: CandidateItem) -> bool:
@@ -451,52 +269,18 @@ def _metadata_terms(metadata: dict, key: str) -> list[str]:
 
 
 def _job_candidate_score(candidate: CandidateItem) -> int:
-    text = " ".join([candidate.title, candidate.summary, candidate.content, candidate.url]).lower()
-    score = 0
-    if any(term in text for term in ("forward deployed", "forward-deployed", "forward deployment", "deployment strategist", "deployed engineer")):
-        score += 100
-    if "fde" in text:
-        score += 60
-    # Solution Engineer is the second-priority focus after FDE.
-    if any(term in text for term in ("solution engineer", "solutions engineer", "solution architect", "solutions architect")):
-        score += 45
-    # Broader FDE-adjacent roles (presales/SE/TAM/CS/professional services) rank below the core focus.
-    if any(term in text for term in (
-        "presales", "pre-sales", "sales engineer", "solutions consultant", "solution consultant",
-        "technical account manager", "customer success engineer", "professional services",
-        "implementation engineer", "integration engineer", "customer engineer", "field engineer",
-    )):
-        score += 25
-    # Hybrid tech/product/business scope is a priority signal for these roles.
-    if any(term in text for term in ("product", "business", "go-to-market", "gtm", "stakeholder", "customer-facing", "client-facing")):
-        score += 15
+    match = evaluate_job_candidate(candidate)
+    if not match.is_eligible:
+        return -1000
+    text = " ".join([candidate.title, candidate.summary, candidate.content]).lower()
+    score = 140 - (match.role_priority * 15)
+    score += min(30, len(match.technical_evidence) * 5)
+    score += min(20, len(match.domain_evidence) * 5)
     if any(term in text for term in ("vietnam", "viet nam", "ho chi minh", "hcmc", "hanoi", "vietnamese", "remote vietnam")):
         score += 60
-    # WFH / fully remote is the most desirable arrangement.
-    if any(term in text for term in ("work from home", "wfh", "fully remote", "remote-first", "remote first")):
-        score += 25
-    if any(term in text for term in ("apac", "southeast asia", "asean", "singapore", "malaysia", "philippines", "india", "remote")):
+    elif any(term in text for term in ("apac", "southeast asia", "asean", "remote")):
         score += 30
-    if any(term in text for term in JOB_DOMAIN_TERMS):
-        score += 30
-    if any(term in text for term in ("ashbyhq.com", "greenhouse.io", "lever.co", "workdayjobs.com", "careers", "jobs")):
-        score += 15
-    if _looks_like_search_noise(text):
-        score -= 100
     return score
-
-
-def _looks_like_search_noise(text: str) -> bool:
-    noise_terms = (
-        "dictionary",
-        "cambridge",
-        "wikipedia",
-        "news that matters",
-        "search dictionary",
-        "translation",
-        "stock price",
-    )
-    return any(term in text for term in noise_terms)
 
 
 def _fetch_candidates(
