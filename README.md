@@ -13,10 +13,26 @@ GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
 - `engineer`: general AI/SWE/FDE engineering digest from `config/sources.json`, delivered with `ENGINEER_TELEGRAM_*` env vars.
 - `fde`: Forward Deployed Engineer industry digest from `config/fde_sources.json`, delivered with `FDE_TELEGRAM_*` env vars.
 - `fde-interview`: compact Forward Deployed Engineer interview guideline flow using `FDE_TELEGRAM_*` env vars and `config/fde_interview_sources.json` for source coverage.
-- `fde-jobs`: "Tech Job Alert" flow from `config/fde_job_sources.json`. Forward Deployed Engineer is the primary focus and Solution/Solutions Engineer the second, then broader FDE-adjacent hybrid tech/product/business roles — Solution Architect, (technical) presales / sales engineer, solutions consultant, technical account manager, customer success engineer, implementation/integration/field/customer engineer, and AI deployment/agent/LLM/RAG roles. Ranking prioritizes WFH / fully remote and Vietnam / remote-APAC eligibility. Pure non-technical or quota-carrying sales, and other non-technical roles, are rejected. Scope spans ATS/job boards, freelance boards, LinkedIn hidden-hiring posts, and community forums (Reddit, Hacker News).
+- `fde-jobs`: shared technical-headhunter flow for Forward Deployed Engineering, Solutions Engineering/Architecture, AI Consulting, Technical Presales, and Technical Account Management. It targets Mid through hands-on Lead IC roles in AI and enterprise SaaS, ranks Vietnam-compatible work first, and alerts every qualifying vacancy or hidden-hiring signal without CV matching.
 - `news`, `morning`, and `afternoon` remain as backward-compatible aliases using `TELEGRAM_*` env vars.
 
 Engineer/AI-SWE sources include at least 150 feeds/searches, weighted toward practical AI agents, product workflows, engineering practices, automation, evals, LLMOps, observability, and AI-assisted engineering productivity. FDE news sources include at least 150 feeds/searches around customer rollout, field delivery, enterprise implementation, evals, governance, observability, and production deployment. FDE interview sources include at least 100 feeds/searches around FDE interview loops, customer-facing deployment, agent system design, evals, RAG, voice agents, security, and integration design.
+
+### Technical Job Headhunter Policy
+
+`fde-jobs` reads its machine policy from `config/job_search_policy.json`. The role-family order is Forward Deployed Engineering first, followed by Solutions Engineering and Architecture, AI Consulting, Technical Presales, and Technical Account Management. Accepted scope is Mid, Senior, Staff, and hands-on Lead individual-contributor work across AI/GenAI, agents, LLM/RAG, enterprise automation, and enterprise SaaS.
+
+AI Consulting, Technical Presales, and Technical Account Management require direct technical evidence such as demos, PoCs, architecture, APIs, integration, troubleshooting, implementation, or production deployment. Pure quota, cold-calling, pipeline, renewal, or upsell work without technical scope is rejected.
+
+Every evaluated item maps to one decision:
+
+- `APPLY_NOW`: open role with confirmed technical scope and Vietnam or relocation eligibility.
+- `VERIFY_FIRST`: qualifying role whose location, eligibility, seniority, or status still needs evidence.
+- `DM_FIRST`: credible recruiter, hiring-manager, or team hiring signal worth contacting first.
+- `WATCH`: company/team expansion signal without a concrete vacancy yet.
+- `REJECT`: closed or out-of-scope role, disallowed seniority, insufficient technical scope, or explicit Vietnam incompatibility without relocation.
+
+Unknown eligibility is retained as `VERIFY_FIRST`; only explicit incompatibility is rejected. The flow does not ask for or score against a CV. Every qualifying opportunity is queued, while priority only changes ordering. Each scan sends at most three alerts and leaves the rest pending for later scans. The standalone browsing-agent prompt is available at `docs/prompts/tech-job-headhunter-master-prompt.md`.
 
 ## Message Format
 
@@ -239,3 +255,6 @@ python3 -m unittest discover -s tests -v
 
 - Design spec: `docs/superpowers/specs/2026-07-06-news-keep-up-design.md`
 - Implementation plan: `docs/superpowers/plans/2026-07-06-news-keep-up.md`
+- Technical headhunter design: `docs/superpowers/specs/2026-08-06-tech-job-headhunter-master-prompt-design.md`
+- Technical headhunter implementation plan: `docs/superpowers/plans/2026-08-06-tech-job-headhunter-master-prompt.md`
+- Standalone technical headhunter prompt: `docs/prompts/tech-job-headhunter-master-prompt.md`
