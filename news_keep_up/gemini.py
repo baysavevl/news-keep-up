@@ -7,9 +7,23 @@ import urllib.request
 from dataclasses import replace
 from typing import Mapping
 
-from .job_filters import is_workable_from_vietnam_candidate, is_workable_from_vietnam_opportunity
+from .job_filters import vietnam_workability_for_candidate
+from .job_search_policy import (
+    evaluate_job_candidate,
+    load_job_search_policy,
+    policy_prompt_fragment,
+)
 from .models import CandidateItem, DigestCandidate, Enrichment, JobOpportunity, Settings
-from .utils import clean_text
+from .utils import canonicalize_url, clean_text
+
+
+DECISION_TO_ACTION = {
+    "APPLY_NOW": "apply_now",
+    "VERIFY_FIRST": "verify_first",
+    "DM_FIRST": "dm_first",
+    "WATCH": "watch",
+    "REJECT": "ignore",
+}
 
 
 def build_prompt(item: CandidateItem) -> str:
@@ -153,72 +167,24 @@ def build_job_classification_prompt(
         }
         for item_id, item in candidates
     ], ensure_ascii=False)
+    policy_text = policy_prompt_fragment()
     return (
-        "You classify tech job and hiring-signal candidates for a Ho Chi Minh City, Vietnam based candidate.\n"
-        "Candidate can work Remote Vietnam, Remote APAC/SEA/Asia/global, or consider SEA/APAC relocation/contract/EOR "
-        "only if evidence suggests it may be possible. Do not assume APAC, SEA, Singapore, or remote accepts Vietnam; "
-        "mark vietnam_eligibility=verify unless explicit.\n\n"
-        "Primary focus (rank highest): Forward Deployed Engineer/FDE/Forward Deployment/Deployed Engineer/Deployment "
-        "Strategist, then Solution/Solutions Engineer and Solution/Solutions Architect.\n"
-        "Also relevant (rank below the primary focus): customer-facing/applied AI engineer, AI solutions engineer, GenAI "
-        "solution architect, implementation/integration/field/customer engineer, AI deployment engineer, agent/LLM/RAG "
-        "engineer with enterprise/customer deployment, plus hybrid tech-product-business roles such as (technical) "
-        "presales/sales engineer, solutions consultant, technical account manager, and customer success engineer that "
-        "carry a technical/deployment/solutioning scope.\n"
-        "Prefer roles that blend engineering with product and business/customer work, and prioritize WFH / fully remote "
-        "(especially remote Vietnam / remote APAC/SEA/global) arrangements.\n\n"
-        "Evidence: Hard=explicit Vietnam/HCMC/Hanoi/Remote Vietnam/Vietnam market/Vietnamese/global remote with no conflict. "
-        "Medium=APAC/SEA/Asia/global remote/Singapore regional but Vietnam not explicit. Weak=relevant but eligibility unclear.\n"
-        "Priority: High=Hard + exact/strong adjacent AI deployment role. Medium=strong role but Vietnam eligibility must be verified. "
-        "Low=loose, onsite outside Vietnam, weak/stale. Reject=closed/unrelated/pure non-technical or quota-carrying "
-        "sales with no technical/deployment/solutioning scope/pure research/pure backend.\n"
-        "Set should_alert=true for every non-Reject opportunity, watchlist, expansion, or hiring signal when status is not closed. "
-        "Set should_alert=false only for Reject or closed items.\n"
-        "Use only provided evidence. Do not invent status, eligibility, dates, contacts, apply links, compensation, benefits, "
-        "or company footprint. If company size or regional coverage is not present in the candidate evidence, return an empty string.\n\n"
-        "Return JSON only with this exact shape:\n"
-        "{\n"
-        '  "items": [\n'
-        "    {\n"
-        '      "candidate_id": 123,\n'
-        '      "id": "stable-lowercase-slug",\n'
-        '      "priority": "High|Medium|Low",\n'
-        '      "company": "",\n'
-        '      "role_title": "",\n'
-        '      "category": "Exact FDE Role|FDE-Adjacent Role|Expansion Signal|Hidden Hiring Signal|Watchlist Company|Reject",\n'
-        '      "location": "",\n'
-        '      "remote_policy": "",\n'
-        '      "vietnam_eligibility": "explicit_yes|likely_possible|verify|unlikely|no",\n'
-        '      "evidence_type": "Hard|Medium|Weak",\n'
-        '      "status": "open|likely_open|uncertain|closed|watch",\n'
-        '      "posted_date": "",\n'
-        '      "source_type": "official_career_page|ATS|LinkedIn_job|LinkedIn_post|company_blog|VC_job_board|job_board|social|aggregator",\n'
-        '      "source_url": "",\n'
-        '      "apply_url": "",\n'
-        '      "contact_person": "",\n'
-        '      "contact_url": "",\n'
-        '      "why_it_fits": "",\n'
-        '      "what_to_verify": [],\n'
-        '      "required_seniority": "",\n'
-        '      "required_skills": [],\n'
-        '      "domain": [],\n'
-        '      "country": "",\n'
-        '      "compensation": "",\n'
-        '      "benefits": "",\n'
-        '      "package": "",\n'
-        '      "company_size": "",\n'
-        '      "company_coverage": "",\n'
-        '      "company_expansion_signal": "",\n'
-        '      "linkedin_post_signal": "",\n'
-        '      "recommended_action": "apply_now|dm_recruiter_first|follow_company|set_alert|ignore",\n'
-        '      "outreach_angle": "",\n'
-        '      "confidence_score": 0,\n'
-        '      "should_alert": false\n'
-        "    }\n"
-        "  ]\n"
-        "}\n\n"
-        f"Crawled at: {crawled_at}\n"
-        f"Candidates:\n{items_json}"
+        "You classify technical job and hidden-hiring candidates.\n"
+        f"{policy_text}\n"
+        "Use only supplied evidence. Empty unknown fields and add them to "
+        "what_to_verify.\n"
+        "Return JSON only. Each item must include candidate_id, id, decision, "
+        "priority, company, role_family, role_title, category, location, "
+        "remote_policy, vietnam_eligibility, evidence_type, status, posted_date, "
+        "source_type, source_url, apply_url, contact_person, contact_url, "
+        "technical_evidence, why_it_fits, what_to_verify, required_seniority, "
+        "required_skills, domain, country, compensation, benefits, package, "
+        "company_size, company_coverage, company_expansion_signal, "
+        "linkedin_post_signal, recommended_action, outreach_angle, "
+        "confidence_score, and should_alert.\n"
+        "Use Hard|Medium|Weak for application evidence_type. should_alert=false "
+        "only for REJECT or closed; true otherwise.\n\n"
+        f"Crawled at: {crawled_at}\nCandidates:\n{items_json}"
     )
 
 
@@ -302,12 +268,62 @@ def parse_job_classification_response(
         if candidate is None:
             continue
         opportunity = _job_opportunity_from_row(row, candidate_id, candidate, crawled_at)
-        if opportunity.category == "Reject":
-            continue
-        if not is_workable_from_vietnam_opportunity(opportunity):
-            continue
-        opportunities.append(opportunity)
+        validated = validate_job_opportunity(opportunity, candidate)
+        if validated is not None:
+            opportunities.append(validated)
     return opportunities
+
+
+def validate_job_opportunity(
+    opportunity: JobOpportunity,
+    candidate: CandidateItem,
+) -> JobOpportunity | None:
+    match = evaluate_job_candidate(candidate)
+    if not match.is_eligible or opportunity.status == "closed":
+        return None
+
+    source_workability = vietnam_workability_for_candidate(candidate)
+    if source_workability == "no":
+        return None
+
+    action = opportunity.recommended_action
+    eligibility = opportunity.vietnam_eligibility
+    evidence_type = opportunity.evidence_type
+    if action == "ignore":
+        action = (
+            "apply_now"
+            if source_workability == "explicit_yes"
+            else "verify_first"
+        )
+    if source_workability == "verify":
+        eligibility = "verify"
+        evidence_type = "Weak"
+        if action == "apply_now":
+            action = "verify_first"
+    elif source_workability == "likely_possible" and eligibility == "explicit_yes":
+        eligibility = "likely_possible"
+        evidence_type = "Medium"
+        if action == "apply_now":
+            action = "verify_first"
+
+    technical = ", ".join(match.technical_evidence) or (
+        "role title and customer-delivery scope"
+    )
+    why = opportunity.why_it_fits.strip()
+    if not why.lower().startswith("technical evidence:"):
+        why = f"Technical evidence: {technical}. {why}".strip()
+
+    return replace(
+        opportunity,
+        category=match.role_family_label,
+        required_seniority=opportunity.required_seniority or match.seniority,
+        domain=list(match.domain_evidence) or opportunity.domain,
+        vietnam_eligibility=eligibility,
+        evidence_type=evidence_type,
+        recommended_action=action,
+        why_it_fits=why,
+        should_alert=True,
+    )
 
 
 def fallback_enrichment(item: CandidateItem, reason: str = "fallback") -> Enrichment:
@@ -325,133 +341,75 @@ def fallback_enrichment(item: CandidateItem, reason: str = "fallback") -> Enrich
     )
 
 
-# Exact FDE title signals (highest-priority category in fallback mode).
-_FALLBACK_EXACT_FDE_TITLE_SIGNALS = (
-    "forward deployed",
-    "forward-deployed",
-    "forward deployment",
-    "fde",
-    "deployment strategist",
-    "deployed engineer",
-)
-
-# Role-title signals that qualify an item as FDE or FDE-adjacent in fallback mode.
-_FALLBACK_ROLE_TITLE_SIGNALS = _FALLBACK_EXACT_FDE_TITLE_SIGNALS + (
-    "solution engineer",
-    "solutions engineer",
-    "solution architect",
-    "solutions architect",
-    "sales engineer",
-    "presales",
-    "pre-sales",
-    "solutions consultant",
-    "solution consultant",
-    "technical account manager",
-    "customer success engineer",
-    "professional services",
-    "implementation engineer",
-    "integration engineer",
-    "customer engineer",
-    "field engineer",
-    "applied ai engineer",
-    "ai solutions",
-    "ai deployment",
-    "deployment engineer",
-)
-
-# Off-topic engineering titles that are not FDE-adjacent; rejected in fallback mode
-# unless the title also carries an explicit role signal above.
-_FALLBACK_OFFTOPIC_TITLE_TERMS = (
-    "devops",
-    "site reliability",
-    "sre",
-    "backend engineer",
-    "back-end engineer",
-    "back end engineer",
-    "frontend engineer",
-    "front-end engineer",
-    "front end engineer",
-    "full-stack",
-    "full stack",
-    "fullstack",
-    "mobile engineer",
-    "ios engineer",
-    "android engineer",
-    "data engineer",
-    "qa engineer",
-    "test engineer",
-    "security engineer",
-    "network engineer",
-    "database engineer",
-    "react",
-    "angular",
-    "vue",
-    "node.js developer",
-    "php developer",
-    "java developer",
-    ".net developer",
-    "golang developer",
-    "wordpress",
-    "game developer",
-    "embedded",
-)
-
-
-def _fallback_job_category(role_title: str, text: str) -> str:
-    lowered_title = role_title.lower()
-    if any(signal in lowered_title for signal in _FALLBACK_EXACT_FDE_TITLE_SIGNALS):
-        return "Exact FDE Role"
-    if any(signal in lowered_title for signal in _FALLBACK_ROLE_TITLE_SIGNALS):
-        return "FDE-Adjacent Role"
-    if any(signal in text for signal in _FALLBACK_ROLE_TITLE_SIGNALS):
-        return "Hidden Hiring Signal"
-    return "Watchlist Company"
-
-
 def fallback_job_opportunities(
     candidates: list[tuple[int, CandidateItem]],
     crawled_at: str,
 ) -> list[JobOpportunity]:
     opportunities: list[JobOpportunity] = []
     for item_id, candidate in candidates:
+        match = evaluate_job_candidate(candidate)
+        if not match.is_eligible:
+            continue
+        workability = vietnam_workability_for_candidate(candidate)
+        if workability == "no":
+            continue
         text = f"{candidate.title} {candidate.summary} {candidate.content}".lower()
-        if not _has_fde_job_signal(text):
-            continue
-        if not is_workable_from_vietnam_candidate(candidate):
-            continue
         company = _candidate_metadata(candidate, "company") or _company_from_source_name(candidate.source_name)
         role_title = _candidate_metadata(candidate, "role_title") or candidate.title
-        role_lower = role_title.lower()
-        title_has_role_signal = any(signal in role_lower for signal in _FALLBACK_ROLE_TITLE_SIGNALS)
-        # Drop clearly off-topic engineering roles (DevOps, backend, full-stack, ...)
-        # unless the title itself names an FDE/solution/presales role.
-        if not title_has_role_signal and any(term in role_lower for term in _FALLBACK_OFFTOPIC_TITLE_TERMS):
-            continue
         location = _candidate_metadata(candidate, "location") or _fallback_location(candidate)
         remote_policy = _candidate_metadata(candidate, "remote_policy") or ("Remote" if "remote" in f"{location} {text}".lower() else "")
         source_type = _source_type_hint(candidate)
+        expansion_only = any(
+            term in f"{candidate.title} {candidate.summary}".lower()
+            for term in (
+                "expanding our team",
+                "building the team",
+                "no exact open role",
+            )
+        )
+        if expansion_only:
+            action = "watch"
+        elif match.hidden_hiring and source_type == "LinkedIn_post":
+            action = "dm_first"
+        else:
+            action = "apply_now" if workability == "explicit_yes" else "verify_first"
         status = "likely_open" if source_type in {"ATS", "official_career_page", "job_board"} else "uncertain"
-        confidence = 72 if _candidate_metadata(candidate, "company") and location else 60
         row = {
             "candidate_id": item_id,
             "id": "",
-            "priority": _fallback_job_priority(location, text),
+            "priority": {"apply_now": "High", "watch": "Low"}.get(
+                action, "Medium"
+            ),
             "company": company,
             "role_title": role_title,
-            "category": _fallback_job_category(role_title, text),
+            "role_family": match.role_family_label,
+            "category": match.role_family_label,
             "location": location,
             "remote_policy": remote_policy,
-            "vietnam_eligibility": "verify",
-            "evidence_type": "Medium",
-            "status": status,
+            "vietnam_eligibility": workability,
+            "evidence_type": "Hard" if workability == "explicit_yes" else "Medium",
+            "status": "watch" if action == "watch" else status,
             "posted_date": candidate.published_at,
             "source_type": source_type,
             "source_url": candidate.url,
             "apply_url": candidate.url,
-            "why_it_fits": _fallback_job_analysis(company, role_title, location, remote_policy, candidate),
+            "technical_evidence": list(match.technical_evidence),
+            "why_it_fits": (
+                "Technical evidence: "
+                f"{', '.join(match.technical_evidence) or 'customer-delivery role scope'}. "
+                f"Role family: {match.role_family_label}."
+            ),
             "what_to_verify": _fallback_job_verify_items(location, remote_policy),
-            "recommended_action": "set_alert",
-            "confidence_score": confidence,
+            "required_seniority": match.seniority,
+            "domain": list(match.domain_evidence),
+            "decision": {
+                "apply_now": "APPLY_NOW",
+                "verify_first": "VERIFY_FIRST",
+                "dm_first": "DM_FIRST",
+                "watch": "WATCH",
+            }[action],
+            "recommended_action": action,
+            "confidence_score": 72 if action == "apply_now" else 60,
             "country": _candidate_metadata(candidate, "country") or _country_from_location(location),
             "compensation": _candidate_metadata(candidate, "compensation"),
             "benefits": _candidate_metadata(candidate, "benefits"),
@@ -459,7 +417,10 @@ def fallback_job_opportunities(
             "company_size": _candidate_metadata(candidate, "company_size"),
             "company_coverage": _candidate_metadata(candidate, "company_coverage"),
         }
-        opportunities.append(_job_opportunity_from_row(row, item_id, candidate, crawled_at))
+        opportunity = _job_opportunity_from_row(row, item_id, candidate, crawled_at)
+        validated = validate_job_opportunity(opportunity, candidate)
+        if validated is not None:
+            opportunities.append(validated)
     return opportunities
 
 
@@ -665,26 +626,59 @@ def _job_opportunity_from_row(
     candidate: CandidateItem,
     crawled_at: str,
 ) -> JobOpportunity:
+    policy = load_job_search_policy()
     priority = _enum_value(row.get("priority"), {"High", "Medium", "Low"}, "Low")
     status = _enum_value(row.get("status"), {"open", "likely_open", "uncertain", "closed", "watch"}, "uncertain")
-    category = _enum_value(
-        row.get("category"),
-        {
-            "Exact FDE Role",
-            "FDE-Adjacent Role",
-            "Expansion Signal",
-            "Hidden Hiring Signal",
-            "Watchlist Company",
-            "Reject",
-        },
+    allowed_categories = {family.label for family in policy.role_families} | {
+        "Exact FDE Role",
         "FDE-Adjacent Role",
+        "Expansion Signal",
+        "Hidden Hiring Signal",
+        "Watchlist Company",
+        "Reject",
+    }
+    category = _enum_value(
+        row.get("role_family") or row.get("category"),
+        allowed_categories,
+        "Reject",
     )
+    decision = _enum_value(row.get("decision"), set(policy.decisions), "")
+    allowed_actions = {
+        "apply_now",
+        "verify_first",
+        "dm_first",
+        "watch",
+        "ignore",
+        "dm_recruiter_first",
+        "follow_company",
+        "set_alert",
+    }
+    recommended_action = DECISION_TO_ACTION.get(
+        decision,
+        _enum_value(
+            row.get("recommended_action"), allowed_actions, "verify_first"
+        ),
+    )
+    technical_evidence = _string_list(row.get("technical_evidence"))
     confidence = _clamp_int(row.get("confidence_score"), 0, 100, 0)
     company = clean_text(row.get("company", "")) or _candidate_metadata(candidate, "company") or _company_from_source_name(candidate.source_name)
     role_title = clean_text(row.get("role_title", "")) or _candidate_metadata(candidate, "role_title") or candidate.title
     location = clean_text(row.get("location", "")) or _candidate_metadata(candidate, "location")
-    source_url = clean_text(row.get("source_url", "")) or candidate.url
-    apply_url = clean_text(row.get("apply_url", ""))
+    source_url = canonicalize_url(
+        clean_text(row.get("source_url", ""))
+        or candidate.canonical_url
+        or candidate.url
+    )
+    apply_url = canonicalize_url(clean_text(row.get("apply_url", "")))
+    why_it_fits = clean_text(row.get("why_it_fits", "")) or _fallback_job_fit(
+        candidate
+    )
+    if technical_evidence and not why_it_fits.lower().startswith(
+        "technical evidence:"
+    ):
+        why_it_fits = (
+            f"Technical evidence: {', '.join(technical_evidence)}. {why_it_fits}"
+        ).strip()
     should_alert = status != "closed" and category != "Reject"
     return JobOpportunity(
         id=_stable_job_id(clean_text(row.get("id", "")), company, role_title, location, source_url),
@@ -710,7 +704,7 @@ def _job_opportunity_from_row(
         apply_url=apply_url,
         contact_person=clean_text(row.get("contact_person", "")),
         contact_url=clean_text(row.get("contact_url", "")),
-        why_it_fits=clean_text(row.get("why_it_fits", "")) or _fallback_job_fit(candidate),
+        why_it_fits=why_it_fits,
         what_to_verify=_string_list(row.get("what_to_verify")),
         required_seniority=clean_text(row.get("required_seniority", "")),
         required_skills=_string_list(row.get("required_skills")),
@@ -723,11 +717,7 @@ def _job_opportunity_from_row(
         company_coverage=clean_text(row.get("company_coverage", "")) or _candidate_metadata(candidate, "company_coverage"),
         company_expansion_signal=clean_text(row.get("company_expansion_signal", "")),
         linkedin_post_signal=clean_text(row.get("linkedin_post_signal", "")),
-        recommended_action=_enum_value(
-            row.get("recommended_action"),
-            {"apply_now", "dm_recruiter_first", "follow_company", "set_alert", "ignore"},
-            "set_alert",
-        ),
+        recommended_action=recommended_action,
         outreach_angle=clean_text(row.get("outreach_angle", "")),
         confidence_score=confidence,
         should_alert=should_alert,
@@ -755,40 +745,6 @@ def _source_type_hint(item: CandidateItem) -> str:
     if "bing" in source or "search" in source:
         return "aggregator"
     return "job_board"
-
-
-def _has_fde_job_signal(text: str) -> bool:
-    return any(signal in text for signal in (
-        "forward deployed",
-        "forward-deployed",
-        "forward deployment",
-        "fde",
-        "deployment strategist",
-        "deployed engineer",
-        "ai deployment",
-        "ai forward deployed",
-        "solution engineer",
-        "solutions engineer",
-        "solution architect",
-        "solutions architect",
-        "sales engineer",
-        "presales",
-        "pre-sales",
-        "solutions consultant",
-        "solution consultant",
-        "technical consultant",
-        "technical account manager",
-        "customer success engineer",
-        "professional services",
-        "implementation engineer",
-        "integration engineer",
-        "customer engineer",
-        "field engineer",
-        "applied ai engineer",
-        "ai solutions",
-        "ai engineer",
-        "deployment engineer",
-    ))
 
 
 def _candidate_metadata(item: CandidateItem, key: str) -> str:
@@ -867,15 +823,6 @@ def _country_from_location(location: str) -> str:
     return ""
 
 
-def _fallback_job_priority(location: str, text: str) -> str:
-    combined = f"{location} {text}".lower()
-    if any(term in combined for term in ("vietnam", "ho chi minh", "hanoi", "remote vietnam")):
-        return "High"
-    if any(term in combined for term in ("apac", "asia", "southeast asia", "asean", "singapore", "philippines", "remote")):
-        return "Medium"
-    return "Low"
-
-
 def _fallback_job_verify_items(location: str, remote_policy: str) -> list[str]:
     items = ["Vietnam-based remote eligibility", "Apply link status"]
     combined = f"{location} {remote_policy}".lower()
@@ -884,29 +831,6 @@ def _fallback_job_verify_items(location: str, remote_policy: str) -> list[str]:
     if any(term in combined for term in ("singapore", "japan", "india", "australia", "philippines")):
         items.append("Work authorization or contractor/EOR path")
     return items
-
-
-def _fallback_job_analysis(
-    company: str,
-    role_title: str,
-    location: str,
-    remote_policy: str,
-    item: CandidateItem,
-) -> str:
-    details = []
-    if company:
-        details.append(f"{role_title} tại {company}")
-    else:
-        details.append(role_title)
-    if location:
-        details.append(f"location ghi trên source: {location}")
-    if remote_policy:
-        details.append(f"remote policy: {remote_policy}")
-    if _candidate_metadata(item, "employment_type"):
-        details.append(f"employment: {_candidate_metadata(item, 'employment_type')}")
-    details.append("phù hợp vì title/source có tín hiệu FDE hoặc AI deployment")
-    details.append("chưa coi là eligible cho Vietnam cho tới khi source nói rõ")
-    return "; ".join(detail for detail in details if detail)
 
 
 def _trim_for_prompt(text: str, max_chars: int) -> str:

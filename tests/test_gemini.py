@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from news_keep_up.gemini import (
@@ -161,19 +162,131 @@ class GeminiTest(unittest.TestCase):
         self.assertTrue(reviewed[2].should_send)
         self.assertFalse(reviewed[1].should_send)
 
-    def test_job_classification_prompt_is_compact_and_alerts_non_closed_non_reject(self):
+    def test_job_prompt_uses_shared_role_families_and_decisions(self):
         prompt = build_job_classification_prompt(
             [(7, make_item())],
-            crawled_at="2026-07-27",
+            crawled_at="2026-08-06",
         )
 
         self.assertIn("Ho Chi Minh City", prompt)
-        self.assertIn("non-Reject", prompt)
-        self.assertIn("status is not closed", prompt)
-        self.assertIn("should_alert=true", prompt)
-        self.assertIn("Do not assume APAC", prompt)
+        self.assertIn("Solutions Engineering and Architecture", prompt)
+        self.assertIn("Technical Presales", prompt)
+        self.assertIn("Technical Account Management", prompt)
+        self.assertIn("enterprise saas", prompt.lower())
+        self.assertIn("VERIFY_FIRST", prompt)
+        self.assertIn("DM_FIRST", prompt)
         self.assertIn('"candidate_id": 7', prompt)
-        self.assertLess(len(prompt), 7000)
+        self.assertLess(len(prompt), 12000)
+
+    def test_parser_overrides_model_for_pure_quota_presales(self):
+        candidate = CandidateItem(
+            source_name="LinkedIn Presales",
+            source_kind="rss",
+            source_category="linkedin-hidden-hiring-search",
+            title="Senior Presales Engineer",
+            url="https://example.com/presales",
+            canonical_url="https://example.com/presales",
+            summary=(
+                "Enterprise SaaS quota carrying, prospecting, cold calling, and "
+                "pipeline ownership."
+            ),
+            raw={"location": "Remote Vietnam"},
+        )
+        response = json.dumps(
+            {
+                "items": [
+                    {
+                        "candidate_id": 7,
+                        "role_title": candidate.title,
+                        "role_family": "Technical Presales",
+                        "decision": "APPLY_NOW",
+                        "category": "Technical Presales",
+                        "location": "Vietnam",
+                        "vietnam_eligibility": "explicit_yes",
+                        "status": "open",
+                        "recommended_action": "apply_now",
+                        "should_alert": True,
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(
+            parse_job_classification_response(
+                response, {7: candidate}, "gemini-test", "2026-08-06"
+            ),
+            [],
+        )
+
+    def test_parser_keeps_unknown_location_as_verify_first(self):
+        candidate = CandidateItem(
+            source_name="Company Careers",
+            source_kind="html",
+            source_category="job-board",
+            title="Senior Solutions Engineer",
+            url="https://example.com/jobs/se",
+            canonical_url="https://example.com/jobs/se",
+            summary=(
+                "Enterprise SaaS architecture, PoC, API integration, and "
+                "implementation."
+            ),
+        )
+        response = json.dumps(
+            {
+                "items": [
+                    {
+                        "candidate_id": 9,
+                        "role_title": candidate.title,
+                        "role_family": "Solutions Engineering and Architecture",
+                        "decision": "APPLY_NOW",
+                        "category": "Solutions Engineering and Architecture",
+                        "location": "",
+                        "vietnam_eligibility": "explicit_yes",
+                        "status": "open",
+                        "technical_evidence": [
+                            "architecture",
+                            "poc",
+                            "api",
+                            "integration",
+                        ],
+                        "recommended_action": "apply_now",
+                        "should_alert": False,
+                    }
+                ]
+            }
+        )
+
+        opportunity = parse_job_classification_response(
+            response,
+            {9: candidate},
+            "gemini-test",
+            "2026-08-06",
+        )[0]
+        self.assertEqual(opportunity.vietnam_eligibility, "verify")
+        self.assertEqual(opportunity.recommended_action, "verify_first")
+        self.assertTrue(opportunity.should_alert)
+
+    def test_fallback_uses_policy_role_family_and_technical_evidence(self):
+        candidate = CandidateItem(
+            source_name="Company Careers",
+            source_kind="html",
+            source_category="job-board",
+            title="Senior Technical Account Manager",
+            url="https://example.com/jobs/tam",
+            canonical_url="https://example.com/jobs/tam",
+            summary=(
+                "Remote APAC enterprise SaaS architecture, API integration, "
+                "troubleshooting, and implementation guidance."
+            ),
+            raw={"location": "Remote APAC", "remote_policy": "Remote"},
+        )
+
+        opportunity = fallback_job_opportunities([(11, candidate)], "2026-08-06")[0]
+
+        self.assertEqual(opportunity.category, "Technical Account Management")
+        self.assertEqual(opportunity.recommended_action, "verify_first")
+        self.assertTrue(opportunity.should_alert)
+        self.assertIn("Technical evidence", opportunity.why_it_fits)
 
     def test_parse_job_classification_response_sets_alert_for_high_and_medium(self):
         candidate = CandidateItem(
@@ -183,7 +296,10 @@ class GeminiTest(unittest.TestCase):
             title="Wonderful is hiring a Forward Deployed Engineer in Vietnam",
             url="https://example.com/jobs/wonderful-fde",
             canonical_url="https://example.com/jobs/wonderful-fde",
-            summary="Official listing says Vietnam remote candidates can apply.",
+            summary=(
+                "Official enterprise AI customer deployment listing says Vietnam "
+                "remote candidates can apply."
+            ),
             fingerprint="abc123",
         )
         response = """```json
@@ -227,6 +343,7 @@ class GeminiTest(unittest.TestCase):
 
         self.assertEqual(len(opportunities), 1)
         self.assertEqual(opportunities[0].priority, "Medium")
+        self.assertEqual(opportunities[0].category, "Forward Deployed Engineering")
         self.assertTrue(opportunities[0].should_alert)
         self.assertEqual(opportunities[0].source_fingerprint, "abc123")
         self.assertIn("priority=Medium", opportunities[0].alert_fingerprint)
@@ -294,7 +411,10 @@ class GeminiTest(unittest.TestCase):
             title="Founding Forward Deployed Engineer",
             url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
             canonical_url="https://www.fwddeploy.com/jobs/founding-forward-deployed-engineer-53cfcb31",
-            summary="Company: Clera. Location: Remote APAC. Employment: Full-time. Posted: 6 days.",
+            summary=(
+                "Company: Clera. Location: Remote APAC. Employment: Full-time. "
+                "Posted: 6 days. Enterprise AI customer deployment and API integration."
+            ),
             fingerprint="fde-card-1",
             raw={
                 "company": "Clera",
@@ -314,8 +434,8 @@ class GeminiTest(unittest.TestCase):
         self.assertEqual(opportunities[0].location, "Remote APAC")
         self.assertEqual(opportunities[0].remote_policy, "Remote")
         self.assertEqual(opportunities[0].status, "likely_open")
-        self.assertGreaterEqual(opportunities[0].confidence_score, 70)
-        self.assertIn("Clera", opportunities[0].why_it_fits)
+        self.assertGreaterEqual(opportunities[0].confidence_score, 60)
+        self.assertIn("Technical evidence", opportunities[0].why_it_fits)
 
     def test_fallback_job_opportunities_rejects_onsite_non_vietnam_roles(self):
         candidate = CandidateItem(
@@ -368,7 +488,9 @@ class GeminiTest(unittest.TestCase):
         opportunities = fallback_job_opportunities([(45, candidate)], "2026-07-27")
 
         self.assertEqual(len(opportunities), 1)
-        self.assertEqual(opportunities[0].category, "FDE-Adjacent Role")
+        self.assertEqual(
+            opportunities[0].category, "Solutions Engineering and Architecture"
+        )
 
 
 if __name__ == "__main__":
