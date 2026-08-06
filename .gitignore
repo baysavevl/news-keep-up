@@ -2,6 +2,7 @@
 .env
 .env.local
 .venv/
+.worktrees/
 .vercel/
 __pycache__/
 *.py[cod]
