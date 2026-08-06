@@ -134,6 +134,7 @@ def format_job_alert(opportunity: JobOpportunity, current: datetime | None = Non
         timestamp = timestamp.astimezone(ICT)
     verify = ", ".join(opportunity.what_to_verify[:3]) or "Vietnam eligibility"
     action = _action_label(opportunity)
+    decision = _decision_label(opportunity.recommended_action)
     source = opportunity.apply_url or opportunity.source_url
     priority_icon = _priority_icon(opportunity.priority)
     source_label = _pretty_label(opportunity.source_type)
@@ -143,13 +144,20 @@ def format_job_alert(opportunity: JobOpportunity, current: datetime | None = Non
     compensation = _join_known([opportunity.compensation, opportunity.package]) or "Chưa thấy trong source"
     benefits = opportunity.benefits or "Chưa thấy trong source"
     footprint = _join_known([opportunity.company_size, opportunity.company_coverage]) or "Chưa thấy trong source"
+    seniority = opportunity.required_seniority or "Verify"
+    technical_evidence = opportunity.why_it_fits or "Verify technical scope"
     lines = [
-        f"{priority_icon} <b>Tech Job Alert</b> · {escape(opportunity.priority)} · {opportunity.confidence_score}/100",
+        (
+            f"{priority_icon} <b>Tech Job Alert</b> · {escape(decision)} · "
+            f"{opportunity.confidence_score}/100"
+        ),
         f"Time: {escape(timestamp.strftime('%d %b %H:%M'))} ICT",
         "",
         f"<b>{escape(opportunity.role_title)}</b>",
         f"🏢 Công ty: {escape(opportunity.company)}",
-        f"🏷 Hạng mục: {escape(opportunity.category)}",
+        f"🏷 Nhóm: {escape(opportunity.category)}",
+        f"🪜 Seniority: {escape(seniority)}",
+        f"🔧 Tech evidence: {escape(technical_evidence)}",
         f"📍 Địa điểm: {escape(location)}",
         f"🌍 Quốc gia: {escape(opportunity.country or _country_from_location(location) or 'Verify')}",
         f"🌐 Remote: {escape(remote_policy)}",
@@ -158,16 +166,15 @@ def format_job_alert(opportunity: JobOpportunity, current: datetime | None = Non
         f"🏬 Company footprint: {escape(footprint)}",
         f"🇻🇳 Khả năng từ VN: {escape(opportunity.vietnam_eligibility)} · {escape(opportunity.evidence_type)} signal",
         f"📌 Trạng thái: {escape(status_label)} · Nguồn: {escape(source_label)}",
-        f"🔎 Phân tích: {escape(opportunity.why_it_fits)}",
         f"❓ Cần verify: {escape(verify)}",
         f"🎯 Hành động: {escape(action)}",
-        f'🔗 Link: <a href="{escape(source, quote=True)}">{escape(source)}</a>',
     ]
     focus = _focus_line(opportunity)
     if focus:
-        lines.insert(9, focus)
+        lines.insert(8, focus)
     if opportunity.outreach_angle:
-        lines.insert(-1, f"✉️ Outreach: {escape(opportunity.outreach_angle)}")
+        lines.append(f"✉️ Outreach: {escape(opportunity.outreach_angle)}")
+    lines.append(f'🔗 Link: <a href="{escape(source, quote=True)}">{escape(source)}</a>')
     return "\n".join(lines).strip()
 
 
@@ -332,15 +339,30 @@ def _crawled_at(current: datetime | None) -> str:
     return timestamp.date().isoformat()
 
 
+def _decision_label(action: str) -> str:
+    return {
+        "apply_now": "APPLY NOW",
+        "verify_first": "VERIFY FIRST",
+        "dm_first": "DM FIRST",
+        "dm_recruiter_first": "DM FIRST",
+        "watch": "WATCH",
+        "follow_company": "WATCH",
+        "set_alert": "VERIFY FIRST",
+        "ignore": "REJECT",
+    }.get(action, "VERIFY FIRST")
+
+
 def _action_label(opportunity: JobOpportunity) -> str:
-    labels = {
+    return {
         "apply_now": "Apply now",
-        "dm_recruiter_first": "DM recruiter first",
-        "follow_company": "Follow company",
+        "verify_first": "Verify eligibility/status first",
+        "dm_first": "DM recruiter or hiring manager first",
+        "dm_recruiter_first": "DM recruiter or hiring manager first",
+        "watch": "Watch company/team",
+        "follow_company": "Watch company/team",
         "set_alert": "Track and verify",
         "ignore": "Ignore",
-    }
-    return labels.get(opportunity.recommended_action, "Track and verify")
+    }.get(opportunity.recommended_action, "Track and verify")
 
 
 def _priority_icon(priority: str) -> str:

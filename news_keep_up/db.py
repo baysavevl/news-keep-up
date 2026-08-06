@@ -611,8 +611,46 @@ def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
                    ON delivered_jo.id = delivered_alert.opportunity_id
                  WHERE COALESCE(NULLIF(delivered_jo.apply_url, ''), delivered_jo.source_url)
                      = COALESCE(NULLIF(jo.apply_url, ''), jo.source_url)
+                   AND delivered_alert.alert_fingerprint = jo.alert_fingerprint
               )
-           ORDER BY updated_at DESC
+           ORDER BY
+             CASE recommended_action
+               WHEN 'apply_now' THEN 0
+               WHEN 'dm_first' THEN 1
+               WHEN 'dm_recruiter_first' THEN 1
+               WHEN 'verify_first' THEN 2
+               WHEN 'set_alert' THEN 2
+               WHEN 'watch' THEN 3
+               WHEN 'follow_company' THEN 3
+               ELSE 4
+             END,
+             CASE category
+               WHEN 'Forward Deployed Engineering' THEN 0
+               WHEN 'Solutions Engineering and Architecture' THEN 1
+               WHEN 'AI Consulting' THEN 2
+               WHEN 'Technical Presales' THEN 3
+               WHEN 'Technical Account Management' THEN 4
+               WHEN 'Exact FDE Role' THEN 0
+               ELSE 5
+             END,
+             CASE evidence_type
+               WHEN 'Hard' THEN 0
+               WHEN 'Medium' THEN 1
+               ELSE 2
+             END,
+             CASE source_type
+               WHEN 'official_career_page' THEN 0
+               WHEN 'ATS' THEN 0
+               WHEN 'LinkedIn_job' THEN 1
+               WHEN 'LinkedIn_post' THEN 2
+               WHEN 'company_blog' THEN 2
+               WHEN 'job_board' THEN 3
+               WHEN 'community' THEN 4
+               WHEN 'aggregator' THEN 5
+               ELSE 6
+             END,
+             confidence_score DESC,
+             updated_at DESC
            LIMIT ?""",
         (limit,),
     ).fetchall()

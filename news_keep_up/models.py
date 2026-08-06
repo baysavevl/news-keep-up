@@ -131,10 +131,16 @@ class JobOpportunity:
             f"status={self.status}",
             f"eligibility={self.vietnam_eligibility}",
             f"location={self.location}",
-            f"role={self.role_title}",
+            f"role={_normalize_job_title(self.role_title)}",
+            f"action={self.recommended_action}",
             f"apply={self.apply_url or self.source_url}",
         ]
         return "|".join(_compact_fingerprint_part(part) for part in parts)
+
+
+def _normalize_job_title(value: str) -> str:
+    normalized = " ".join(value.lower().replace("sr.", "senior").split())
+    return normalized.replace("sr ", "senior ", 1)
 
 
 def _compact_fingerprint_part(value: str) -> str:

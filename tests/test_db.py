@@ -210,6 +210,100 @@ class DatabaseTest(unittest.TestCase):
             self.assertTrue(changed)
             self.assertEqual(get_job_opportunity_source_fingerprint(conn, 1), "job-fp-2")
 
+    def test_alert_fingerprint_normalizes_sr_and_senior_titles(self):
+        base = make_job_opportunity()
+        abbreviated = JobOpportunity(
+            **{**base.__dict__, "role_title": "Sr. Solutions Engineer"}
+        )
+        expanded = JobOpportunity(
+            **{**base.__dict__, "role_title": "Senior Solutions Engineer"}
+        )
+
+        self.assertEqual(abbreviated.alert_fingerprint, expanded.alert_fingerprint)
+
+    def test_alert_fingerprint_tracks_recommended_action(self):
+        base = make_job_opportunity()
+        verify = JobOpportunity(
+            **{**base.__dict__, "recommended_action": "verify_first"}
+        )
+        apply = JobOpportunity(
+            **{**base.__dict__, "recommended_action": "apply_now"}
+        )
+
+        self.assertNotEqual(verify.alert_fingerprint, apply.alert_fingerprint)
+
+    def test_pending_job_alerts_order_actions_by_decision(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_item())
+            fixtures = [
+                ("watch", "2026-08-06 04:00:00"),
+                ("verify_first", "2026-08-06 03:00:00"),
+                ("dm_first", "2026-08-06 02:00:00"),
+                ("apply_now", "2026-08-06 01:00:00"),
+            ]
+            for index, (action, updated_at) in enumerate(fixtures):
+                base = make_job_opportunity(f"decision-order-{index}")
+                opportunity = JobOpportunity(
+                    **{
+                        **base.__dict__,
+                        "source_item_id": item_id,
+                        "category": "Forward Deployed Engineering",
+                        "recommended_action": action,
+                        "source_url": f"https://example.com/jobs/order-{index}",
+                        "apply_url": f"https://example.com/jobs/order-{index}/apply",
+                    }
+                )
+                upsert_job_opportunity(conn, opportunity)
+                conn.execute(
+                    "UPDATE job_opportunities SET updated_at=? WHERE id=?",
+                    (updated_at, opportunity.id),
+                )
+            conn.commit()
+
+            pending = list_pending_job_alerts(conn)
+            conn.close()
+
+        self.assertEqual(
+            [item.recommended_action for item in pending],
+            ["apply_now", "dm_first", "verify_first", "watch"],
+        )
+
+    def test_material_job_update_with_same_url_becomes_pending_again(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_item())
+            base = make_job_opportunity()
+            original = JobOpportunity(
+                **{
+                    **base.__dict__,
+                    "source_item_id": item_id,
+                    "vietnam_eligibility": "verify",
+                    "remote_policy": "Remote APAC",
+                    "recommended_action": "verify_first",
+                }
+            )
+            upsert_job_opportunity(conn, original)
+            mark_job_alert_delivered(
+                conn, original.id, original.alert_fingerprint
+            )
+
+            changed = JobOpportunity(
+                **{
+                    **original.__dict__,
+                    "vietnam_eligibility": "explicit_yes",
+                    "remote_policy": "Remote Vietnam",
+                    "recommended_action": "apply_now",
+                }
+            )
+            upsert_job_opportunity(conn, changed)
+            pending = list_pending_job_alerts(conn)
+            conn.close()
+
+        self.assertEqual([item.id for item in pending], [changed.id])
+
     def test_pending_job_alerts_include_low_and_watch_states_until_delivered(self):
         with tempfile.TemporaryDirectory() as tmp:
             conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))

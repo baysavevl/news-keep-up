@@ -9,6 +9,7 @@ from news_keep_up.db import (
     connect_database,
     init_db,
     job_alert_was_delivered,
+    list_pending_job_alerts,
     upsert_item,
     upsert_job_opportunity,
 )
@@ -56,7 +57,7 @@ def make_opportunity(source_item_id: int) -> JobOpportunity:
         priority="Medium",
         company="Wonderful",
         role_title="Forward Deployed Engineer",
-        category="Exact FDE Role",
+        category="Forward Deployed Engineering",
         location="Vietnam",
         remote_policy="Remote Vietnam",
         vietnam_eligibility="explicit_yes",
@@ -90,20 +91,21 @@ class JobAlertsTest(unittest.TestCase):
     def test_prefilter_accepts_fde_job_candidate(self):
         self.assertTrue(is_fde_job_candidate(make_job_candidate()))
 
-    def test_format_job_alert_is_concise_with_analysis_location_and_link(self):
+    def test_format_job_alert_includes_decision_role_and_technical_evidence(self):
         message = format_job_alert(make_opportunity(1))
 
         self.assertIn("<b>Forward Deployed Engineer</b>", message)
-        self.assertIn("🟡 <b>Tech Job Alert</b>", message)
+        self.assertIn("🟡 <b>Tech Job Alert</b> · APPLY NOW", message)
         self.assertIn("🏢 Công ty: Wonderful", message)
-        self.assertIn("🏷 Hạng mục: Exact FDE Role", message)
+        self.assertIn("🏷 Nhóm: Forward Deployed Engineering", message)
+        self.assertIn("🪜 Seniority: Senior", message)
+        self.assertIn("🔧 Tech evidence:", message)
         self.assertIn("🌍 Quốc gia: Vietnam", message)
         self.assertIn("💰 Lương/package: $120k-$160k · Base + equity", message)
         self.assertIn("🎁 Phúc lợi: Health insurance, learning budget", message)
         self.assertIn("🏬 Company footprint: 51-200 employees · US and Vietnam enterprise customers", message)
         self.assertIn("🇻🇳 Khả năng từ VN: explicit_yes", message)
-        self.assertIn("🔎 Phân tích:", message)
-        self.assertIn("🎯 Hành động:", message)
+        self.assertIn("🎯 Hành động: Apply now", message)
         self.assertIn("🔗 Link:", message)
         self.assertNotIn("Category:", message)
         self.assertNotIn("Vietnam eligibility:", message)
@@ -574,7 +576,7 @@ class JobAlertsTest(unittest.TestCase):
             self.assertIn("Tech Job Alert", second_message)
             self.assertEqual(send.call_count, 1)
 
-    def test_run_fde_job_alerts_sends_at_most_three_pending_alerts_per_run(self):
+    def test_run_alerts_drains_five_pending_items_across_two_scans(self):
         with tempfile.TemporaryDirectory() as tmp:
             sources_path = Path(tmp) / "sources.json"
             sources_path.write_text("[]", encoding="utf-8")
@@ -586,24 +588,39 @@ class JobAlertsTest(unittest.TestCase):
             )
             conn = connect_database(settings)
             init_db(conn)
-            for index in range(5):
+            actions = [
+                "watch",
+                "verify_first",
+                "dm_first",
+                "apply_now",
+                "verify_first",
+            ]
+            for index, action in enumerate(actions):
                 item_id, _ = upsert_item(conn, CandidateItem(
-                    source_name="Seed Jobs",
+                    source_name="Fixture Careers",
                     source_kind="html",
-                    source_category="fde-job-board",
-                    title=f"Forward Deployed Engineer {index}",
-                    url=f"https://example.com/jobs/fde-{index}",
-                    canonical_url=f"https://example.com/jobs/fde-{index}",
-                    summary="Remote Vietnam FDE role.",
+                    source_category="job-board",
+                    title=f"Senior Solutions Engineer {index}",
+                    url=f"https://example.com/jobs/{index}",
+                    canonical_url=f"https://example.com/jobs/{index}",
+                    summary=(
+                        "Remote Vietnam enterprise SaaS architecture and API "
+                        "integration."
+                    ),
+                    fingerprint=f"fixture-{index}",
                 ))
                 opportunity = make_opportunity(item_id)
                 upsert_job_opportunity(conn, JobOpportunity(
                     **{
                         **opportunity.__dict__,
-                        "id": f"wonderful-fde-{index}",
-                        "role_title": f"Forward Deployed Engineer {index}",
-                        "source_url": f"https://example.com/jobs/fde-{index}",
-                        "apply_url": f"https://example.com/jobs/fde-{index}/apply",
+                        "id": f"fixture-job-{index}",
+                        "role_title": f"Senior Solutions Engineer {index}",
+                        "category": "Solutions Engineering and Architecture",
+                        "source_url": f"https://example.com/jobs/{index}",
+                        "apply_url": f"https://example.com/jobs/{index}",
+                        "recommended_action": action,
+                        "priority": "Low" if action == "watch" else opportunity.priority,
+                        "status": "watch" if action == "watch" else "open",
                     }
                 ))
             conn.close()
@@ -612,20 +629,59 @@ class JobAlertsTest(unittest.TestCase):
                 first_message = run_fde_job_alerts(
                     settings,
                     sources_path=sources_path,
-                    current=datetime(2026, 7, 14, 10, 0, tzinfo=ICT),
+                    force=True,
                 )
                 first_count = send.call_count
                 second_message = run_fde_job_alerts(
                     settings,
                     sources_path=sources_path,
-                    current=datetime(2026, 7, 14, 10, 30, tzinfo=ICT),
+                    force=True,
                 )
                 second_count = send.call_count - first_count
+
+            conn = connect_database(settings)
+            init_db(conn)
+            pending = list_pending_job_alerts(conn)
+            conn.close()
 
         self.assertEqual(first_count, 3)
         self.assertEqual(second_count, 2)
         self.assertEqual(first_message.count("Tech Job Alert"), 3)
         self.assertEqual(second_message.count("Tech Job Alert"), 2)
+        self.assertEqual(pending, [])
+
+    def test_failed_telegram_send_leaves_alert_pending_for_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text("[]", encoding="utf-8")
+            settings = Settings(
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+                db_path=Path(tmp) / "test.db",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_job_candidate())
+            upsert_job_opportunity(conn, make_opportunity(item_id))
+            conn.close()
+
+            with patch(
+                "news_keep_up.job_alerts.send_telegram_message",
+                side_effect=RuntimeError("telegram unavailable"),
+            ):
+                with self.assertRaisesRegex(
+                    RuntimeError, "telegram unavailable"
+                ):
+                    run_fde_job_alerts(
+                        settings, sources_path=sources_path, force=True
+                    )
+
+            conn = connect_database(settings)
+            init_db(conn)
+            pending = list_pending_job_alerts(conn)
+            conn.close()
+
+        self.assertEqual(len(pending), 1)
 
     def test_run_fde_job_alerts_dedupes_pending_batch_by_apply_url(self):
         with tempfile.TemporaryDirectory() as tmp:
