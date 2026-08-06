@@ -4453,5 +4453,32 @@
     "category": "community-hiring-signal",
     "source_type": "community",
     "enabled": true
+  },
+  {
+    "name": "Bing AI Consultant APAC Remote",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22AI%20Consultant%22%20OR%20%22GenAI%20Consultant%22%20OR%20%22AI%20Implementation%20Consultant%22%29%20%28APAC%20OR%20Vietnam%20OR%20remote%29%20%28integration%20OR%20implementation%20OR%20LLM%20OR%20RAG%29&format=rss",
+    "category": "fde-adjacent-job-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Enterprise SaaS Solutioning APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Technical%20Account%20Manager%22%29%20%28%22enterprise%20SaaS%22%20OR%20%22B2B%20SaaS%22%29%20%28APAC%20OR%20Vietnam%20OR%20remote%29&format=rss",
+    "category": "enterprise-saas-job-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Enterprise SaaS Technical Hiring",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20%28%22Solutions%20Engineer%22%20OR%20presales%20OR%20%22Technical%20Account%20Manager%22%29%20%28%22enterprise%20SaaS%22%20OR%20AI%29%20%28APAC%20OR%20Vietnam%20OR%20remote%29%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "enabled": true
   }
 ]

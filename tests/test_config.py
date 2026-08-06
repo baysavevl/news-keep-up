@@ -146,6 +146,14 @@ class ConfigTest(unittest.TestCase):
         self.assertIn("Upwork Artificial Intelligence Jobs", names)
         self.assertIn("FWDDeploy Remote Jobs", names)
 
+    def test_fde_job_sources_cover_ai_consulting_and_enterprise_saas(self):
+        sources = load_sources("config/fde_job_sources.json")
+        names = {source.name for source in sources}
+
+        self.assertIn("Bing AI Consultant APAC Remote", names)
+        self.assertIn("Bing Enterprise SaaS Solutioning APAC", names)
+        self.assertIn("Bing LinkedIn Enterprise SaaS Technical Hiring", names)
+
     def test_fde_job_sources_are_tripled_for_stable_scan_volume(self):
         sources = load_sources("config/fde_job_sources.json")
 

@@ -94,5 +94,21 @@
     "category": "source-discovery-search",
     "source_type": "aggregator",
     "enabled": true
+  },
+  {
+    "name": "Bing Source Discovery AI Consultant ATS APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28site%3Ajobs.ashbyhq.com%20OR%20site%3Ajob-boards.greenhouse.io%20OR%20site%3Ajobs.lever.co%29%20%28%22AI%20Consultant%22%20OR%20%22GenAI%20Consultant%22%20OR%20%22Implementation%20Consultant%22%29%20%28APAC%20OR%20Vietnam%29&format=rss",
+    "category": "source-discovery-search",
+    "source_type": "aggregator",
+    "enabled": true
+  },
+  {
+    "name": "Bing Source Discovery Enterprise SaaS Solutioning",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=%28%22jobs.ashbyhq.com%22%20OR%20%22greenhouse.io%22%20OR%20%22jobs.lever.co%22%20OR%20careers%29%20%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Presales%20Engineer%22%20OR%20%22Technical%20Account%20Manager%22%29%20%22enterprise%20SaaS%22%20%28APAC%20OR%20Vietnam%29&format=rss",
+    "category": "source-discovery-search",
+    "source_type": "aggregator",
+    "enabled": true
   }
 ]

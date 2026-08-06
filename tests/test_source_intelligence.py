@@ -47,6 +47,19 @@ class SourceIntelligenceTest(unittest.TestCase):
     def test_source_candidate_filter_accepts_ats_job_source(self):
         self.assertTrue(is_source_candidate(make_source_discovery_item()))
 
+    def test_source_candidate_accepts_enterprise_saas_ai_consulting_source(self):
+        candidate = CandidateItem(
+            source_name="Bing Source Discovery",
+            source_kind="rss",
+            source_category="source-discovery-search",
+            title="Ashby Enterprise SaaS AI Consultant jobs",
+            url="https://jobs.ashbyhq.com/example",
+            canonical_url="https://jobs.ashbyhq.com/example",
+            summary="AI Consultant and Technical Consultant openings.",
+        )
+
+        self.assertTrue(is_source_candidate(candidate))
+
     def test_source_intelligence_stores_candidates_and_does_not_notify(self):
         with tempfile.TemporaryDirectory() as tmp:
             discovery_sources_path = Path(tmp) / "source_discovery.json"

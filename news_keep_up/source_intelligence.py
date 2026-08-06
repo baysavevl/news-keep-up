@@ -16,6 +16,7 @@ from .db import (
     upsert_source,
     upsert_source_candidate,
 )
+from .job_search_policy import domain_terms, load_job_search_policy, role_terms
 from .models import CandidateItem, Settings, Source, SourceCandidate, SourceEvaluation, SourceFetchLog
 from .source_health import failed_source_fetch_log, successful_source_fetch_log
 from .sources import fetch_source
@@ -39,22 +40,6 @@ SOURCE_URL_SIGNALS = (
     "careers",
     "jobs",
 )
-
-SOURCE_TEXT_SIGNALS = (
-    "forward deployed",
-    "fde",
-    "ai deployment",
-    "ai solutions engineer",
-    "genai",
-    "customer engineer",
-    "solution engineer",
-    "solutions engineer",
-    "implementation engineer",
-    "apac",
-    "southeast asia",
-    "vietnam",
-)
-
 
 def run_fde_job_source_intelligence(
     settings: Settings,
@@ -104,9 +89,13 @@ def is_source_candidate(candidate: CandidateItem) -> bool:
         candidate.source_name,
         candidate.source_category,
     ]).lower()
-    return any(signal in text for signal in SOURCE_URL_SIGNALS) and any(
-        signal in text for signal in SOURCE_TEXT_SIGNALS
+    url_hit = any(signal in text for signal in SOURCE_URL_SIGNALS)
+    role_hit = any(signal in text for signal in role_terms())
+    domain_hit = any(signal in text for signal in domain_terms())
+    region_hit = any(
+        signal in text for signal in ("apac", "asia", "vietnam", "remote")
     )
+    return url_hit and role_hit and (domain_hit or region_hit)
 
 
 def format_source_intelligence_summary(
@@ -203,9 +192,19 @@ def _source_candidate_score(item: CandidateItem, source_type: str) -> int:
 
 
 def _source_candidate_reason(item: CandidateItem, source_type: str) -> str:
+    text = f"{item.title} {item.summary}".lower()
+    policy = load_job_search_policy()
+    label = next(
+        (
+            family.label
+            for family in policy.role_families
+            if any(alias in text for alias in family.title_aliases)
+        ),
+        "approved technical job scope",
+    )
     if source_type == "ATS":
-        return "Indexed ATS/career source with FDE or adjacent regional keywords."
-    return "Potential job or hiring-signal source with FDE-adjacent regional keywords."
+        return f"Indexed ATS/career source with {label} regional keywords."
+    return f"Potential job or hiring-signal source with {label} regional keywords."
 
 
 def _source_candidate_name(item: CandidateItem) -> str:
