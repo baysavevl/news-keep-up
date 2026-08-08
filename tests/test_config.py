@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from base64 import b64encode
 from pathlib import Path
+from urllib.parse import urlparse
 
 from news_keep_up.config import load_settings, load_sources
 
@@ -154,11 +155,123 @@ class ConfigTest(unittest.TestCase):
         self.assertIn("Bing Enterprise SaaS Solutioning APAC", names)
         self.assertIn("Bing LinkedIn Enterprise SaaS Technical Hiring", names)
 
-    def test_fde_job_sources_are_tripled_for_stable_scan_volume(self):
+    def test_fde_job_source_catalog_has_340_unique_enabled_valid_entries(self):
+        rows = json.loads(Path("config/fde_job_sources.json").read_text(encoding="utf-8"))
         sources = load_sources("config/fde_job_sources.json")
 
-        self.assertGreaterEqual(len(sources), 150)
-        self.assertTrue(all(source.enabled for source in sources))
+        self.assertEqual(len(rows), 340)
+        self.assertEqual(len(sources), 340)
+        self.assertEqual(len({row["name"].strip().casefold() for row in rows}), 340)
+        self.assertEqual(len({row["url"].strip() for row in rows}), 340)
+
+        allowed_kinds = {"rss", "json", "html", "hackernews"}
+        allowed_source_types = {
+            "ATS",
+            "LinkedIn_post",
+            "aggregator",
+            "community",
+            "job_board",
+            "official_career_page",
+            "social",
+        }
+        list_metadata_fields = {
+            "text_exclude_any",
+            "text_include_any",
+            "title_exclude_any",
+            "title_include_any",
+            "url_exclude_any",
+            "url_host_include_any",
+            "url_include_any",
+        }
+        for row in rows:
+            self.assertTrue(row["enabled"], row["name"])
+            self.assertTrue(row["name"].strip())
+            self.assertIn(row["type"], allowed_kinds, row["name"])
+            self.assertTrue(row["category"].strip(), row["name"])
+            self.assertIn(row["source_type"], allowed_source_types, row["name"])
+            parsed_url = urlparse(row["url"])
+            self.assertEqual(parsed_url.scheme, "https", row["name"])
+            self.assertTrue(parsed_url.netloc, row["name"])
+            for field in list_metadata_fields.intersection(row):
+                self.assertIsInstance(row[field], list, f"{row['name']}:{field}")
+                self.assertTrue(row[field], f"{row['name']}:{field}")
+                self.assertTrue(
+                    all(isinstance(value, str) and value.strip() for value in row[field]),
+                    f"{row['name']}:{field}",
+                )
+
+    def test_fde_job_source_catalog_covers_all_source_categories_and_role_families(self):
+        rows = json.loads(Path("config/fde_job_sources.json").read_text(encoding="utf-8"))
+        category_groups = {
+            "official company careers": {"company-careers", "company-careers-index"},
+            "ATS searches": {"ats-direct-job", "ats-index-search"},
+            "APAC and global-remote boards": {
+                "apac-job-board",
+                "fde-job-board",
+                "freelance-job-board",
+                "remote-job-board",
+            },
+            "hidden hiring and community": {
+                "community-hiring-signal",
+                "linkedin-hidden-hiring-search",
+            },
+        }
+        minimum_category_counts = {
+            "official company careers": 60,
+            "ATS searches": 115,
+            "APAC and global-remote boards": 90,
+            "hidden hiring and community": 50,
+        }
+        for label, categories in category_groups.items():
+            covered = sum(row["category"] in categories for row in rows)
+            self.assertGreaterEqual(covered, minimum_category_counts[label], label)
+
+        role_family_aliases = {
+            "Forward Deployed Engineering": {
+                "forward deployed engineer",
+                "forward-deployed engineer",
+                "forward deployment engineer",
+                "deployment strategist",
+                "ai deployment engineer",
+                "fde",
+            },
+            "Solutions Engineering and Architecture": {
+                "solution engineer",
+                "solutions engineer",
+                "customer engineer",
+                "field engineer",
+                "solution architect",
+                "solutions architect",
+                "customer success architect",
+                "delivery solutions architect",
+            },
+            "AI Consulting": {
+                "ai consultant",
+                "genai consultant",
+                "technical consultant",
+                "implementation consultant",
+                "ai implementation specialist",
+                "ai automation specialist",
+            },
+            "Technical Presales": {
+                "presales engineer",
+                "pre-sales engineer",
+                "sales engineer",
+                "solutions consultant",
+                "solution consultant",
+            },
+            "Technical Account Management": {
+                "technical account manager",
+                "technical success manager",
+                "customer success engineer",
+            },
+        }
+        for label, aliases in role_family_aliases.items():
+            covered = sum(
+                bool(aliases.intersection({value.casefold() for value in row.get("title_include_any", [])}))
+                for row in rows
+            )
+            self.assertGreaterEqual(covered, 30, label)
 
     def test_known_blocked_job_boards_use_indexed_rss_searches(self):
         sources = load_sources("config/fde_job_sources.json")

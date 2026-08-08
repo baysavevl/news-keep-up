@@ -4318,9 +4318,12 @@
   {
     "name": "Reddit r/forhire AI Solutions Hiring",
     "type": "rss",
-    "url": "https://www.reddit.com/r/forhire/search.rss?q=%28%22Solutions%20Engineer%22%20OR%20%22AI%22%20OR%20LLM%20OR%20RAG%20OR%20%22Forward%20Deployed%22%20OR%20automation%29&restrict_sr=1&sort=new&t=month",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2Fforhire%20(%22solutions%20engineer%22%20OR%20%22AI%20automation%22%20OR%20%22forward%20deployed%22)%20(remote%20OR%20APAC%20OR%20Vietnam)%20hiring%20contract&format=rss",
     "category": "community-hiring-signal",
-    "source_type": "community",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
     "text_exclude_any": [
       "dictionary",
       "wikipedia",
@@ -4333,9 +4336,12 @@
   {
     "name": "Reddit r/PreSales Hiring",
     "type": "rss",
-    "url": "https://www.reddit.com/r/PreSales/search.rss?q=%28hiring%20OR%20%22we%27re%20hiring%22%20OR%20remote%20OR%20APAC%20OR%20Vietnam%29&restrict_sr=1&sort=new&t=month",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2FPreSales%20(%22we%20are%20hiring%22%20OR%20hiring)%20(%22solutions%20engineer%22%20OR%20%22presales%20engineer%22)%20(APAC%20OR%20remote)&format=rss",
     "category": "community-hiring-signal",
-    "source_type": "community",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
     "text_exclude_any": [
       "dictionary",
       "wikipedia",
@@ -4348,9 +4354,12 @@
   {
     "name": "Reddit r/salesengineers Hiring",
     "type": "rss",
-    "url": "https://www.reddit.com/r/salesengineers/search.rss?q=%28hiring%20OR%20remote%20OR%20APAC%20OR%20%22solutions%20engineer%22%29&restrict_sr=1&sort=new&t=month",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2Fsalesengineers%20(%22sales%20engineer%22%20OR%20%22solution%20consultant%22)%20(AI%20OR%20SaaS)%20(APAC%20OR%20remote)%20hiring&format=rss",
     "category": "community-hiring-signal",
-    "source_type": "community",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
     "text_exclude_any": [
       "dictionary",
       "wikipedia",
@@ -4363,9 +4372,12 @@
   {
     "name": "Reddit r/remotejobs Solutions Engineer",
     "type": "rss",
-    "url": "https://www.reddit.com/r/remotejobs/search.rss?q=%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Forward%20Deployed%22%20OR%20%22AI%20Engineer%22%29&restrict_sr=1&sort=new&t=month",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2Fremotejobs%20(%22forward%20deployed%20engineer%22%20OR%20%22customer%20engineer%22%20OR%20%22solution%20architect%22)%20(APAC%20OR%20worldwide%20OR%20Vietnam)&format=rss",
     "category": "community-hiring-signal",
-    "source_type": "community",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
     "text_exclude_any": [
       "dictionary",
       "wikipedia",
@@ -4378,9 +4390,12 @@
   {
     "name": "Reddit Search Solutions Engineer Remote",
     "type": "rss",
-    "url": "https://www.reddit.com/search.rss?q=%28%22Solutions%20Engineer%22%20OR%20%22Solution%20Architect%22%20OR%20%22Forward%20Deployed%20Engineer%22%29%20%28remote%20OR%20APAC%20OR%20Vietnam%29%20hiring&sort=new&t=month",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%20(%22solutions%20engineer%22%20OR%20%22solution%20architect%22)%20(%22remote%20APAC%22%20OR%20Vietnam%20OR%20worldwide)%20(%22we%20are%20hiring%22%20OR%20%22join%20our%20team%22)&format=rss",
     "category": "community-hiring-signal",
-    "source_type": "community",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
     "text_exclude_any": [
       "dictionary",
       "wikipedia",
@@ -4393,9 +4408,12 @@
   {
     "name": "Reddit Search Presales AI Remote Hiring",
     "type": "rss",
-    "url": "https://www.reddit.com/search.rss?q=%28Presales%20OR%20%22Sales%20Engineer%22%20OR%20%22Technical%20Account%20Manager%22%29%20%28AI%20OR%20SaaS%20OR%20remote%20OR%20APAC%29%20hiring&sort=new&t=month",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%20(%22presales%20engineer%22%20OR%20%22technical%20account%20manager%22)%20(%22enterprise%20AI%22%20OR%20SaaS)%20(APAC%20OR%20Vietnam%20OR%20remote)%20hiring&format=rss",
     "category": "community-hiring-signal",
-    "source_type": "community",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
     "text_exclude_any": [
       "dictionary",
       "wikipedia",
@@ -4478,6 +4496,5468 @@
     "source_type": "LinkedIn_post",
     "url_host_include_any": [
       "linkedin.com"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Zalo Official Careers FDE",
+    "type": "html",
+    "url": "https://zalo.careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Sea Official Careers Solutions",
+    "type": "html",
+    "url": "https://www.sea.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "FPT Software Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://career.fpt-software.com/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "MoMo Official Careers Presales",
+    "type": "html",
+    "url": "https://momo.careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Scale AI Official Careers TAM",
+    "type": "html",
+    "url": "https://scale.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Writer Official Careers FDE",
+    "type": "html",
+    "url": "https://writer.com/company/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "GitLab Official Careers Solutions",
+    "type": "html",
+    "url": "https://about.gitlab.com/jobs/all-jobs/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Datadog Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://careers.datadoghq.com/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "VNG Official Careers Presales",
+    "type": "html",
+    "url": "https://career.vng.com.vn/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "PropertyGuru Official Careers TAM",
+    "type": "html",
+    "url": "https://www.propertygurugroup.com/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Tines Official Careers FDE",
+    "type": "html",
+    "url": "https://www.tines.com/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Cloudflare Official Careers Solutions",
+    "type": "html",
+    "url": "https://www.cloudflare.com/careers/jobs/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Automattic Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://automattic.com/work-with-us/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Snyk Official Careers Presales",
+    "type": "html",
+    "url": "https://snyk.io/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "VinAI Official Careers TAM",
+    "type": "html",
+    "url": "https://www.vinai.io/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Zapier Official Careers FDE",
+    "type": "html",
+    "url": "https://zapier.com/jobs",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Shopee Official Careers Solutions",
+    "type": "html",
+    "url": "https://careers.shopee.sg/jobs",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Glean Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://www.glean.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "n8n Official Careers Presales",
+    "type": "html",
+    "url": "https://n8n.io/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Okta Official Careers TAM",
+    "type": "html",
+    "url": "https://www.okta.com/company/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Mistral AI Official Careers FDE",
+    "type": "html",
+    "url": "https://mistral.ai/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Axon Official Careers Solutions",
+    "type": "html",
+    "url": "https://www.axon.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Canonical Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://canonical.com/careers/all",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Canva Official Careers Presales",
+    "type": "html",
+    "url": "https://www.lifeatcanva.com/en/jobs/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Stripe Official Careers TAM",
+    "type": "html",
+    "url": "https://stripe.com/jobs/search",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Sierra Official Careers FDE",
+    "type": "html",
+    "url": "https://sierra.ai/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Cohere Official Careers Solutions",
+    "type": "html",
+    "url": "https://cohere.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remote Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://remote.com/openings",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "HubSpot Official Careers Presales",
+    "type": "html",
+    "url": "https://www.hubspot.com/careers/jobs",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Viettel Official Careers TAM",
+    "type": "html",
+    "url": "https://tuyendung.viettel.vn/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Traveloka Official Careers FDE",
+    "type": "html",
+    "url": "https://www.traveloka.com/en-id/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Elastic Official Careers Solutions",
+    "type": "html",
+    "url": "https://jobs.elastic.co/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Airwallex Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://www.airwallex.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Databricks Official Careers Presales",
+    "type": "html",
+    "url": "https://www.databricks.com/company/careers/open-positions",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Deel Official Careers TAM",
+    "type": "html",
+    "url": "https://www.deel.com/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Supabase Official Careers FDE",
+    "type": "html",
+    "url": "https://supabase.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Grab Official Careers Solutions",
+    "type": "html",
+    "url": "https://www.grab.careers/en/jobs/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Anthropic Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://www.anthropic.com/careers/jobs",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "PostHog Official Careers Presales",
+    "type": "html",
+    "url": "https://posthog.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "TikTok Official Careers TAM",
+    "type": "html",
+    "url": "https://careers.tiktok.com/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Vercel Official Careers FDE",
+    "type": "html",
+    "url": "https://vercel.com/careers",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Snowflake Official Careers Solutions",
+    "type": "html",
+    "url": "https://careers.snowflake.com/us/en/search-results",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Dataiku Official Careers AI Consulting",
+    "type": "html",
+    "url": "https://www.dataiku.com/company/careers/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Twilio Official Careers Presales",
+    "type": "html",
+    "url": "https://www.twilio.com/en-us/company/jobs",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "ByteDance Official Careers TAM",
+    "type": "html",
+    "url": "https://jobs.bytedance.com/en/",
+    "category": "company-careers",
+    "source_type": "official_career_page",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Sourcegraph Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/sourcegraph91/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "AssemblyAI Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/assemblyai/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Dataiku Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/dataiku/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Airtable Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/airtable/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Cockroach Labs Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/cockroachlabs/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Algolia Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/algolia/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "LaunchDarkly Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/launchdarkly/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Webflow Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/webflow/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "PlanetScale Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/planetscale/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hightouch Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Buildkite Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/buildkite/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Temporal Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/temporaltechnologies/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Mixpanel Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/mixpanel/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "CircleCI Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/circleci/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Labelbox Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/labelbox/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Sumo Logic Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/sumologic/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Observe.AI Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/observeai/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Snorkel AI Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/snorkelai/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Together AI Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/togetherai/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "HubSpot Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/hubspot/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Discord Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/discord/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "PagerDuty Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/pagerduty/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "GoCardless Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/gocardless/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Vercel Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/vercel/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Dropbox Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/dropbox/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Amplitude Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/amplitude/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Fastly Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/fastly/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Duolingo Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/duolingo/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "New Relic Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/newrelic/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Neo4j Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/neo4j/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Chainguard Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/chainguard/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Starburst Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/starburst/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hex Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/hextechnologies/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Smartling Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/smartling/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Dremio Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/dremio/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Collibra Greenhouse APAC Remote FDE",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/collibra/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "6sense Greenhouse APAC Remote Solutions",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/6sense/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Pendo Greenhouse APAC Remote AI Consulting",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/pendo/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Salesloft Greenhouse APAC Remote Presales",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/salesloft/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "SingleStore Greenhouse APAC Remote TAM",
+    "type": "json",
+    "url": "https://boards-api.greenhouse.io/v1/boards/singlestore/jobs?content=true",
+    "category": "ats-direct-job",
+    "source_type": "ATS",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "text_include_any": [
+      "vietnam",
+      "viet nam",
+      "ho chi minh",
+      "hanoi",
+      "apac",
+      "asia",
+      "southeast asia",
+      "asean",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "indonesia",
+      "philippines",
+      "hong kong",
+      "taiwan",
+      "japan",
+      "korea",
+      "australia",
+      "india",
+      "remote",
+      "worldwide",
+      "global",
+      "relocation",
+      "visa sponsorship"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "ITviec Vietnam Direct FDE Jobs",
+    "type": "html",
+    "url": "https://itviec.com/it-jobs?query=forward%20deployed%20engineer",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "itviec.com"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "VietnamWorks Direct Solutions Jobs",
+    "type": "html",
+    "url": "https://www.vietnamworks.com/viec-lam?g=5&k=solutions%20engineer",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "vietnamworks.com"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing TopCV Vietnam AI Consulting APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Atopcv.vn%20%22ai%20consultant%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "topcv.vn"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "TopDev Vietnam Direct Presales Jobs",
+    "type": "html",
+    "url": "https://topdev.vn/jobs/search?keyword=presales%20engineer",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "topdev.vn"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "CareerViet Vietnam Direct TAM Jobs",
+    "type": "html",
+    "url": "https://careerviet.vn/viec-lam/technical-account-manager-k-vi.html",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "careerviet.vn"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing JobStreet Vietnam FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Avn.jobstreet.com%20%22forward%20deployed%20engineer%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "vn.jobstreet.com"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Glints Vietnam Direct Solutions Jobs",
+    "type": "html",
+    "url": "https://glints.com/vn/en/opportunities/jobs/explore?keyword=solutions%20engineer",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "glints.com"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Cake Vietnam AI Consulting APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Acake.me%20%22ai%20consultant%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "cake.me"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "JobsGO Vietnam Direct Presales Jobs",
+    "type": "html",
+    "url": "https://jobsgo.vn/viec-lam.html?keyword=presales%20engineer",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "jobsgo.vn"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "ViecLam24h Vietnam Direct TAM Jobs",
+    "type": "html",
+    "url": "https://vieclam24h.vn/viec-lam-technical-account-manager-o0.html",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "vieclam24h.vn"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "MyCareersFuture Singapore Direct FDE Jobs",
+    "type": "html",
+    "url": "https://www.mycareersfuture.gov.sg/search?search=forward%20deployed%20engineer",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "mycareersfuture.gov.sg"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing JobStreet Singapore Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Asg.jobstreet.com%20%22solution%20engineer%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "sg.jobstreet.com"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "NodeFlair Singapore Direct AI Consulting Jobs",
+    "type": "html",
+    "url": "https://nodeflair.com/jobs?query=ai%20consultant",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "nodeflair.com"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Tech in Asia Presales APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Atechinasia.com%20%22presales%20engineer%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "techinasia.com"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "e27 Asia Direct TAM Jobs",
+    "type": "html",
+    "url": "https://e27.co/jobs/?search=technical+account+manager",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "e27.co"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing JobStreet Malaysia FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Amy.jobstreet.com%20%22forward%20deployed%20engineer%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "my.jobstreet.com"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hiredly Malaysia Direct Solutions Jobs",
+    "type": "html",
+    "url": "https://hiredly.com/jobs?query=solutions%20engineer",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "hiredly.com"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing JobsDB Thailand AI Consulting APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ath.jobsdb.com%20%22ai%20consultant%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "th.jobsdb.com"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Kalibrr Philippines Direct Presales Jobs",
+    "type": "html",
+    "url": "https://www.kalibrr.com/job-board/te/presales-engineer/1",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "kalibrr.com"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing JobStreet Philippines TAM APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aph.jobstreet.com%20%22technical%20account%20manager%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "ph.jobstreet.com"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing JobsDB Hong Kong FDE APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ahk.jobsdb.com%20%22forward%20deployed%20engineer%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "hk.jobsdb.com"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Cake Taiwan Solutions APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Acake.me%20%22solution%20engineer%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "cake.me"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "JapanDev Direct AI Consulting Jobs",
+    "type": "html",
+    "url": "https://japan-dev.com/jobs?search=ai%20consultant",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "japan-dev.com"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing SEEK Australia Presales APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aseek.com.au%20%22presales%20engineer%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "seek.com.au"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing JobStreet Indonesia TAM APAC",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aid.jobstreet.com%20%22technical%20account%20manager%22%20(Vietnam%20OR%20APAC%20OR%20Asia%20OR%20remote%20OR%20relocation%20OR%20%22visa%20sponsorship%22)%20jobs&format=rss",
+    "category": "apac-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "id.jobstreet.com"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive FDE Worldwide Remote 1",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=forward%20deployed%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive Solutions Worldwide Remote 2",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=solution%20architect",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive AI Consulting Worldwide Remote 3",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=ai%20consultant",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive Presales Worldwide Remote 4",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=sales%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive TAM Worldwide Remote 5",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=technical%20account%20manager",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive FDE Worldwide Remote 6",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=deployment%20strategist",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive Solutions Worldwide Remote 7",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=customer%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive AI Consulting Worldwide Remote 8",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=implementation%20consultant",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive Presales Worldwide Remote 9",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=presales%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive TAM Worldwide Remote 10",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=customer%20success%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive FDE Worldwide Remote 11",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=ai%20deployment%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive Solutions Worldwide Remote 12",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=field%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive AI Consulting Worldwide Remote 13",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=genai%20consultant",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive Presales Worldwide Remote 14",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=solutions%20consultant",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Remotive TAM Worldwide Remote 15",
+    "type": "json",
+    "url": "https://remotive.com/api/remote-jobs?search=technical%20success%20manager",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remotive.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy FDE Worldwide Remote",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=artificial-intelligence",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy Solutions Worldwide Remote",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=saas",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy AI Consulting Worldwide Remote",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=automation",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy Presales Worldwide Remote",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=sales",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Jobicy TAM Worldwide Remote",
+    "type": "json",
+    "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag=customer-success",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "jobicy.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "We Work Remotely Full Stack Programming FDE",
+    "type": "rss",
+    "url": "https://weworkremotely.com/categories/remote-full-stack-programming-jobs.rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "weworkremotely.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "We Work Remotely DevOps and Sysadmin Solutions",
+    "type": "rss",
+    "url": "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "weworkremotely.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "We Work Remotely Back End Programming AI Consulting",
+    "type": "rss",
+    "url": "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "weworkremotely.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "We Work Remotely Sales and Marketing Presales",
+    "type": "rss",
+    "url": "https://weworkremotely.com/categories/remote-sales-and-marketing-jobs.rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "weworkremotely.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "We Work Remotely Customer Support TAM",
+    "type": "rss",
+    "url": "https://weworkremotely.com/categories/remote-customer-support-jobs.rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "weworkremotely.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Working Nomads Direct FDE Worldwide",
+    "type": "html",
+    "url": "https://www.workingnomads.com/jobs?search=forward%20deployed%20engineer",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "workingnomads.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Himalayas Solutions Worldwide Remote",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ahimalayas.app%2Fjobs%20%22solutions%20engineer%22%20(worldwide%20OR%20%22remote%20APAC%22%20OR%20Vietnam)&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "himalayas.app"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Wellfound AI Consulting Worldwide",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Awellfound.com%2Fjobs+%28%22AI+consultant%22+OR+%22GenAI+consultant%22+OR+%22implementation+consultant%22%29+%28worldwide+OR+%22remote+APAC%22+OR+Vietnam%29&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "wellfound.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Remote.co Presales Worldwide",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Aremote.co%2Fremote-jobs%20(%22presales%20engineer%22%20OR%20%22sales%20engineer%22%20OR%20%22solutions%20consultant%22)&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "remote.co"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Jobgether TAM Worldwide Remote",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Ajobgether.com%2Fremote-jobs%20(%22technical%20account%20manager%22%20OR%20%22technical%20success%20manager%22%20OR%20%22customer%20success%20engineer%22)&format=rss",
+    "category": "remote-job-board",
+    "source_type": "job_board",
+    "url_host_include_any": [
+      "jobgether.com"
+    ],
+    "remote_policy": "Remote",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring FDE 1",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Forward%20Deployed%20Engineer%22%20(APAC%20OR%20remote%20OR%20Vietnam)%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring Solutions 1",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Solutions%20Engineer%22%20APAC%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring AI Consulting 1",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22AI%20Consultant%22%20remote%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring Presales 1",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Sales%20Engineer%22%20APAC%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring TAM 1",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Technical%20Account%20Manager%22%20remote%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring FDE 2",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Deployment%20Strategist%22%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring Solutions 2",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Solution%20Architect%22%20remote%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring AI Consulting 2",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Implementation%20Consultant%22%20AI%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring Presales 2",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Presales%20Engineer%22%20AI%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring TAM 2",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Customer%20Success%20Engineer%22%20remote%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring FDE 3",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22AI%20Deployment%20Engineer%22%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring Solutions 3",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Customer%20Engineer%22%20APAC%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring AI Consulting 3",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22GenAI%20Consultant%22%20remote%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring Presales 3",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Solutions%20Consultant%22%20APAC%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Hacker News Hidden Hiring TAM 3",
+    "type": "hackernews",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=%22Technical%20Success%20Manager%22%20remote%20hiring&tags=story",
+    "category": "community-hiring-signal",
+    "source_type": "community",
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Reddit r/forhire Hidden Hiring FDE",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2Fforhire+%22forward+deployed+engineer%22+hiring+%28Vietnam+OR+APAC+OR+remote%29&format=rss",
+    "category": "community-hiring-signal",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Reddit r/remotejobs Hidden Hiring Solutions",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2Fremotejobs+%28%22solutions+engineer%22+OR+%22solution+architect%22%29+hiring+%28APAC+OR+worldwide+OR+remote%29&format=rss",
+    "category": "community-hiring-signal",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Reddit r/artificial Hidden Hiring AI Consulting",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2Fartificial+%28%22AI+consultant%22+OR+%22implementation+consultant%22%29+hiring+%28APAC+OR+worldwide+OR+remote%29&format=rss",
+    "category": "community-hiring-signal",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Reddit r/salesengineers Hidden Hiring Presales",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2Fsalesengineers+%28%22presales+engineer%22+OR+%22sales+engineer%22%29+hiring+%28APAC+OR+worldwide+OR+remote%29&format=rss",
+    "category": "community-hiring-signal",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing Reddit r/CustomerSuccess Hidden Hiring TAM",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Areddit.com%2Fr%2FCustomerSuccess+%28%22technical+account+manager%22+OR+%22technical+success+manager%22%29+hiring+%28APAC+OR+worldwide+OR+remote%29&format=rss",
+    "category": "community-hiring-signal",
+    "source_type": "aggregator",
+    "url_host_include_any": [
+      "reddit.com"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring FDE 1",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20%22forward%20deployed%20engineer%22%20(Vietnam%20OR%20%22Southeast%20Asia%22)%20(%22we%20are%20hiring%22%20OR%20%22join%20our%20team%22)&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring Solutions 1",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22solutions%20engineer%22%20OR%20%22customer%20engineer%22)%20Vietnam%20(AI%20OR%20SaaS)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring AI Consulting 1",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22AI%20consultant%22%20OR%20%22GenAI%20consultant%22)%20Vietnam%20(implementation%20OR%20integration)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring Presales 1",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22presales%20engineer%22%20OR%20%22sales%20engineer%22)%20Vietnam%20(%22enterprise%20AI%22%20OR%20SaaS)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring TAM 1",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22technical%20success%20manager%22%20OR%20%22customer%20success%20engineer%22)%20Vietnam%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring FDE 2",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22deployment%20strategist%22%20OR%20%22AI%20deployment%20engineer%22)%20(APAC%20OR%20Asia)%20(relocation%20OR%20remote)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "forward deployed engineer",
+      "forward-deployed engineer",
+      "forward deployment engineer",
+      "deployment strategist",
+      "ai deployment engineer",
+      "fde"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring Solutions 2",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22solution%20architect%22%20OR%20%22delivery%20solutions%20architect%22)%20Asia%20(%22visa%20sponsorship%22%20OR%20relocation)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "solution engineer",
+      "solutions engineer",
+      "customer engineer",
+      "field engineer",
+      "solution architect",
+      "solutions architect",
+      "customer success architect",
+      "delivery solutions architect"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring AI Consulting 2",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22implementation%20consultant%22%20OR%20%22AI%20automation%20specialist%22)%20(worldwide%20OR%20%22remote%20APAC%22)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "ai consultant",
+      "genai consultant",
+      "technical consultant",
+      "implementation consultant",
+      "ai implementation specialist",
+      "ai automation specialist"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring Presales 2",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22solutions%20consultant%22%20OR%20%22pre-sales%20engineer%22)%20Singapore%20(relocation%20OR%20remote)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "presales engineer",
+      "pre-sales engineer",
+      "sales engineer",
+      "solutions consultant",
+      "solution consultant"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
+    ],
+    "enabled": true
+  },
+  {
+    "name": "Bing LinkedIn Hidden Hiring TAM 2",
+    "type": "rss",
+    "url": "https://www.bing.com/search?q=site%3Alinkedin.com%2Fposts%20(%22technical%20account%20manager%22%20OR%20%22technical%20success%20manager%22)%20(%22remote%20Asia%22%20OR%20worldwide)%20hiring&format=rss",
+    "category": "linkedin-hidden-hiring-search",
+    "source_type": "LinkedIn_post",
+    "url_host_include_any": [
+      "linkedin.com"
+    ],
+    "title_include_any": [
+      "technical account manager",
+      "technical success manager",
+      "customer success engineer"
+    ],
+    "title_exclude_any": [
+      "intern",
+      "internship",
+      "graduate",
+      "junior",
+      "director",
+      "vice president",
+      "head of"
     ],
     "enabled": true
   }
