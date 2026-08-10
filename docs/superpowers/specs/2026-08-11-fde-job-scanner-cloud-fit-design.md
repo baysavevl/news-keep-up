@@ -114,7 +114,13 @@ The five existing role families remain, in this order:
 4. Technical Presales
 5. Technical Account Management
 
-The requested aliases are added to their closest family. `Forward Deployed Software Engineer` remains in Forward Deployed Engineering. AI Solutions and Technical Solutions titles map to Solutions Engineering and Architecture. AI Implementation, AI Deployment, Integration Engineering, and AI Transformation Consultant map according to title plus responsibility evidence; generic Integration Engineer results require AI, enterprise automation, or enterprise SaaS domain evidence to avoid unrelated integration roles.
+The requested aliases map deterministically:
+
+- Forward Deployed Engineering: `Forward Deployed Software Engineer`, `AI Implementation Engineer`, and `AI Deployment Engineer`.
+- Solutions Engineering and Architecture: `AI Solutions Engineer`, `Technical Solutions Engineer`, and `Integration Engineer`.
+- AI Consulting: `AI Transformation Consultant`.
+
+All aliases still require an approved domain signal. A generic Integration Engineer result without AI, enterprise automation, or enterprise SaaS evidence is rejected, avoiding unrelated integration roles.
 
 Existing seniority and technical-evidence gates remain. FDE is prioritized, not made exclusive.
 
@@ -128,7 +134,7 @@ Each opportunity receives two persisted fields:
 The policy defines:
 
 - cloud technologies: AWS, Amazon Web Services, GCP, Google Cloud, Azure, Kubernetes, K8s, Terraform, infrastructure as code, DevOps, SRE, site reliability, and MLOps;
-- mandatory markers: required, must, essential, strong expertise, deep expertise, production experience, hands-on experience, and equivalent wording;
+- mandatory markers: required, must have, you must, essential, minimum qualification, proficiency, strong expertise, deep expertise, production experience, and hands-on experience;
 - optional markers: preferred, desirable, bonus, plus, nice to have, and optional;
 - exposure markers: exposure, familiarity, awareness, working knowledge, or willingness to learn;
 - core responsibility signals: owning cloud infrastructure, operating Kubernetes clusters, building Terraform/IaC, production cloud architecture, CI/CD platform ownership, reliability/on-call ownership, or MLOps platform operations.
@@ -166,12 +172,12 @@ The alert reuses location, country, remote policy, eligibility, and `what_to_ver
 
 ## Link, Freshness, and Official-Source Verification
 
-Direct-link checking is best effort and bounded by the existing source timeout. It follows redirects but does not bypass access controls.
+Direct-link checking is best effort and bounded by the existing source timeout. It follows redirects but does not bypass access controls. Checks run with bounded concurrency only for candidates selected into the classification budget, preventing the 340-source catalog from creating a second unbounded fetch pass.
 
 Status rules:
 
 - HTTP 404 or 410, an explicit closed/expired/no-longer-accepting marker, or a source-provided closed status rejects the opportunity.
-- A live official career or ATS page without a closed marker supports `open` or `likely_open` according to the strength of the page evidence.
+- A live official career or ATS page with an explicit accepting/open marker supports `open`. A live page with a recognizable job record but no explicit open or closed marker supports only `likely_open`.
 - A LinkedIn login wall, rate limit, bot challenge, timeout, or ambiguous page remains `uncertain` and becomes `VERIFY_FIRST`; it is not evidence that the listing is closed.
 - A LinkedIn Post older than 30 days is rejected unless it links to or is reconciled with an official vacancy that still appears open.
 - A Job older than 30 days may remain eligible when its official career or ATS page still appears open. Its original posting date remains visible.
@@ -186,9 +192,9 @@ When multiple candidates normalize to the same company, role title, and location
 - existing rows default to `unclear` and empty evidence;
 - SQLite and Turso use the same additive migration;
 - no table rebuild or destructive migration is required;
-- serialization, reads, writes, search, and alert fingerprints include the new material fields where appropriate.
+- inserts, updates, row reads, raw JSON serialization, and job search include both new fields; `alert_fingerprint` includes `cloud_requirement` but omits explanatory `cloud_evidence` text to avoid repeat alerts caused only by wording changes.
 
-A change in cloud classification from `unclear` to `required_core`, `nice_to_have`, `exposure`, or `not_mentioned` is material. The alert fingerprint includes `cloud_requirement`, allowing a corrected eligible assessment to generate an updated alert while preventing identical repeats.
+A change between eligible cloud classifications (`unclear`, `nice_to_have`, `exposure`, or `not_mentioned`) is material and can generate one updated alert. A change to `required_core` suppresses the opportunity before delivery. If later source evidence corrects it back to an eligible classification, the updated `cloud_requirement` fingerprint permits one corrected alert while preventing identical repeats.
 
 ## Gemini Contract and Local Authority
 
