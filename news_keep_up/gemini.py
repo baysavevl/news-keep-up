@@ -7,7 +7,10 @@ import urllib.request
 from dataclasses import replace
 from typing import Mapping
 
-from .job_filters import vietnam_workability_for_candidate
+from .job_filters import (
+    is_auto_alertable_from_vietnam_opportunity,
+    vietnam_workability_for_candidate,
+)
 from .job_search_policy import (
     evaluate_job_candidate,
     load_job_search_policy,
@@ -300,11 +303,14 @@ def validate_job_opportunity(
         evidence_type = "Weak"
         if action == "apply_now":
             action = "verify_first"
-    elif source_workability == "likely_possible" and eligibility == "explicit_yes":
+    elif source_workability == "likely_possible":
         eligibility = "likely_possible"
         evidence_type = "Medium"
         if action == "apply_now":
             action = "verify_first"
+    elif source_workability == "explicit_yes":
+        eligibility = "explicit_yes"
+        evidence_type = "Hard"
 
     technical = ", ".join(match.technical_evidence) or (
         "role title and customer-delivery scope"
@@ -313,7 +319,7 @@ def validate_job_opportunity(
     if not why.lower().startswith("technical evidence:"):
         why = f"Technical evidence: {technical}. {why}".strip()
 
-    return replace(
+    validated = replace(
         opportunity,
         category=match.role_family_label,
         required_seniority=opportunity.required_seniority or match.seniority,
@@ -322,7 +328,11 @@ def validate_job_opportunity(
         evidence_type=evidence_type,
         recommended_action=action,
         why_it_fits=why,
-        should_alert=True,
+        should_alert=False,
+    )
+    return replace(
+        validated,
+        should_alert=is_auto_alertable_from_vietnam_opportunity(validated),
     )
 
 

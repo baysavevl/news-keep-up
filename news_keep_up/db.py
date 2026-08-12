@@ -598,6 +598,7 @@ def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
            FROM job_opportunities jo
            WHERE status <> 'closed'
              AND category <> 'Reject'
+             AND should_alert=1
              AND NOT EXISTS (
                  SELECT 1
                  FROM job_alert_deliveries jad

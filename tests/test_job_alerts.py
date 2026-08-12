@@ -19,14 +19,14 @@ from news_keep_up.job_alerts import (
     format_job_alert,
     is_fde_job_candidate,
     is_target_job_candidate,
-    is_workable_from_vietnam_candidate,
-    is_workable_from_vietnam_opportunity,
     probe_fde_job_sources,
     run_fde_job_alerts,
 )
 from news_keep_up.job_filters import (
     is_auto_alertable_from_vietnam_opportunity,
     is_manual_verification_opportunity,
+    is_workable_from_vietnam_candidate,
+    is_workable_from_vietnam_opportunity,
     vietnam_workability_for_candidate,
     vietnam_workability_for_opportunity,
 )
@@ -625,6 +625,81 @@ class JobAlertsTest(unittest.TestCase):
             self.assertIn("Wonderful", first_message)
             self.assertEqual(second_message, "")
             self.assertEqual(send.call_count, 1)
+
+    def test_run_fde_job_alerts_blocks_legacy_false_positive_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text("[]", encoding="utf-8")
+            settings = Settings(db_path=Path(tmp) / "test.db")
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_job_candidate())
+            fixtures = [
+                {
+                    "id": "aijobs-prague",
+                    "company": "AIJobs.net AI",
+                    "role_title": "Forward Deployed Engineer – GenAI, Prague",
+                    "location": "",
+                    "remote_policy": "Remote",
+                    "country": "",
+                    "vietnam_eligibility": "verify",
+                    "evidence_type": "Weak",
+                    "source_type": "job_board",
+                    "source_url": (
+                        "https://aijobs.net/job/forward-deployed-engineer-genai-"
+                        "prague-praha-1-hlavni-mesto-praha-czechia-277831"
+                    ),
+                },
+                {
+                    "id": "microsoft-homepage",
+                    "company": "Bing AI Solution Architect Vietnam",
+                    "role_title": "Home | Microsoft AI",
+                    "location": "",
+                    "remote_policy": "",
+                    "country": "",
+                    "vietnam_eligibility": "verify",
+                    "evidence_type": "Weak",
+                    "source_type": "aggregator",
+                    "source_url": "https://microsoft.ai/",
+                },
+                {
+                    "id": "hightouch-north-america",
+                    "company": "Hightouch",
+                    "role_title": "Technical Account Manager, Mid-Market",
+                    "location": "Remote (North America)",
+                    "remote_policy": "Remote",
+                    "country": "",
+                    "vietnam_eligibility": "verify",
+                    "evidence_type": "Weak",
+                    "source_type": "ATS",
+                    "source_url": (
+                        "https://job-boards.greenhouse.io/hightouch/jobs/6015438004"
+                    ),
+                },
+            ]
+            for fixture in fixtures:
+                opportunity = make_opportunity(item_id)
+                upsert_job_opportunity(
+                    conn,
+                    JobOpportunity(
+                        **{
+                            **opportunity.__dict__,
+                            **fixture,
+                            "apply_url": fixture["source_url"],
+                            "should_alert": True,
+                        }
+                    ),
+                )
+            conn.close()
+
+            message = run_fde_job_alerts(
+                settings,
+                dry_run=True,
+                sources_path=sources_path,
+                force=True,
+            )
+
+        self.assertEqual(message, "")
 
     def test_run_fde_job_alerts_sends_pending_alert_after_telegram_is_configured(self):
         with tempfile.TemporaryDirectory() as tmp:

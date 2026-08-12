@@ -21,8 +21,8 @@ from .db import (
 )
 from .gemini import GeminiClient
 from .job_filters import (
+    is_auto_alertable_from_vietnam_opportunity,
     is_workable_from_vietnam_candidate,
-    is_workable_from_vietnam_opportunity,
 )
 from .job_links import is_specific_job_candidate
 from .job_search_policy import evaluate_job_candidate
@@ -63,7 +63,8 @@ def run_fde_job_alerts(
         alert_candidates = [
             opportunity
             for opportunity in list_pending_job_alerts(conn, limit=alert_limit * 8)
-            if is_workable_from_vietnam_opportunity(opportunity)
+            if opportunity.should_alert
+            and is_auto_alertable_from_vietnam_opportunity(opportunity)
         ]
         alerts = _dedupe_opportunities_by_url(alert_candidates)[:alert_limit]
         messages = [format_job_alert(opportunity, current=current) for opportunity in alerts]

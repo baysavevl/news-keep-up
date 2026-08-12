@@ -304,7 +304,7 @@ class DatabaseTest(unittest.TestCase):
 
         self.assertEqual([item.id for item in pending], [changed.id])
 
-    def test_pending_job_alerts_include_low_and_watch_states_until_delivered(self):
+    def test_pending_job_alerts_exclude_rows_with_should_alert_false(self):
         with tempfile.TemporaryDirectory() as tmp:
             conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
             init_db(conn)
@@ -322,10 +322,7 @@ class DatabaseTest(unittest.TestCase):
             upsert_job_opportunity(conn, low)
 
             pending = list_pending_job_alerts(conn)
-            self.assertEqual([opportunity.id for opportunity in pending], [low.id])
-
-            mark_job_alert_delivered(conn, low.id, low.alert_fingerprint)
-            self.assertEqual(list_pending_job_alerts(conn), [])
+            self.assertEqual(pending, [])
 
     def test_pending_job_alerts_exclude_closed_and_reject(self):
         with tempfile.TemporaryDirectory() as tmp:

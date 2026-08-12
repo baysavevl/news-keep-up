@@ -264,7 +264,7 @@ class GeminiTest(unittest.TestCase):
         )[0]
         self.assertEqual(opportunity.vietnam_eligibility, "verify")
         self.assertEqual(opportunity.recommended_action, "verify_first")
-        self.assertTrue(opportunity.should_alert)
+        self.assertFalse(opportunity.should_alert)
 
     def test_fallback_uses_policy_role_family_and_technical_evidence(self):
         candidate = CandidateItem(
@@ -285,6 +285,7 @@ class GeminiTest(unittest.TestCase):
 
         self.assertEqual(opportunity.category, "Technical Account Management")
         self.assertEqual(opportunity.recommended_action, "verify_first")
+        self.assertEqual(opportunity.vietnam_eligibility, "likely_possible")
         self.assertTrue(opportunity.should_alert)
         self.assertIn("Technical evidence", opportunity.why_it_fits)
 
@@ -401,7 +402,7 @@ class GeminiTest(unittest.TestCase):
         self.assertEqual(len(opportunities), 1)
         self.assertEqual(opportunities[0].priority, "Low")
         self.assertEqual(opportunities[0].status, "watch")
-        self.assertTrue(opportunities[0].should_alert)
+        self.assertFalse(opportunities[0].should_alert)
 
     def test_fallback_job_opportunities_uses_parsed_job_board_metadata(self):
         candidate = CandidateItem(
