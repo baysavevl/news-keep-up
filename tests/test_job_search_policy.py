@@ -4,13 +4,29 @@ import unittest
 from pathlib import Path
 
 from news_keep_up.job_search_policy import (
+    evaluate_job_candidate,
     evaluate_job_text,
     load_job_search_policy,
     policy_prompt_fragment,
 )
+from news_keep_up.models import CandidateItem
 
 
 class JobSearchPolicyTest(unittest.TestCase):
+    def test_source_category_cannot_create_an_fde_match(self):
+        candidate = CandidateItem(
+            source_name="Bing AI Solution Architect Vietnam",
+            source_kind="rss",
+            source_category="fde-adjacent-job-search",
+            title="Home | Microsoft AI",
+            url="https://microsoft.ai/",
+            canonical_url="https://microsoft.ai/",
+            summary="We build frontier AI models.",
+            raw={"source_type": "aggregator"},
+        )
+
+        self.assertFalse(evaluate_job_candidate(candidate).is_eligible)
+
     def test_default_policy_has_approved_role_order_and_decisions(self):
         policy = load_job_search_policy()
 

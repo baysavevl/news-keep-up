@@ -28,6 +28,7 @@ from news_keep_up.job_filters import (
     vietnam_workability_for_candidate,
     vietnam_workability_for_opportunity,
 )
+from news_keep_up.job_links import is_specific_job_url
 from news_keep_up.models import CandidateItem, JobOpportunity, Settings, Source
 from news_keep_up.utils import ICT
 
@@ -88,6 +89,32 @@ def make_opportunity(source_item_id: int) -> JobOpportunity:
 
 
 class JobAlertsTest(unittest.TestCase):
+    def test_specific_job_link_rejects_homepage_and_accepts_direct_jobs(self):
+        self.assertFalse(is_specific_job_url("https://microsoft.ai/", "aggregator"))
+        self.assertFalse(
+            is_specific_job_url(
+                "https://example.com/jobs", "official_career_page"
+            )
+        )
+        self.assertTrue(
+            is_specific_job_url(
+                "https://aijobs.net/job/forward-deployed-engineer-277831",
+                "job_board",
+            )
+        )
+        self.assertTrue(
+            is_specific_job_url(
+                "https://job-boards.greenhouse.io/hightouch/jobs/6015438004",
+                "ATS",
+            )
+        )
+        self.assertTrue(
+            is_specific_job_url(
+                "https://www.linkedin.com/posts/person_we-are-hiring-123",
+                "LinkedIn_post",
+            )
+        )
+
     def test_prefilter_accepts_fde_job_candidate(self):
         self.assertTrue(is_fde_job_candidate(make_job_candidate()))
 

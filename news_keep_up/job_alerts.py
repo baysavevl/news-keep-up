@@ -24,6 +24,7 @@ from .job_filters import (
     is_workable_from_vietnam_candidate,
     is_workable_from_vietnam_opportunity,
 )
+from .job_links import is_specific_job_candidate
 from .job_search_policy import evaluate_job_candidate
 from .models import CandidateItem, JobOpportunity, Settings, Source, SourceFetchLog
 from .scheduler import is_fde_job_alert_send_window
@@ -204,6 +205,8 @@ def _new_job_candidates(
             if not _candidate_matches_source_filters(source, candidate):
                 continue
             if not is_target_job_candidate(candidate):
+                continue
+            if not is_specific_job_candidate(candidate):
                 continue
             if not is_workable_from_vietnam_candidate(candidate):
                 continue

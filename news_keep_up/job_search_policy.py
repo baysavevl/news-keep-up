@@ -304,7 +304,6 @@ def evaluate_job_candidate(
             candidate.summary,
             candidate.content,
             candidate.author,
-            candidate.source_category,
             str(raw.get("company") or ""),
             str(raw.get("location") or ""),
             str(raw.get("remote_policy") or ""),
