@@ -336,7 +336,10 @@ class ConfigTest(unittest.TestCase):
             self.assertTrue(source.enabled)
             self.assertEqual(source.kind, kind)
             self.assertEqual(source.category, "remote-job-board")
-            self.assertEqual(source.metadata["remote_policy"], "Remote")
+            if name == "AIJobs.net Remote AI Jobs":
+                self.assertNotIn("remote_policy", source.metadata)
+            else:
+                self.assertEqual(source.metadata["remote_policy"], "Remote")
             self.assertIn(host, source.metadata["url_host_include_any"])
             self.assertTrue(source.metadata["text_include_any"])
 

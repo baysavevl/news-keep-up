@@ -25,6 +25,8 @@ from news_keep_up.job_alerts import (
     run_fde_job_alerts,
 )
 from news_keep_up.job_filters import (
+    is_auto_alertable_from_vietnam_opportunity,
+    is_manual_verification_opportunity,
     vietnam_workability_for_candidate,
     vietnam_workability_for_opportunity,
 )
@@ -89,6 +91,72 @@ def make_opportunity(source_item_id: int) -> JobOpportunity:
 
 
 class JobAlertsTest(unittest.TestCase):
+    def test_strict_workability_rejects_prague_and_north_america(self):
+        prague = CandidateItem(
+            source_name="AIJobs.net Remote AI Jobs",
+            source_kind="html",
+            source_category="remote-job-board",
+            title="Forward Deployed Engineer – GenAI, Prague",
+            url=(
+                "https://aijobs.net/job/forward-deployed-engineer-genai-prague-"
+                "praha-1-hlavni-mesto-praha-czechia-277831"
+            ),
+            canonical_url=(
+                "https://aijobs.net/job/forward-deployed-engineer-genai-prague-"
+                "praha-1-hlavni-mesto-praha-czechia-277831"
+            ),
+            summary="Customer-facing GenAI implementation role.",
+            raw={"source_type": "job_board", "remote_policy": "Remote"},
+        )
+        hightouch = JobOpportunity(
+            **{
+                **make_opportunity(2).__dict__,
+                "id": "hightouch-tam-north-america",
+                "company": "Hightouch",
+                "role_title": "Technical Account Manager, Mid-Market",
+                "location": "Remote (North America)",
+                "remote_policy": "Remote",
+                "country": "",
+                "vietnam_eligibility": "verify",
+                "evidence_type": "Weak",
+                "source_url": "https://job-boards.greenhouse.io/hightouch/jobs/6015438004",
+                "apply_url": "https://job-boards.greenhouse.io/hightouch/jobs/6015438004",
+            }
+        )
+
+        self.assertEqual(vietnam_workability_for_candidate(prague), "no")
+        self.assertEqual(vietnam_workability_for_opportunity(hightouch), "no")
+        self.assertFalse(is_auto_alertable_from_vietnam_opportunity(hightouch))
+
+    def test_strict_alerting_separates_bare_remote_from_remote_sea(self):
+        bare_remote = JobOpportunity(
+            **{
+                **make_opportunity(3).__dict__,
+                "id": "example-bare-remote-fde",
+                "location": "Remote",
+                "remote_policy": "Remote",
+                "country": "",
+                "vietnam_eligibility": "verify",
+                "evidence_type": "Weak",
+            }
+        )
+        remote_sea = JobOpportunity(
+            **{
+                **make_opportunity(4).__dict__,
+                "id": "example-remote-sea-fde",
+                "location": "Remote Southeast Asia",
+                "remote_policy": "Remote",
+                "country": "",
+                "vietnam_eligibility": "likely_possible",
+                "evidence_type": "Medium",
+            }
+        )
+
+        self.assertFalse(is_auto_alertable_from_vietnam_opportunity(bare_remote))
+        self.assertTrue(is_manual_verification_opportunity(bare_remote))
+        self.assertTrue(is_auto_alertable_from_vietnam_opportunity(remote_sea))
+        self.assertFalse(is_manual_verification_opportunity(remote_sea))
+
     def test_specific_job_link_rejects_homepage_and_accepts_direct_jobs(self):
         self.assertFalse(is_specific_job_url("https://microsoft.ai/", "aggregator"))
         self.assertFalse(
@@ -234,9 +302,7 @@ class JobAlertsTest(unittest.TestCase):
         )
 
         self.assertEqual(vietnam_workability_for_candidate(unknown), "verify")
-        self.assertEqual(
-            vietnam_workability_for_candidate(relocation), "likely_possible"
-        )
+        self.assertEqual(vietnam_workability_for_candidate(relocation), "verify")
         self.assertTrue(is_workable_from_vietnam_candidate(unknown))
         self.assertTrue(is_workable_from_vietnam_candidate(relocation))
 
@@ -402,6 +468,7 @@ class JobAlertsTest(unittest.TestCase):
                 "role_title": "Forward Deployed Creative Designer, Ads",
                 "location": "Remote",
                 "remote_policy": "Remote",
+                "country": "",
                 "vietnam_eligibility": "verify",
                 "why_it_fits": "Forward deployed creative designer ads role.",
             }
@@ -439,6 +506,7 @@ class JobAlertsTest(unittest.TestCase):
                 "role_title": "AI Engineer - FDE (Forward Deployed Engineer)",
                 "location": "Verify location",
                 "remote_policy": "Verify",
+                "country": "",
                 "vietnam_eligibility": "verify",
                 "why_it_fits": "Need to verify Vietnam-based remote eligibility.",
                 "source_url": "https://sg.indeed.com/viewjob?jk=789abcdef0123456",

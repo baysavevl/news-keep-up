@@ -78,14 +78,22 @@
     ],
     "regional_remote_terms": [
       "remote apac",
+      "apac remote",
       "remote asia",
+      "asia remote",
       "remote southeast asia",
+      "southeast asia remote",
       "remote south east asia",
+      "south east asia remote",
       "remote asean",
+      "asean remote",
+      "remote sea",
+      "sea remote",
       "global remote",
       "remote global",
       "worldwide",
-      "anywhere"
+      "anywhere",
+      "work from anywhere"
     ],
     "relocation_terms": [
       "relocation",
@@ -96,6 +104,9 @@
       "mobility package"
     ],
     "explicit_remote_exclusions": [
+      "north america",
+      "remote north america",
+      "north america only",
       "remote us",
       "remote-us",
       "remote usa",

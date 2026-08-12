@@ -900,7 +900,6 @@
     "url": "https://aijobs.net/?prefill_remote=1",
     "category": "remote-job-board",
     "source_type": "job_board",
-    "remote_policy": "Remote",
     "url_host_include_any": [
       "aijobs.net"
     ],

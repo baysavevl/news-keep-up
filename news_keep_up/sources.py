@@ -200,6 +200,7 @@ def _candidate_from_json_job(row: dict, source: Source) -> CandidateItem | None:
     published = _first_json_value(row, ("date", "publication_date", "published_at", "created_at", "pubDate"))
     compensation = _json_compensation(row)
     tags = _json_tags(row)
+    remote_policy = _json_remote_policy(row, source, location)
 
     summary_parts: list[str] = []
     if company:
@@ -219,7 +220,7 @@ def _candidate_from_json_job(row: dict, source: Source) -> CandidateItem | None:
         **source.metadata,
         "company": company,
         "location": location,
-        "remote_policy": "Remote",
+        "remote_policy": remote_policy,
     }
     if compensation:
         raw["compensation"] = compensation
@@ -239,6 +240,38 @@ def _candidate_from_json_job(row: dict, source: Source) -> CandidateItem | None:
         fingerprint=fingerprint_text(title, summary, canonical),
         raw=raw,
     )
+
+
+def _json_remote_policy(row: dict, source: Source, location: str) -> str:
+    item_policy = _first_json_value(
+        row,
+        (
+            "remote_policy",
+            "remotePolicy",
+            "workplace_type",
+            "workplaceType",
+            "location_type",
+            "locationType",
+            "work_mode",
+            "workMode",
+            "remote",
+        ),
+    )
+    normalized_item = item_policy.lower()
+    if normalized_item in {"true", "yes", "1"}:
+        return "Remote"
+    if normalized_item in {"false", "no", "0"}:
+        return ""
+    if item_policy:
+        return item_policy
+
+    normalized_location = location.lower()
+    if any(
+        term in normalized_location
+        for term in ("remote", "worldwide", "anywhere")
+    ):
+        return "Remote"
+    return clean_text(source.metadata.get("remote_policy") or "")
 
 
 def _first_json_value(row: dict, keys: Iterable[str]) -> str:

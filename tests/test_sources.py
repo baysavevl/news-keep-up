@@ -7,10 +7,46 @@ from unittest.mock import patch
 from pathlib import Path
 
 from news_keep_up.models import Source
-from news_keep_up.sources import fetch_source, parse_html_page, parse_json_feed, parse_rss_or_atom
+from news_keep_up.sources import (
+    _candidate_from_json_job,
+    fetch_source,
+    parse_html_page,
+    parse_json_feed,
+    parse_rss_or_atom,
+)
 
 
 class SourcesTest(unittest.TestCase):
+    def test_json_job_parser_does_not_invent_remote_work_mode(self):
+        source = Source(
+            "Example Greenhouse",
+            "json",
+            "https://boards-api.greenhouse.io/v1/boards/example/jobs?content=true",
+            "ats-direct-job",
+            metadata={"source_type": "ATS"},
+        )
+        prague = _candidate_from_json_job(
+            {
+                "title": "Forward Deployed Engineer – GenAI",
+                "absolute_url": "https://job-boards.greenhouse.io/example/jobs/123",
+                "location": {"name": "Prague, Czechia"},
+            },
+            source,
+        )
+        remote_apac = _candidate_from_json_job(
+            {
+                "title": "Forward Deployed Engineer – GenAI",
+                "absolute_url": "https://job-boards.greenhouse.io/example/jobs/456",
+                "location": {"name": "Remote APAC"},
+            },
+            source,
+        )
+
+        self.assertIsNotNone(prague)
+        self.assertIsNotNone(remote_apac)
+        self.assertEqual(prague.raw["remote_policy"], "")
+        self.assertEqual(remote_apac.raw["remote_policy"], "Remote")
+
     def test_fetch_source_parses_json_job_board_api(self):
         source = Source(
             "RemoteOK API Jobs",
@@ -109,7 +145,7 @@ class SourcesTest(unittest.TestCase):
             "json",
             "https://jobicy.com/api/v2/remote-jobs?count=50&tag=python",
             "remote-job-board",
-            metadata={"source_type": "job_board"},
+            metadata={"source_type": "job_board", "remote_policy": "Remote"},
         )
         payload = json.dumps({
             "jobs": [
