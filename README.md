@@ -13,7 +13,7 @@ GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
 - `engineer`: general AI/SWE/FDE engineering digest from `config/sources.json`, delivered with `ENGINEER_TELEGRAM_*` env vars.
 - `fde`: Forward Deployed Engineer industry digest from `config/fde_sources.json`, delivered with `FDE_TELEGRAM_*` env vars.
 - `fde-interview`: compact Forward Deployed Engineer interview guideline flow using `FDE_TELEGRAM_*` env vars and `config/fde_interview_sources.json` for source coverage.
-- `fde-jobs`: shared technical-headhunter flow for Forward Deployed Engineering, Solutions Engineering/Architecture, AI Consulting, Technical Presales, and Technical Account Management. It targets Mid through hands-on Lead IC roles in AI and enterprise SaaS, ranks Vietnam-compatible work first, and alerts every qualifying vacancy or hidden-hiring signal without CV matching.
+- `fde-jobs`: shared technical-headhunter flow for Forward Deployed Engineering, Solutions Engineering/Architecture, AI Consulting, Technical Presales, and Technical Account Management. It targets Mid through hands-on Lead IC roles in AI and enterprise SaaS. Automatic alerts require a concrete vacancy/hiring-post URL plus strong evidence that the role is workable from Vietnam; uncertain direct vacancies are kept for manual `/verify` review.
 - `news`, `morning`, and `afternoon` remain as backward-compatible aliases using `TELEGRAM_*` env vars.
 
 Engineer/AI-SWE sources include at least 150 feeds/searches, weighted toward practical AI agents, product workflows, engineering practices, automation, evals, LLMOps, observability, and AI-assisted engineering productivity. FDE news sources include at least 150 feeds/searches around customer rollout, field delivery, enterprise implementation, evals, governance, observability, and production deployment. FDE interview sources include at least 100 feeds/searches around FDE interview loops, customer-facing deployment, agent system design, evals, RAG, voice agents, security, and integration design.
@@ -26,13 +26,15 @@ AI Consulting, Technical Presales, and Technical Account Management require dire
 
 Every evaluated item maps to one decision:
 
-- `APPLY_NOW`: open role with confirmed technical scope and Vietnam or relocation eligibility.
+- `APPLY_NOW`: open role with confirmed technical scope and Vietnam eligibility.
 - `VERIFY_FIRST`: qualifying role whose location, eligibility, seniority, or status still needs evidence.
 - `DM_FIRST`: credible recruiter, hiring-manager, or team hiring signal worth contacting first.
 - `WATCH`: company/team expansion signal without a concrete vacancy yet.
 - `REJECT`: closed or out-of-scope role, disallowed seniority, insufficient technical scope, or explicit Vietnam incompatibility without relocation.
 
-Unknown eligibility is retained as `VERIFY_FIRST`; only explicit incompatibility is rejected. The flow does not ask for or score against a CV. Every qualifying opportunity is queued, while priority only changes ordering. Each scan sends at most three alerts and leaves the rest pending for later scans. The standalone browsing-agent prompt is available at `docs/prompts/tech-job-headhunter-master-prompt.md`.
+Unknown eligibility is retained as `VERIFY_FIRST` for manual review, but is never placed in the automatic alert queue. A bare `Remote` label is not enough: automatic alerts require explicit Vietnam scope or confident SEA/APAC/Asia/worldwide/work-from-anywhere evidence without a conflicting country lock. Country-specific roles such as Prague hybrid or Remote North America are excluded. Root homepages, generic careers/search pages, and other links that do not identify a concrete vacancy or hiring post are also excluded.
+
+The flow does not ask for or score against a CV. Each scan sends at most three eligible alerts and leaves the rest pending for later scans. The standalone browsing-agent prompt is available at `docs/prompts/tech-job-headhunter-master-prompt.md`.
 
 ## Message Format
 
@@ -152,6 +154,20 @@ Each profile can also receive Telegram commands through Vercel:
 - `/focus` explains relevance criteria
 - `/force` in the FDE jobs group scans and sends pending job alerts immediately, even outside the normal send window
 
+The FDE jobs group adds scoped job queries:
+
+- `/jobs [keywords]`, `/fit [keywords]`, `/list [keywords]`, `/new [keywords]`, and `/open [keywords]` list only suitable jobs with strong Vietnam eligibility.
+- `/vn [keywords]` lists roles explicitly open in Vietnam.
+- `/sea [keywords]` lists suitable SEA/APAC/global remote roles with confident cross-border evidence.
+- `/remote [keywords]` lists only suitable remote roles; country-locked remote jobs are omitted.
+- `/high [keywords]` lists suitable jobs whose stored priority is exactly `High`.
+- `/verify [keywords]` lists concrete vacancies whose Vietnam eligibility remains uncertain. These rows are never auto-sent.
+- `/company <name>`, `/query <keywords>`, and `/search <keywords>` search only suitable jobs in this group.
+- `/salary [keywords]` and `/benefits [keywords]` apply the same suitability gate before checking those fields.
+- `/commands` is an alias for the FDE jobs command menu.
+
+Multi-word queries use AND semantics across job fields: `/jobs python remote` requires every word to match somewhere in the same opportunity.
+
 Webhook endpoints:
 
 - `/api/telegram/engineer`
@@ -257,4 +273,6 @@ python3 -m unittest discover -s tests -v
 - Implementation plan: `docs/superpowers/plans/2026-07-06-news-keep-up.md`
 - Technical headhunter design: `docs/superpowers/specs/2026-08-06-tech-job-headhunter-master-prompt-design.md`
 - Technical headhunter implementation plan: `docs/superpowers/plans/2026-08-06-tech-job-headhunter-master-prompt.md`
+- Strict FDE eligibility/query design: `docs/superpowers/specs/2026-08-13-fde-job-eligibility-telegram-query-design.md`
+- Strict FDE eligibility/query plan: `docs/superpowers/plans/2026-08-13-fde-job-eligibility-telegram-query.md`
 - Standalone technical headhunter prompt: `docs/prompts/tech-job-headhunter-master-prompt.md`
