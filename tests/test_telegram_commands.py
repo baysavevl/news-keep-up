@@ -32,6 +32,177 @@ def update(text: str, chat_id: int = -100123, message_id: int = 42, title: str =
 
 
 class TelegramCommandsTest(unittest.TestCase):
+    def test_fde_jobs_scoped_commands_separate_fit_and_verify_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(
+                conn,
+                CandidateItem(
+                    source_name="Job fixtures",
+                    source_kind="html",
+                    source_category="job-board",
+                    title="Forward Deployed Engineer",
+                    url="https://example.com/jobs/seed",
+                    canonical_url="https://example.com/jobs/seed",
+                    summary="Enterprise AI customer deployment.",
+                ),
+            )
+            common = {
+                "source_item_id": item_id,
+                "source_fingerprint": "fixture-fp",
+                "crawled_at": "2026-08-13",
+                "category": "Forward Deployed Engineering",
+                "status": "open",
+                "posted_date": "2026-08-12",
+                "contact_person": "",
+                "contact_url": "",
+                "why_it_fits": "Technical enterprise AI customer deployment.",
+                "what_to_verify": [],
+                "required_seniority": "Senior",
+                "required_skills": ["Python", "API"],
+                "domain": ["enterprise AI"],
+                "compensation": "",
+                "benefits": "",
+                "package": "",
+                "company_size": "",
+                "company_coverage": "",
+                "company_expansion_signal": "",
+                "linkedin_post_signal": "",
+                "outreach_angle": "",
+            }
+            fixtures = [
+                {
+                    "id": "fit-vietnam",
+                    "priority": "High",
+                    "company": "VietnamCo",
+                    "role_title": "Forward Deployed Engineer Vietnam",
+                    "location": "Ho Chi Minh City, Vietnam",
+                    "remote_policy": "Hybrid",
+                    "vietnam_eligibility": "explicit_yes",
+                    "evidence_type": "Hard",
+                    "country": "Vietnam",
+                    "source_type": "ATS",
+                    "source_url": "https://example.com/jobs/fit-vietnam",
+                    "apply_url": "https://example.com/jobs/fit-vietnam/apply",
+                    "recommended_action": "apply_now",
+                    "confidence_score": 94,
+                    "should_alert": True,
+                },
+                {
+                    "id": "fit-sea",
+                    "priority": "Medium",
+                    "company": "SeaCo",
+                    "role_title": "Forward Deployed Engineer SEA",
+                    "location": "Remote Southeast Asia",
+                    "remote_policy": "Remote",
+                    "vietnam_eligibility": "likely_possible",
+                    "evidence_type": "Medium",
+                    "country": "",
+                    "source_type": "ATS",
+                    "source_url": "https://example.com/jobs/fit-sea",
+                    "apply_url": "https://example.com/jobs/fit-sea/apply",
+                    "recommended_action": "verify_first",
+                    "confidence_score": 82,
+                    "should_alert": True,
+                },
+                {
+                    "id": "verify-remote",
+                    "priority": "Medium",
+                    "company": "VerifyCo",
+                    "role_title": "Forward Deployed Engineer Remote",
+                    "location": "Remote",
+                    "remote_policy": "Remote",
+                    "vietnam_eligibility": "verify",
+                    "evidence_type": "Weak",
+                    "country": "",
+                    "source_type": "job_board",
+                    "source_url": "https://example.com/jobs/verify-remote",
+                    "apply_url": "https://example.com/jobs/verify-remote/apply",
+                    "recommended_action": "verify_first",
+                    "confidence_score": 60,
+                    "should_alert": False,
+                },
+                {
+                    "id": "north-america",
+                    "priority": "High",
+                    "company": "NorthAmericaCo",
+                    "role_title": "Technical Account Manager",
+                    "location": "Remote (North America)",
+                    "remote_policy": "Remote",
+                    "vietnam_eligibility": "verify",
+                    "evidence_type": "Weak",
+                    "country": "",
+                    "source_type": "ATS",
+                    "source_url": "https://example.com/jobs/north-america",
+                    "apply_url": "https://example.com/jobs/north-america/apply",
+                    "recommended_action": "verify_first",
+                    "confidence_score": 60,
+                    "should_alert": True,
+                },
+                {
+                    "id": "generic-home",
+                    "priority": "High",
+                    "company": "MicrosoftSearch",
+                    "role_title": "Home | Microsoft AI",
+                    "location": "",
+                    "remote_policy": "",
+                    "vietnam_eligibility": "verify",
+                    "evidence_type": "Weak",
+                    "country": "",
+                    "source_type": "aggregator",
+                    "source_url": "https://microsoft.ai/",
+                    "apply_url": "https://microsoft.ai/",
+                    "recommended_action": "verify_first",
+                    "confidence_score": 60,
+                    "should_alert": True,
+                },
+            ]
+            for fixture in fixtures:
+                upsert_job_opportunity(conn, JobOpportunity(**common, **fixture))
+            conn.close()
+
+            responses = {}
+            with patch("news_keep_up.telegram_commands.send_telegram_message") as send:
+                for command in (
+                    "/jobs",
+                    "/vn",
+                    "/sea",
+                    "/remote",
+                    "/high",
+                    "/verify",
+                    "/commands",
+                ):
+                    handle_telegram_update(
+                        update(command),
+                        slot="fde-jobs",
+                        sources_path="config/fde_job_sources.json",
+                        settings=settings,
+                    )
+                    responses[command] = send.call_args.args[0]
+
+        self.assertIn("VietnamCo", responses["/jobs"])
+        self.assertIn("SeaCo", responses["/jobs"])
+        self.assertNotIn("VerifyCo", responses["/jobs"])
+        self.assertNotIn("NorthAmericaCo", responses["/jobs"])
+        self.assertNotIn("MicrosoftSearch", responses["/jobs"])
+        self.assertIn("VietnamCo", responses["/vn"])
+        self.assertNotIn("SeaCo", responses["/vn"])
+        self.assertIn("SeaCo", responses["/sea"])
+        self.assertNotIn("VietnamCo", responses["/sea"])
+        self.assertIn("SeaCo", responses["/remote"])
+        self.assertNotIn("VietnamCo", responses["/remote"])
+        self.assertIn("VietnamCo", responses["/high"])
+        self.assertNotIn("SeaCo", responses["/high"])
+        self.assertIn("VerifyCo", responses["/verify"])
+        self.assertNotIn("NorthAmericaCo", responses["/verify"])
+        self.assertIn("/verify", responses["/commands"])
+
     def test_help_command_lists_interactive_news_commands(self):
         settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
 

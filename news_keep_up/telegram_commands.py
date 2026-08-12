@@ -15,7 +15,11 @@ from .db import (
 )
 from .digest import run_digest
 from .interview import run_fde_interview_guideline
-from .job_filters import is_workable_from_vietnam_opportunity
+from .job_filters import (
+    is_auto_alertable_from_vietnam_opportunity,
+    is_manual_verification_opportunity,
+    vietnam_workability_for_opportunity,
+)
 from .job_alerts import run_fde_job_alerts
 from .models import JobOpportunity, Settings
 from .telegram import send_telegram_message
@@ -23,6 +27,7 @@ from .telegram import send_telegram_message
 COMMAND_ALIASES = {
     "start": "help",
     "help": "help",
+    "commands": "help",
     "latest": "latest",
     "digest": "latest",
     "today": "latest",
@@ -31,13 +36,20 @@ COMMAND_ALIASES = {
     "find": "search",
     "jobs": "jobsearch",
     "job": "jobsearch",
+    "fit": "jobsearch",
+    "list": "jobsearch",
+    "new": "jobsearch",
     "opps": "jobsearch",
     "opportunities": "jobsearch",
     "open": "jobsearch",
     "alerts": "jobsearch",
     "company": "jobsearch",
+    "query": "jobsearch",
+    "vn": "jobsearch",
+    "sea": "jobsearch",
     "remote": "jobsearch",
     "high": "jobsearch",
+    "verify": "jobsearch",
     "salary": "salarysearch",
     "comp": "salarysearch",
     "package": "salarysearch",
@@ -98,9 +110,17 @@ def handle_telegram_update(
         else:
             response = run_digest(settings, slot, dry_run=True, sources_path=sources_path)
     elif command == "search":
-        response = _job_search_text(settings, args) if slot == "fde-jobs" else _search_text(settings, args)
+        response = (
+            _job_search_text(settings, args)
+            if slot == "fde-jobs"
+            else _search_text(settings, args)
+        )
     elif command == "jobsearch":
-        response = _job_search_text(settings, _job_search_query(command_name, args))
+        response = _job_search_text(
+            settings,
+            args,
+            mode=_job_search_mode(command_name),
+        )
     elif command == "salarysearch":
         response = _job_search_text(settings, args, only_compensation=True)
     elif command == "benefitsearch":
@@ -144,14 +164,16 @@ def _help_text(slot: str) -> str:
             "/latest - scan now and preview pending job alerts",
             "/force - scan now and send pending alerts even outside the normal window",
             "/jobs keyword - search stored FDE opportunities",
-            "/jobs - show latest stored Vietnam-workable opportunities",
-            "/open - show latest stored Vietnam-workable opportunities",
+            "/jobs, /fit, /list, /new - latest jobs confirmed workable from Vietnam",
+            "/vn - jobs explicitly open in Vietnam",
+            "/sea - remote SEA/APAC jobs with regional evidence",
+            "/remote - confirmed remote jobs workable from Vietnam",
+            "/high - high-priority suitable jobs",
+            "/verify - uncertain remote jobs for manual checking (never auto-sent)",
             "/salary - show stored jobs with salary/package",
             "/benefits - show stored jobs with benefits",
             "/company name - search by company",
-            "/remote - show remote/hybrid opportunities",
-            "/high - show high-priority opportunities",
-            "/search keyword - alias for /jobs keyword in this group",
+            "/search keyword, /query keyword - multi-keyword search (all words must match)",
             "/sources - show job source coverage",
             "/status - show schedule and delivery config",
             "/chatid - show this Telegram chat id",
@@ -293,14 +315,14 @@ def _search_text(settings: Settings, query: str) -> str:
     return "\n\n".join(lines)
 
 
-def _job_search_query(command_name: str, args: str) -> str:
-    if args.strip():
-        return args
-    defaults = {
+def _job_search_mode(command_name: str) -> str:
+    return {
+        "vn": "vn",
+        "sea": "sea",
         "remote": "remote",
-        "high": "High",
-    }
-    return defaults.get(command_name, args)
+        "high": "high",
+        "verify": "verify",
+    }.get(command_name, "fit")
 
 
 def _job_search_text(
@@ -309,14 +331,20 @@ def _job_search_text(
     limit: int = 5,
     only_compensation: bool = False,
     only_benefits: bool = False,
+    mode: str = "fit",
 ) -> str:
     conn = connect_database(settings)
     init_db(conn)
     try:
         opportunities = [
             opportunity
-            for opportunity in search_job_opportunities(conn, query, limit=limit * 8)
-            if is_workable_from_vietnam_opportunity(opportunity)
+            for opportunity in search_job_opportunities(
+                conn,
+                query,
+                limit=max(limit * 40, 100),
+                priority="High" if mode == "high" else "",
+            )
+            if _job_matches_mode(opportunity, mode)
         ]
     finally:
         conn.close()
@@ -334,7 +362,15 @@ def _job_search_text(
         ]
     opportunities = opportunities[:limit]
 
-    label = query.strip() or "latest"
+    labels = {
+        "fit": "latest suitable",
+        "vn": "Vietnam",
+        "sea": "SEA/APAC remote",
+        "remote": "confirmed remote",
+        "high": "high priority",
+        "verify": "verify queue",
+    }
+    label = query.strip() or labels.get(mode, "latest suitable")
     if only_compensation:
         label = query.strip() or "salary/package"
     if only_benefits:
@@ -346,6 +382,27 @@ def _job_search_text(
     for index, opportunity in enumerate(opportunities, start=1):
         lines.append(_job_search_result_text(index, opportunity))
     return "\n\n".join(lines)
+
+
+def _job_matches_mode(opportunity: JobOpportunity, mode: str) -> bool:
+    if mode == "verify":
+        return is_manual_verification_opportunity(opportunity)
+    if not is_auto_alertable_from_vietnam_opportunity(opportunity):
+        return False
+
+    workability = vietnam_workability_for_opportunity(opportunity)
+    if mode == "vn":
+        return workability == "explicit_yes"
+    if mode == "sea":
+        return workability == "likely_possible"
+    if mode == "remote":
+        remote_scope = " ".join(
+            [opportunity.location, opportunity.remote_policy]
+        ).lower()
+        return "remote" in remote_scope
+    if mode == "high":
+        return opportunity.priority.lower() == "high"
+    return True
 
 
 def _job_search_result_text(index: int, opportunity: JobOpportunity) -> str:

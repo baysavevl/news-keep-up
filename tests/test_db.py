@@ -20,6 +20,7 @@ from news_keep_up.db import (
     record_source_fetch_log,
     record_source_fetch_logs,
     record_llm_usage,
+    search_job_opportunities,
     list_source_fetch_health,
     upsert_enrichment,
     upsert_item,
@@ -113,6 +114,58 @@ def make_job_opportunity(
 
 
 class DatabaseTest(unittest.TestCase):
+    def test_job_search_uses_and_tokens_and_exact_priority_filter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_item())
+            fixtures = [
+                (
+                    "python-remote",
+                    "Python Solutions Engineer",
+                    "Remote Vietnam",
+                    "Remote Vietnam",
+                    "High",
+                ),
+                (
+                    "python-onsite",
+                    "Python Solutions Engineer",
+                    "Ho Chi Minh City",
+                    "Onsite",
+                    "Medium",
+                ),
+                (
+                    "typescript-remote",
+                    "TypeScript Solutions Engineer",
+                    "Remote Vietnam",
+                    "Remote Vietnam",
+                    "Medium",
+                ),
+            ]
+            for opportunity_id, title, location, remote_policy, priority in fixtures:
+                base = make_job_opportunity(opportunity_id, priority=priority)
+                upsert_job_opportunity(
+                    conn,
+                    JobOpportunity(
+                        **{
+                            **base.__dict__,
+                            "source_item_id": item_id,
+                            "role_title": title,
+                            "location": location,
+                            "remote_policy": remote_policy,
+                            "source_url": f"https://example.com/jobs/{opportunity_id}",
+                            "apply_url": f"https://example.com/jobs/{opportunity_id}/apply",
+                        }
+                    ),
+                )
+
+            token_matches = search_job_opportunities(conn, "python remote")
+            high_matches = search_job_opportunities(conn, priority="High")
+            conn.close()
+
+        self.assertEqual([item.id for item in token_matches], ["python-remote"])
+        self.assertEqual([item.id for item in high_matches], ["python-remote"])
+
     def test_upsert_source_and_item_dedupes_by_canonical_url(self):
         with tempfile.TemporaryDirectory() as tmp:
             conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))

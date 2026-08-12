@@ -658,36 +658,48 @@ def list_pending_job_alerts(conn, limit: int = 20) -> list[JobOpportunity]:
     return [_job_opportunity_from_row(row) for row in rows]
 
 
-def search_job_opportunities(conn, query: str = "", limit: int = 5) -> list[JobOpportunity]:
-    normalized = " ".join(query.lower().split())
-    pattern = f"%{normalized}%"
+def search_job_opportunities(
+    conn,
+    query: str = "",
+    limit: int = 5,
+    *,
+    priority: str = "",
+) -> list[JobOpportunity]:
+    tokens = list(dict.fromkeys(query.lower().split()))
+    searchable_fields = (
+        "id",
+        "company",
+        "role_title",
+        "category",
+        "location",
+        "remote_policy",
+        "vietnam_eligibility",
+        "source_type",
+        "why_it_fits",
+        "required_skills",
+        "domain",
+        "country",
+        "compensation",
+        "benefits",
+        "package",
+        "company_size",
+        "company_coverage",
+        "priority",
+        "recommended_action",
+    )
     filters = [
         "status <> 'closed'",
         "category <> 'Reject'",
     ]
     params: list[Any] = []
-    if normalized:
+    for token in tokens:
         filters.append(
-            """(
-                lower(company) LIKE ?
-                OR lower(role_title) LIKE ?
-                OR lower(category) LIKE ?
-                OR lower(location) LIKE ?
-                OR lower(remote_policy) LIKE ?
-                OR lower(vietnam_eligibility) LIKE ?
-                OR lower(source_type) LIKE ?
-                OR lower(why_it_fits) LIKE ?
-                OR lower(required_skills) LIKE ?
-                OR lower(domain) LIKE ?
-                OR lower(country) LIKE ?
-                OR lower(compensation) LIKE ?
-                OR lower(benefits) LIKE ?
-                OR lower(package) LIKE ?
-                OR lower(company_size) LIKE ?
-                OR lower(company_coverage) LIKE ?
-            )"""
+            "(" + " OR ".join(f"lower({field}) LIKE ?" for field in searchable_fields) + ")"
         )
-        params.extend([pattern] * 16)
+        params.extend([f"%{token}%"] * len(searchable_fields))
+    if priority.strip():
+        filters.append("lower(priority) = ?")
+        params.append(priority.strip().lower())
     params.append(limit)
     rows = conn.execute(
         f"""SELECT id, source_item_id, source_fingerprint, crawled_at, priority, company,
