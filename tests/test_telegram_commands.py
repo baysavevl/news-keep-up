@@ -32,6 +32,33 @@ def update(text: str, chat_id: int = -100123, message_id: int = 42, title: str =
 
 
 class TelegramCommandsTest(unittest.TestCase):
+    def test_callback_update_routes_before_command_parsing(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+        callback = {
+            "id": "cb-1",
+            "from": {"id": 42},
+            "data": "i1|1|u",
+            "message": {"message_id": 700, "chat": {"id": -100123}},
+        }
+
+        with (
+            patch(
+                "news_keep_up.telegram_commands.handle_interaction_callback",
+                return_value={"ok": True, "callback": True},
+            ) as handler,
+            patch("news_keep_up.telegram_commands.send_telegram_message") as send,
+        ):
+            result = handle_telegram_update(
+                {"update_id": 1, "callback_query": callback},
+                slot="fde",
+                sources_path="config/fde_sources.json",
+                settings=settings,
+            )
+
+        self.assertTrue(result["callback"])
+        handler.assert_called_once_with(callback, profile="fde", settings=settings)
+        send.assert_not_called()
+
     def test_fde_jobs_scoped_commands_separate_fit_and_verify_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
             settings = Settings(

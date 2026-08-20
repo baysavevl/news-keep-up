@@ -342,6 +342,30 @@ class VercelDigestEndpointTest(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertFalse(response.get_json()["ok"])
 
+    def test_callback_webhook_requires_secret_before_dispatch(self):
+        from news_keep_up.vercel_app import app
+
+        callback_update = {
+            "update_id": 1,
+            "callback_query": {
+                "id": "cb-1",
+                "from": {"id": 42},
+                "data": "i1|1|u",
+                "message": {"message_id": 700, "chat": {"id": -100123}},
+            },
+        }
+        with (
+            patch.dict("os.environ", {"CRON_SECRET": "test-secret"}, clear=False),
+            patch("news_keep_up.vercel_app.handle_telegram_update") as handler,
+        ):
+            response = app.test_client().post(
+                "/api/telegram/fde",
+                json=callback_update,
+            )
+
+        self.assertEqual(response.status_code, 401)
+        handler.assert_not_called()
+
     def test_telegram_webhook_dispatches_profile_command(self):
         from news_keep_up.vercel_app import app
 

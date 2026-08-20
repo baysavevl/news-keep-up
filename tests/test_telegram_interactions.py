@@ -1,11 +1,17 @@
 import sqlite3
+import tempfile
 import unittest
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import patch
 
-from news_keep_up.db import init_db
+from news_keep_up.db import connect_database, init_db, upsert_item
+from news_keep_up.interaction_store import (
+    mark_engagement_delivered,
+    plan_engagement_deliveries,
+)
 from news_keep_up.interactions import EngagementDelivery, InteractionSubject
-from news_keep_up.models import Settings
+from news_keep_up.models import CandidateItem, Settings
 from news_keep_up.telegram_interactions import (
     ACTION_TO_CODE,
     ButtonSpec,
@@ -13,9 +19,12 @@ from news_keep_up.telegram_interactions import (
     build_inline_keyboard,
     decode_callback,
     encode_callback,
+    handle_interaction_callback,
     send_interactive_message,
 )
 from news_keep_up.utils import ICT
+
+CREATED = "2026-08-21T10:00:00+07:00"
 
 
 def connection():
@@ -165,6 +174,319 @@ class TelegramInteractionsTest(unittest.TestCase):
         ).fetchone()[0]
         self.assertEqual(state, "failed")
         conn.close()
+
+    def test_valid_callback_records_action_and_answers_only_a_toast(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(
+                conn,
+                CandidateItem(
+                    source_name="Source",
+                    source_kind="rss",
+                    source_category="ai",
+                    title="Agent article",
+                    url="https://example.com/article",
+                    canonical_url="https://example.com/article",
+                ),
+            )
+            planned = plan_engagement_deliveries(
+                conn,
+                "engineer",
+                "-1001",
+                [InteractionSubject("news", item_id)],
+                "content",
+                "2026-08-21T10:00:00+07:00",
+            )[0]
+            mark_engagement_delivered(
+                conn,
+                [planned.id],
+                "700",
+                "2026-08-21T10:00:00+07:00",
+            )
+            conn.close()
+            callback = {
+                "id": "cb-1",
+                "from": {"id": 42},
+                "data": encode_callback(planned.id, "save"),
+                "message": {"message_id": 700, "chat": {"id": -1001}},
+            }
+
+            with (
+                patch("news_keep_up.telegram_interactions.answer_telegram_callback") as answer,
+                patch("news_keep_up.telegram_interactions.send_telegram_message") as send,
+            ):
+                result = handle_interaction_callback(
+                    callback,
+                    profile="engineer",
+                    settings=settings,
+                    current=datetime(2026, 8, 21, 10, 5, tzinfo=ICT),
+                )
+
+            conn = connect_database(settings)
+            event_count = conn.execute("SELECT COUNT(*) FROM interaction_events").fetchone()[0]
+            queue_status = conn.execute("SELECT status FROM action_queue").fetchone()[0]
+            conn.close()
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["action"], "save")
+        self.assertTrue(result["changed"])
+        self.assertEqual(event_count, 1)
+        self.assertEqual(queue_status, "open")
+        answer.assert_called_once()
+        self.assertIn("/queue", answer.call_args.args[1])
+        send.assert_not_called()
+
+    def test_duplicate_callback_returns_success_without_second_event(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(
+                conn,
+                CandidateItem(
+                    source_name="Source",
+                    source_kind="rss",
+                    source_category="ai",
+                    title="Agent article",
+                    url="https://example.com/article",
+                    canonical_url="https://example.com/article",
+                ),
+            )
+            planned = plan_engagement_deliveries(
+                conn,
+                "engineer",
+                "-1001",
+                [InteractionSubject("news", item_id)],
+                "content",
+                CREATED,
+            )[0]
+            mark_engagement_delivered(conn, [planned.id], "700", CREATED)
+            conn.close()
+
+            callback = {
+                "id": "cb-duplicate",
+                "from": {"id": 42},
+                "data": encode_callback(planned.id, "useful"),
+                "message": {"message_id": 700, "chat": {"id": -1001}},
+            }
+            with patch("news_keep_up.telegram_interactions.answer_telegram_callback"):
+                first = handle_interaction_callback(callback, profile="engineer", settings=settings)
+                second = handle_interaction_callback(callback, profile="engineer", settings=settings)
+
+            conn = connect_database(settings)
+            count = conn.execute("SELECT COUNT(*) FROM interaction_events").fetchone()[0]
+            conn.close()
+
+        self.assertFalse(first["duplicate"])
+        self.assertTrue(second["duplicate"])
+        self.assertEqual(count, 1)
+
+    def test_callback_rejects_wrong_chat_and_mismatched_message(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            rows = plan_engagement_deliveries(
+                conn,
+                "engineer",
+                "-1001",
+                [InteractionSubject("news", 1)],
+                "content",
+                CREATED,
+            )
+            mark_engagement_delivered(conn, [rows[0].id], "700", CREATED)
+            conn.close()
+            base = {
+                "id": "cb-invalid",
+                "from": {"id": 42},
+                "data": encode_callback(rows[0].id, "save"),
+            }
+
+            with patch("news_keep_up.telegram_interactions.answer_telegram_callback"):
+                wrong_chat = handle_interaction_callback(
+                    {**base, "message": {"message_id": 700, "chat": {"id": -999}}},
+                    profile="engineer",
+                    settings=settings,
+                )
+                wrong_message = handle_interaction_callback(
+                    {**base, "id": "cb-invalid-2", "message": {"message_id": 701, "chat": {"id": -1001}}},
+                    profile="engineer",
+                    settings=settings,
+                )
+
+            conn = connect_database(settings)
+            count = conn.execute("SELECT COUNT(*) FROM interaction_events").fetchone()[0]
+            conn.close()
+
+        self.assertEqual(wrong_chat["reason"], "unauthorized_chat")
+        self.assertEqual(wrong_message["reason"], "stale_message")
+        self.assertEqual(count, 0)
+
+    def test_callback_rejects_incompatible_action_and_missing_subjects(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            rows = plan_engagement_deliveries(
+                conn,
+                "engineer",
+                "-1001",
+                [
+                    InteractionSubject("job", "missing-job"),
+                    InteractionSubject("news", 999),
+                    InteractionSubject("interview", "missing-drill"),
+                ],
+                "content",
+                CREATED,
+            )
+            mark_engagement_delivered(conn, [row.id for row in rows], "700", CREATED)
+            conn.close()
+
+            def callback(row, action, identifier):
+                return {
+                    "id": identifier,
+                    "from": {"id": 42},
+                    "data": encode_callback(row.id, action),
+                    "message": {"message_id": 700, "chat": {"id": -1001}},
+                }
+
+            with patch("news_keep_up.telegram_interactions.answer_telegram_callback"):
+                incompatible = handle_interaction_callback(
+                    callback(rows[0], "useful", "cb-action"),
+                    profile="engineer",
+                    settings=settings,
+                )
+                missing_job = handle_interaction_callback(
+                    callback(rows[0], "save", "cb-job"),
+                    profile="engineer",
+                    settings=settings,
+                )
+                missing_news = handle_interaction_callback(
+                    callback(rows[1], "save", "cb-news"),
+                    profile="engineer",
+                    settings=settings,
+                )
+                missing_interview = handle_interaction_callback(
+                    callback(rows[2], "done", "cb-interview"),
+                    profile="engineer",
+                    settings=settings,
+                )
+
+        self.assertEqual(incompatible["reason"], "incompatible_action")
+        self.assertEqual(missing_job["reason"], "missing_subject")
+        self.assertEqual(missing_news["reason"], "missing_subject")
+        self.assertEqual(missing_interview["reason"], "missing_subject")
+
+    def test_matching_planned_callback_promotes_delivery(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(
+                conn,
+                CandidateItem(
+                    source_name="Source",
+                    source_kind="rss",
+                    source_category="ai",
+                    title="Agent article",
+                    url="https://example.com/article",
+                    canonical_url="https://example.com/article",
+                ),
+            )
+            planned = plan_engagement_deliveries(
+                conn,
+                "engineer",
+                "-1001",
+                [InteractionSubject("news", item_id)],
+                "content",
+                CREATED,
+            )[0]
+            conn.close()
+
+            with patch("news_keep_up.telegram_interactions.answer_telegram_callback"):
+                result = handle_interaction_callback(
+                    {
+                        "id": "cb-promote",
+                        "from": {"id": 42},
+                        "data": encode_callback(planned.id, "useful"),
+                        "message": {"message_id": 700, "chat": {"id": -1001}},
+                    },
+                    profile="engineer",
+                    settings=settings,
+                    current=datetime(2026, 8, 21, 10, 5, tzinfo=ICT),
+                )
+
+            conn = connect_database(settings)
+            stored = conn.execute(
+                "SELECT delivery_state, telegram_message_id FROM engagement_deliveries"
+            ).fetchone()
+            conn.close()
+
+        self.assertTrue(result["ok"])
+        self.assertEqual((stored["delivery_state"], stored["telegram_message_id"]), ("delivered", "700"))
+
+    def test_invalid_planned_callback_does_not_promote_delivery(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            planned = plan_engagement_deliveries(
+                conn,
+                "fde-jobs",
+                "-1001",
+                [InteractionSubject("job", "missing-job")],
+                "content",
+                CREATED,
+            )[0]
+            conn.close()
+
+            with patch("news_keep_up.telegram_interactions.answer_telegram_callback"):
+                result = handle_interaction_callback(
+                    {
+                        "id": "cb-invalid-planned",
+                        "from": {"id": 42},
+                        "data": encode_callback(planned.id, "useful"),
+                        "message": {"message_id": 700, "chat": {"id": -1001}},
+                    },
+                    profile="fde-jobs",
+                    settings=settings,
+                )
+
+            conn = connect_database(settings)
+            state = conn.execute(
+                "SELECT delivery_state FROM engagement_deliveries WHERE id=?",
+                (planned.id,),
+            ).fetchone()[0]
+            conn.close()
+
+        self.assertEqual(result["reason"], "incompatible_action")
+        self.assertEqual(state, "planned")
 
 
 if __name__ == "__main__":

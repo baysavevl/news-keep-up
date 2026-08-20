@@ -148,6 +148,32 @@ def load_engagement_delivery(conn, delivery_id: int) -> EngagementDelivery | Non
     return _delivery_from_row(row) if row else None
 
 
+def promote_planned_engagement_delivery(
+    conn,
+    delivery_id: int,
+    telegram_message_id: str,
+    delivered_at: str,
+) -> EngagementDelivery | None:
+    try:
+        conn.execute(
+            """UPDATE engagement_deliveries
+               SET delivery_state='delivered', telegram_message_id=?, delivered_at=?
+               WHERE id=? AND delivery_state='planned'
+                 AND (telegram_message_id='' OR telegram_message_id=?)""",
+            (
+                str(telegram_message_id),
+                delivered_at,
+                delivery_id,
+                str(telegram_message_id),
+            ),
+        )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    return load_engagement_delivery(conn, delivery_id)
+
+
 def _current_action(conn, delivery: EngagementDelivery, actor_user_id: str, action: str):
     if action in SENTIMENT_ACTIONS:
         row = conn.execute(

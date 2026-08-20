@@ -5,9 +5,12 @@ from datetime import datetime
 
 from .interaction_store import (
     load_engagement_delivery,
+    load_stored_subject,
     mark_engagement_delivered,
     mark_engagement_failed,
     plan_engagement_deliveries,
+    promote_planned_engagement_delivery,
+    record_interaction,
 )
 from .interactions import (
     EngagementDelivery,
@@ -15,7 +18,7 @@ from .interactions import (
     allowed_actions,
 )
 from .models import Settings
-from .telegram import send_telegram_message
+from .telegram import answer_telegram_callback, send_telegram_message
 from .utils import ICT, now_ict
 
 ACTION_TO_CODE = {
@@ -177,3 +180,170 @@ def send_interactive_message(
     if any(row is None for row in refreshed):
         raise RuntimeError("An engagement delivery disappeared after Telegram send")
     return [row for row in refreshed if row is not None]
+
+
+def _callback_result(reason: str) -> dict:
+    return {
+        "ok": True,
+        "callback": True,
+        "ignored": True,
+        "reason": reason,
+    }
+
+
+def _reject_callback(
+    callback_query_id: str,
+    reason: str,
+    toast: str,
+    settings: Settings,
+) -> dict:
+    if callback_query_id:
+        answer_telegram_callback(callback_query_id, toast, settings, show_alert=True)
+    return _callback_result(reason)
+
+
+def _subject_exists(conn, subject_type: str, subject_id: str) -> bool:
+    if subject_type in {"news", "job"}:
+        return load_stored_subject(conn, subject_type, subject_id) is not None
+    if subject_type == "interview":
+        from .interview import FDE_INTERVIEW_GUIDELINES
+
+        return subject_id in {card.slug for card in FDE_INTERVIEW_GUIDELINES}
+    return False
+
+
+def handle_interaction_callback(
+    callback_query: dict,
+    *,
+    profile: str,
+    settings: Settings,
+    current: datetime | None = None,
+) -> dict:
+    callback_query_id = str(callback_query.get("id") or "")
+    actor = callback_query.get("from") or {}
+    message = callback_query.get("message") or {}
+    chat = message.get("chat") or {}
+    actor_user_id = str(actor.get("id") or "")
+    chat_id = str(chat.get("id") or "")
+    message_id = str(message.get("message_id") or "")
+
+    if not callback_query_id or not actor_user_id or not chat_id or not message_id:
+        return _reject_callback(
+            callback_query_id,
+            "malformed_callback",
+            "Action không hợp lệ",
+            settings,
+        )
+    configured_chat = str(settings.telegram_chat_id or "")
+    if not configured_chat or chat_id != configured_chat:
+        return _reject_callback(
+            callback_query_id,
+            "unauthorized_chat",
+            "Action không thuộc chat này",
+            settings,
+        )
+    try:
+        delivery_id, action = decode_callback(str(callback_query.get("data") or ""))
+    except ValueError:
+        return _reject_callback(
+            callback_query_id,
+            "malformed_callback",
+            "Action không hợp lệ",
+            settings,
+        )
+
+    from .db import connect_database, init_db
+
+    value = current or now_ict()
+    local = value.replace(tzinfo=ICT) if value.tzinfo is None else value.astimezone(ICT)
+    occurred_at = local.isoformat()
+    conn = connect_database(settings)
+    try:
+        init_db(conn)
+        delivery = load_engagement_delivery(conn, delivery_id)
+        if delivery is None:
+            return _reject_callback(
+                callback_query_id,
+                "missing_delivery",
+                "Action đã hết hạn",
+                settings,
+            )
+        if delivery.profile != profile or delivery.chat_id != chat_id:
+            return _reject_callback(
+                callback_query_id,
+                "target_mismatch",
+                "Action không thuộc nội dung này",
+                settings,
+            )
+        if delivery.delivery_state not in {"planned", "delivered"}:
+            return _reject_callback(
+                callback_query_id,
+                "inactive_delivery",
+                "Action đã hết hạn",
+                settings,
+            )
+        if delivery.telegram_message_id and delivery.telegram_message_id != message_id:
+            return _reject_callback(
+                callback_query_id,
+                "stale_message",
+                "Action đã hết hạn",
+                settings,
+            )
+        if action not in allowed_actions(delivery.subject_type):
+            return _reject_callback(
+                callback_query_id,
+                "incompatible_action",
+                "Action không phù hợp nội dung",
+                settings,
+            )
+        if not _subject_exists(conn, delivery.subject_type, delivery.subject_id):
+            return _reject_callback(
+                callback_query_id,
+                "missing_subject",
+                "Nội dung không còn khả dụng",
+                settings,
+            )
+        if delivery.delivery_state == "planned":
+            delivery = promote_planned_engagement_delivery(
+                conn,
+                delivery.id,
+                message_id,
+                occurred_at,
+            )
+        if (
+            delivery is None
+            or delivery.delivery_state != "delivered"
+            or delivery.telegram_message_id != message_id
+        ):
+            return _reject_callback(
+                callback_query_id,
+                "stale_message",
+                "Action đã hết hạn",
+                settings,
+            )
+        result = record_interaction(
+            conn,
+            delivery.id,
+            action,
+            actor_user_id,
+            callback_query_id,
+            occurred_at,
+        )
+    except Exception:
+        return _reject_callback(
+            callback_query_id,
+            "retry",
+            "Chưa lưu được, hãy thử lại",
+            settings,
+        )
+    finally:
+        conn.close()
+
+    answer_telegram_callback(callback_query_id, result.toast, settings)
+    return {
+        "ok": True,
+        "callback": True,
+        "action": action,
+        "duplicate": result.duplicate,
+        "changed": result.changed,
+    }

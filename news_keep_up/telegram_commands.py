@@ -23,6 +23,7 @@ from .job_filters import (
 from .job_alerts import run_fde_job_alerts
 from .models import JobOpportunity, Settings
 from .telegram import send_telegram_message
+from .telegram_interactions import handle_interaction_callback
 
 COMMAND_ALIASES = {
     "start": "help",
@@ -85,6 +86,14 @@ def handle_telegram_update(
     sources_path: str,
     settings: Settings,
 ) -> dict:
+    callback_query = update.get("callback_query")
+    if isinstance(callback_query, dict):
+        return handle_interaction_callback(
+            callback_query,
+            profile=slot,
+            settings=settings,
+        )
+
     message = update.get("message") or update.get("edited_message") or {}
     text = str(message.get("text") or "").strip()
     chat = message.get("chat") or {}
