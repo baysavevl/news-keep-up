@@ -4,9 +4,11 @@ from dataclasses import asdict, dataclass, replace
 from datetime import datetime
 from html import escape
 
+from .db import connect_database, init_db
 from .gemini import GeminiClient
+from .interactions import InteractionSubject
 from .models import Settings
-from .telegram import send_telegram_message
+from .telegram_interactions import ButtonSpec, InteractiveSubject, send_interactive_message
 from .utils import ICT, now_ict
 
 
@@ -144,6 +146,12 @@ FDE_INTERVIEW_GUIDELINES = [
         "https://newsletter.pragmaticengineer.com/p/forward-deployed-engineers",
     ),
 ]
+
+INTERVIEW_BUTTONS = (
+    ButtonSpec("✅ Đã luyện", "done"),
+    ButtonSpec("🔁 Nhắc lại", "repeat"),
+    ButtonSpec("🚫", "dismiss"),
+)
 
 INTERVIEW_SUPPORT_BY_SLUG = {
     "agent-state": (
@@ -313,6 +321,25 @@ def run_fde_interview_guideline(
     guideline = format_fde_interview_guideline(reviewed_cards)
     message = f"{announcement}\n\n{guideline}"
     if not dry_run:
-        send_telegram_message(announcement, settings)
-        send_telegram_message(guideline, settings)
+        conn = connect_database(settings)
+        try:
+            init_db(conn)
+            send_interactive_message(
+                conn,
+                settings,
+                "fde-interview",
+                message,
+                [
+                    InteractiveSubject(
+                        subject=InteractionSubject("interview", card.slug),
+                        buttons=INTERVIEW_BUTTONS,
+                    )
+                    for card in reviewed_cards
+                ],
+                delivery_kind="content",
+                numbered=True,
+                current=current,
+            )
+        finally:
+            conn.close()
     return message

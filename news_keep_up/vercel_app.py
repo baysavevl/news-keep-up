@@ -311,7 +311,11 @@ def _run_digest_profile(
         }
 
     if profile.mode == "interview":
-        message = run_fde_interview_guideline(settings, dry_run=dry_run)
+        message = run_fde_interview_guideline(
+            settings,
+            dry_run=dry_run,
+            current=current,
+        )
     elif profile.mode == "jobs":
         message = run_fde_job_alerts(
             settings,

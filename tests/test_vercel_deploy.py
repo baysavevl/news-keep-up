@@ -105,6 +105,33 @@ class VercelDigestEndpointTest(unittest.TestCase):
 
         self.assertEqual(run_digest.call_args.kwargs["current"], scheduled)
 
+    def test_scheduled_interview_profile_passes_scheduled_time_to_guideline(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+
+        from news_keep_up.models import Settings
+        from news_keep_up.vercel_app import DIGEST_PROFILES, _run_digest_profile
+
+        scheduled = datetime(2026, 8, 24, 9, 15, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        settings = Settings(
+            telegram_bot_token="token",
+            telegram_chat_id="-100123",
+        )
+        with (
+            patch("news_keep_up.vercel_app._settings_for_profile", return_value=settings),
+            patch(
+                "news_keep_up.vercel_app.run_fde_interview_guideline",
+                return_value="guide",
+            ) as run_guideline,
+        ):
+            _run_digest_profile(
+                DIGEST_PROFILES["fde-interview"],
+                dry_run=False,
+                current=scheduled,
+            )
+
+        self.assertEqual(run_guideline.call_args.kwargs["current"], scheduled)
+
     def test_fde_endpoint_uses_fde_sources_and_env_prefix(self):
         from news_keep_up.vercel_app import app
 
