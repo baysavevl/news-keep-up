@@ -17,13 +17,19 @@ def send_telegram_message(
     settings: Settings,
     chat_id: str | None = None,
     reply_to_message_id: int | None = None,
-) -> None:
+    reply_markup: dict | None = None,
+) -> list[dict]:
     target_chat_id = chat_id or settings.telegram_chat_id
     if not settings.telegram_bot_token or not target_chat_id:
         raise RuntimeError("Telegram is not configured: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID are required")
 
+    chunks = _message_chunks(text)
+    if reply_markup is not None and len(chunks) != 1:
+        raise ValueError("A Telegram message with inline actions must fit within 4,096 characters")
+
     url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
-    for chunk in _message_chunks(text):
+    results: list[dict] = []
+    for chunk in chunks:
         body = {
             "chat_id": target_chat_id,
             "text": chunk,
@@ -32,20 +38,50 @@ def send_telegram_message(
         }
         if reply_to_message_id is not None:
             body["reply_to_message_id"] = reply_to_message_id
-        request = urllib.request.Request(
-            url,
-            data=json.dumps(body).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=20) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")
-            raise RuntimeError(f"Telegram sendMessage failed: {exc.code} {detail}") from exc
-        if not payload.get("ok"):
-            raise RuntimeError(f"Telegram sendMessage failed: {payload}")
+        if reply_markup is not None:
+            body["reply_markup"] = reply_markup
+        payload = _telegram_json_request(url, body, "sendMessage")
+        result = payload.get("result")
+        results.append(result if isinstance(result, dict) else {})
+    return results
+
+
+def answer_telegram_callback(
+    callback_query_id: str,
+    text: str,
+    settings: Settings,
+    show_alert: bool = False,
+) -> None:
+    if not settings.telegram_bot_token:
+        raise RuntimeError("Telegram is not configured: TELEGRAM_BOT_TOKEN is required")
+    url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/answerCallbackQuery"
+    _telegram_json_request(
+        url,
+        {
+            "callback_query_id": str(callback_query_id),
+            "text": str(text)[:200],
+            "show_alert": bool(show_alert),
+        },
+        "answerCallbackQuery",
+    )
+
+
+def _telegram_json_request(url: str, body: dict, method_name: str) -> dict:
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Telegram {method_name} failed: {exc.code} {detail}") from exc
+    if not payload.get("ok"):
+        raise RuntimeError(f"Telegram {method_name} failed: {payload}")
+    return payload
 
 
 def set_telegram_chat_photo(settings: Settings, photo_path: Path | str, chat_id: str | None = None) -> None:
