@@ -2,10 +2,12 @@
 
 Automated Telegram digest for keeping up with AI, software engineering, forward deployed engineering, solution architecture, coding agents, AI tools, and high-signal technical discussions.
 
-GitHub Actions owns the schedule and calls the Vercel-hosted endpoints:
+The long-lived scheduler service owns the production schedule. GitHub Actions
+remains a manual fallback that calls the Vercel-hosted scheduler endpoint.
 
 - FDE news: twice daily at `08:00` and `14:00` Asia/Ho_Chi_Minh.
-- FDE interview guideline: hourly at `:35`, from 07:35 through 22:35 Asia/Ho_Chi_Minh.
+- FDE interview guideline: `08:35`, `11:35`, and `14:35` Asia/Ho_Chi_Minh.
+- FDE job alerts: every 30 minutes from `07:00` through `21:00` Asia/Ho_Chi_Minh.
 - Engineer/AI news: twice daily at `09:15` and `16:00` Asia/Ho_Chi_Minh.
 
 ## Profiles
@@ -69,14 +71,15 @@ Backfill - still relevant
 
 Before each digest is sent, Gemini performs a final batch review over candidates to rerank by impact, remove low-signal items, and tighten the displayed emoji, category, summary, Vietnamese takeaway, and role-specific impact. Final local ranking then combines source trust, role impact, practical content quality, recency, and backfill penalty. If Gemini is unavailable, cached or fallback enrichment is still used, but the same profile moderation and ranking gates still apply.
 
-FDE interview guideline messages also start with a standalone thread announcement and include at least two compact contents. Each content explicitly says which interview section and knowledge area it supports:
+Each FDE interview delivery combines its thread announcement and at least two
+compact drills into one Telegram message. Each drill explicitly says which
+interview section and knowledge area it supports:
 
 ```text
 🧭 FDE Interview Prep Thread
 Time: 16 Jul 09:35 ICT
-Schedule: hourly at :35
+Schedule: 08:35, 11:35, 14:35 ICT
 Contents: 2 focused drills
-FDE topics: Engineering · Product
 
 🧭 FDE Interview Guideline
 1. 📊 Evals: Evals turn demos into deployments
@@ -95,6 +98,30 @@ FDE topics: Engineering · Product
 🧪 Drill: Create a failure matrix for 401, 403, 404, 409, 429, and 5xx.
 🔗 Source: OpenAPI specification
 ```
+
+### Telegram Action and Feedback
+
+Interactive delivery adds an action loop without adding automatic messages:
+
+- Each two-item news message gets numbered `👍`, `👎`, `📌`, and `✅` rows.
+- Each job alert keeps one message and gets `📌 Lưu`, `💼 Apply`, `🔎 Verify`,
+  and `🚫 Bỏ`.
+- Each combined interview message gets one numbered `✅ Đã luyện`, `🔁 Nhắc
+  lại`, and `🚫` row per drill.
+- Button taps return a short Telegram toast; they do not post another chat
+  message.
+- Only save, apply, verify, or repeat opens work in the action queue. Done and
+  dismiss close it; useful/noise reactions remain feedback only.
+
+Queue state is isolated by Telegram user, chat, and profile. `/queue`,
+`/saved`, and `/todo` show only the caller's open items. `/weekly` and
+`/report` summarize the previous seven complete ICT calendar days. Engineer
+and FDE news append one compact report to the first existing digest of each
+week; the report is never sent as a separate notification. Job and interview
+reports remain on demand.
+
+Sprint 1 records delivery, feedback, and action outcomes for measurement. It
+does not yet use feedback to change content ranking or source weights.
 
 ## Local Setup
 
@@ -153,6 +180,8 @@ Each profile can also receive Telegram commands through Vercel:
 - `/status` shows schedule and config status
 - `/focus` explains relevance criteria
 - `/force` in the FDE jobs group scans and sends pending job alerts immediately, even outside the normal send window
+- `/queue`, `/saved`, `/todo` show the calling user's open action queue
+- `/weekly`, `/report` show the calling user's seven-day outcome report
 
 The FDE jobs group adds scoped job queries:
 
@@ -174,7 +203,23 @@ Webhook endpoints:
 - `/api/telegram/fde`
 - `/api/telegram/fde-jobs`
 
-Telegram must send `X-Telegram-Bot-Api-Secret-Token` matching `TELEGRAM_WEBHOOK_SECRET` or `CRON_SECRET`. Command responses are restricted to the configured profile chat ID when `ENGINEER_TELEGRAM_CHAT_ID` or `FDE_TELEGRAM_CHAT_ID` is set.
+Commands and button callbacks use the same profile webhook endpoints. Telegram
+must send `X-Telegram-Bot-Api-Secret-Token` matching
+`TELEGRAM_WEBHOOK_SECRET` or `CRON_SECRET`. Responses are restricted to the
+configured profile chat ID when `ENGINEER_TELEGRAM_CHAT_ID` or
+`FDE_TELEGRAM_CHAT_ID` is set.
+
+## FDE Learning Source Roadmap
+
+These repositories are approved candidates for a future licensed, pinned,
+quality-gated FDE learning adapter:
+
+- [Forward Deployed Engineer Material](https://github.com/weissmanntobi-del/Forward_Deployed_Engineer_Material)
+- [Awesome FDE Resources](https://github.com/global-fde/awesome-fde-resources)
+- [FDE Interview Mastery](https://github.com/vivianaranha/fde-interview-mastery)
+
+They are references only in Sprint 1. The current interview runtime still uses
+its reviewed static guideline pool and does not ingest these repositories.
 
 ## Scheduler Service
 
@@ -275,4 +320,6 @@ python3 -m unittest discover -s tests -v
 - Technical headhunter implementation plan: `docs/superpowers/plans/2026-08-06-tech-job-headhunter-master-prompt.md`
 - Strict FDE eligibility/query design: `docs/superpowers/specs/2026-08-13-fde-job-eligibility-telegram-query-design.md`
 - Strict FDE eligibility/query plan: `docs/superpowers/plans/2026-08-13-fde-job-eligibility-telegram-query.md`
+- Telegram action/feedback design: `docs/superpowers/specs/2026-08-21-telegram-action-feedback-sprint-1-design.md`
+- Telegram action/feedback implementation plan: `docs/superpowers/plans/2026-08-21-telegram-action-feedback-sprint-1.md`
 - Standalone technical headhunter prompt: `docs/prompts/tech-job-headhunter-master-prompt.md`
