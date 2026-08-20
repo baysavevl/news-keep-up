@@ -114,6 +114,30 @@ def make_job_opportunity(
 
 
 class DatabaseTest(unittest.TestCase):
+    def test_init_db_can_run_twice_with_interaction_tables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))
+
+            init_db(conn)
+            init_db(conn)
+
+            tables = {
+                row["name"]
+                for row in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
+            conn.close()
+
+        self.assertTrue(
+            {
+                "engagement_deliveries",
+                "interaction_events",
+                "action_queue",
+                "weekly_report_deliveries",
+            }.issubset(tables)
+        )
+
     def test_job_search_uses_and_tokens_and_exact_priority_filter(self):
         with tempfile.TemporaryDirectory() as tmp:
             conn = connect_database(Settings(db_path=Path(tmp) / "test.db"))

@@ -232,6 +232,58 @@ def init_db(conn) -> None:
            ON source_fetch_logs(slot, fetched_at)""",
         """CREATE INDEX IF NOT EXISTS idx_source_fetch_logs_source_time
            ON source_fetch_logs(source_url, fetched_at)""",
+        """CREATE TABLE IF NOT EXISTS engagement_deliveries (
+            id INTEGER PRIMARY KEY,
+            profile TEXT NOT NULL,
+            subject_type TEXT NOT NULL,
+            subject_id TEXT NOT NULL,
+            delivery_kind TEXT NOT NULL CHECK (delivery_kind IN ('content', 'queue')),
+            chat_id TEXT NOT NULL,
+            delivery_state TEXT NOT NULL CHECK (delivery_state IN ('planned', 'delivered', 'failed')),
+            telegram_message_id TEXT DEFAULT '',
+            created_at TEXT NOT NULL,
+            delivered_at TEXT DEFAULT ''
+        )""",
+        """CREATE INDEX IF NOT EXISTS idx_engagement_deliveries_profile_chat_time
+           ON engagement_deliveries(profile, chat_id, delivered_at)""",
+        """CREATE INDEX IF NOT EXISTS idx_engagement_deliveries_subject
+           ON engagement_deliveries(subject_type, subject_id)""",
+        """CREATE TABLE IF NOT EXISTS interaction_events (
+            id INTEGER PRIMARY KEY,
+            engagement_delivery_id INTEGER NOT NULL REFERENCES engagement_deliveries(id),
+            action TEXT NOT NULL,
+            actor_user_id TEXT NOT NULL,
+            telegram_callback_query_id TEXT NOT NULL UNIQUE,
+            created_at TEXT NOT NULL
+        )""",
+        """CREATE INDEX IF NOT EXISTS idx_interaction_events_actor_time
+           ON interaction_events(actor_user_id, created_at)""",
+        """CREATE INDEX IF NOT EXISTS idx_interaction_events_delivery
+           ON interaction_events(engagement_delivery_id)""",
+        """CREATE TABLE IF NOT EXISTS action_queue (
+            profile TEXT NOT NULL,
+            chat_id TEXT NOT NULL,
+            actor_user_id TEXT NOT NULL,
+            subject_type TEXT NOT NULL,
+            subject_id TEXT NOT NULL,
+            queue_action TEXT NOT NULL,
+            status TEXT NOT NULL CHECK (status IN ('open', 'completed', 'dismissed', 'unavailable')),
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            completed_at TEXT DEFAULT '',
+            PRIMARY KEY (profile, chat_id, actor_user_id, subject_type, subject_id)
+        )""",
+        """CREATE INDEX IF NOT EXISTS idx_action_queue_owner_status_time
+           ON action_queue(profile, chat_id, actor_user_id, status, updated_at)""",
+        """CREATE TABLE IF NOT EXISTS weekly_report_deliveries (
+            profile TEXT NOT NULL,
+            chat_id TEXT NOT NULL,
+            report_week TEXT NOT NULL,
+            delivery_state TEXT NOT NULL CHECK (delivery_state IN ('planned', 'delivered')),
+            created_at TEXT NOT NULL,
+            delivered_at TEXT DEFAULT '',
+            PRIMARY KEY (profile, chat_id, report_week)
+        )""",
     ]
     for statement in statements:
         conn.execute(statement)
