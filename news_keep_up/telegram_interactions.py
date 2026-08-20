@@ -2,20 +2,27 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from html import escape
 
 from .interaction_store import (
     load_engagement_delivery,
     load_stored_subject,
+    list_open_queue,
     mark_engagement_delivered,
     mark_engagement_failed,
+    mark_queue_unavailable,
     plan_engagement_deliveries,
     promote_planned_engagement_delivery,
     record_interaction,
+    weekly_metrics,
 )
 from .interactions import (
     EngagementDelivery,
     InteractionSubject,
+    ResolvedQueueEntry,
     allowed_actions,
+    format_weekly_report,
+    report_period,
 )
 from .models import Settings
 from .telegram import answer_telegram_callback, send_telegram_message
@@ -46,6 +53,12 @@ class ButtonSpec:
 class InteractiveSubject:
     subject: InteractionSubject
     buttons: tuple[ButtonSpec, ...]
+
+
+QUEUE_BUTTONS = (
+    ButtonSpec("✅ Xong", "done"),
+    ButtonSpec("🗑 Bỏ", "dismiss"),
+)
 
 
 def encode_callback(delivery_id: int, action: str) -> str:
@@ -79,8 +92,11 @@ def decode_callback(payload: str) -> tuple[int, str]:
     return int(raw_id), action
 
 
-def _validate_subject(interactive: InteractiveSubject) -> None:
-    actions = allowed_actions(interactive.subject.subject_type)
+def _validate_subject(
+    interactive: InteractiveSubject,
+    delivery_kind: str = "content",
+) -> None:
+    actions = allowed_actions(interactive.subject.subject_type, delivery_kind)
     if not actions:
         raise ValueError("Unknown interaction subject type")
     if not interactive.buttons:
@@ -103,7 +119,7 @@ def build_inline_keyboard(
 
     rows: list[list[dict[str, str]]] = []
     for index, (delivery, interactive) in enumerate(zip(deliveries, subjects), start=1):
-        _validate_subject(interactive)
+        _validate_subject(interactive, delivery.delivery_kind)
         if (
             delivery.subject_type != interactive.subject.subject_type
             or delivery.subject_id != interactive.subject.subject_id
@@ -141,7 +157,7 @@ def send_interactive_message(
             "Telegram is not configured: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID are required"
         )
     for subject in subjects:
-        _validate_subject(subject)
+        _validate_subject(subject, delivery_kind)
 
     value = current or now_ict()
     local = value.replace(tzinfo=ICT) if value.tzinfo is None else value.astimezone(ICT)
@@ -180,6 +196,162 @@ def send_interactive_message(
     if any(row is None for row in refreshed):
         raise RuntimeError("An engagement delivery disappeared after Telegram send")
     return [row for row in refreshed if row is not None]
+
+
+def _resolve_queue_entry(conn, entry) -> ResolvedQueueEntry | None:
+    stored = load_stored_subject(conn, entry.subject_type, entry.subject_id)
+    if stored is not None:
+        title, url = stored
+        return ResolvedQueueEntry(queue=entry, title=title, url=url)
+    if entry.subject_type == "interview":
+        from .interview import FDE_INTERVIEW_GUIDELINES
+
+        card = next(
+            (card for card in FDE_INTERVIEW_GUIDELINES if card.slug == entry.subject_id),
+            None,
+        )
+        if card is not None:
+            return ResolvedQueueEntry(
+                queue=entry,
+                title=f"{card.category} · {card.title}",
+                url=card.source_url,
+            )
+    return None
+
+
+def _queue_entry_text(index: int, entry: ResolvedQueueEntry) -> str:
+    action_labels = {
+        "save": "Saved",
+        "apply": "Apply",
+        "verify": "Verify",
+        "repeat": "Repeat",
+    }
+    raw_title = " ".join(entry.title.split()).strip() or "Untitled"
+    url = entry.url.strip()
+    link_candidate = f' · <a href="{escape(url, quote=True)}">Open</a>' if url else ""
+    link = link_candidate if len(link_candidate) <= 200 else ""
+    action = action_labels.get(entry.queue.queue_action, entry.queue.queue_action.title())
+    title_limit = min(len(raw_title), 220)
+    while title_limit > 0:
+        title = raw_title[:title_limit].rstrip()
+        suffix = "…" if title_limit < len(raw_title) else ""
+        rendered = f"{index}. <b>{escape(title)}{suffix}</b>\n{escape(action)}{link}"
+        if len(rendered) <= 350:
+            return rendered
+        title_limit -= 10
+    return f"{index}. <b>Untitled</b>\n{escape(action)}"
+
+
+def send_queue_response(
+    settings: Settings,
+    *,
+    profile: str,
+    chat_id: str,
+    actor_user_id: str,
+    reply_to_message_id: int | None = None,
+    current: datetime | None = None,
+) -> dict:
+    from .db import connect_database, init_db
+
+    value = current or now_ict()
+    local = value.replace(tzinfo=ICT) if value.tzinfo is None else value.astimezone(ICT)
+    timestamp = local.isoformat()
+    conn = connect_database(settings)
+    try:
+        init_db(conn)
+        entries = list_open_queue(
+            conn,
+            profile,
+            str(chat_id),
+            str(actor_user_id),
+            limit=8,
+        )
+        resolved: list[ResolvedQueueEntry] = []
+        for entry in entries:
+            item = _resolve_queue_entry(conn, entry)
+            if item is None:
+                mark_queue_unavailable(
+                    conn,
+                    entry.profile,
+                    entry.chat_id,
+                    entry.actor_user_id,
+                    entry.subject_type,
+                    entry.subject_id,
+                    timestamp,
+                )
+                continue
+            resolved.append(item)
+
+        if not resolved:
+            send_telegram_message(
+                "Queue trống.",
+                settings,
+                chat_id=str(chat_id),
+                reply_to_message_id=reply_to_message_id,
+            )
+            return {"count": 0}
+
+        text = "\n\n".join(
+            ["<b>Action queue</b>"]
+            + [_queue_entry_text(index, item) for index, item in enumerate(resolved, start=1)]
+        )
+        subjects = [
+            InteractiveSubject(
+                subject=InteractionSubject(
+                    item.queue.subject_type,
+                    item.queue.subject_id,
+                ),
+                buttons=QUEUE_BUTTONS,
+            )
+            for item in resolved
+        ]
+        send_interactive_message(
+            conn,
+            settings,
+            profile,
+            text,
+            subjects,
+            delivery_kind="queue",
+            numbered=True,
+            chat_id=str(chat_id),
+            reply_to_message_id=reply_to_message_id,
+            current=local,
+        )
+        return {"count": len(resolved)}
+    finally:
+        conn.close()
+
+
+def weekly_report_text(
+    settings: Settings,
+    *,
+    profile: str,
+    chat_id: str,
+    actor_user_id: str | None,
+    current: datetime | None = None,
+) -> str:
+    from .db import connect_database, init_db
+
+    period = report_period(current)
+    conn = connect_database(settings)
+    try:
+        init_db(conn)
+        metrics = weekly_metrics(
+            conn,
+            profile,
+            str(chat_id),
+            period.start.isoformat(),
+            period.end.isoformat(),
+            actor_user_id=str(actor_user_id) if actor_user_id is not None else None,
+        )
+    finally:
+        conn.close()
+    return format_weekly_report(
+        metrics,
+        profile,
+        compact=False,
+        period=period,
+    )
 
 
 def _callback_result(reason: str) -> dict:
@@ -289,7 +461,7 @@ def handle_interaction_callback(
                 "Action đã hết hạn",
                 settings,
             )
-        if action not in allowed_actions(delivery.subject_type):
+        if action not in allowed_actions(delivery.subject_type, delivery.delivery_kind):
             return _reject_callback(
                 callback_query_id,
                 "incompatible_action",

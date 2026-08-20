@@ -17,17 +17,26 @@ from news_keep_up.models import CandidateItem, Enrichment, JobOpportunity, Setti
 from news_keep_up.telegram_commands import handle_telegram_update
 
 
-def update(text: str, chat_id: int = -100123, message_id: int = 42, title: str = "") -> dict:
+def update(
+    text: str,
+    chat_id: int = -100123,
+    message_id: int = 42,
+    title: str = "",
+    user_id: int | None = 42,
+) -> dict:
     chat = {"id": chat_id, "type": "supergroup"}
     if title:
         chat["title"] = title
+    message = {
+        "message_id": message_id,
+        "chat": chat,
+        "text": text,
+    }
+    if user_id is not None:
+        message["from"] = {"id": user_id}
     return {
         "update_id": 1,
-        "message": {
-            "message_id": message_id,
-            "chat": chat,
-            "text": text,
-        },
+        "message": message,
     }
 
 
@@ -58,6 +67,57 @@ class TelegramCommandsTest(unittest.TestCase):
         self.assertTrue(result["callback"])
         handler.assert_called_once_with(callback, profile="fde", settings=settings)
         send.assert_not_called()
+
+    def test_queue_aliases_use_actor_identity_and_fallback_to_chat(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+
+        with (
+            patch(
+                "news_keep_up.telegram_commands.send_queue_response",
+                return_value={"count": 0},
+            ) as queue,
+            patch("news_keep_up.telegram_commands.send_telegram_message") as plain_send,
+        ):
+            saved = handle_telegram_update(
+                update("/saved", user_id=77),
+                slot="fde",
+                sources_path="config/fde_sources.json",
+                settings=settings,
+            )
+            todo = handle_telegram_update(
+                update("/todo", user_id=None),
+                slot="fde",
+                sources_path="config/fde_sources.json",
+                settings=settings,
+            )
+
+        self.assertEqual(saved["command"], "queue")
+        self.assertEqual(todo["command"], "queue")
+        self.assertEqual(queue.call_args_list[0].kwargs["actor_user_id"], "77")
+        self.assertEqual(queue.call_args_list[1].kwargs["actor_user_id"], "-100123")
+        plain_send.assert_not_called()
+
+    def test_weekly_command_sends_one_plain_report(self):
+        settings = Settings(telegram_bot_token="token", telegram_chat_id="-100123")
+
+        with (
+            patch(
+                "news_keep_up.telegram_commands.weekly_report_text",
+                return_value="📊 Weekly outcome",
+            ) as report,
+            patch("news_keep_up.telegram_commands.send_telegram_message") as send,
+        ):
+            result = handle_telegram_update(
+                update("/report", user_id=77),
+                slot="fde-jobs",
+                sources_path="config/fde_job_sources.json",
+                settings=settings,
+            )
+
+        self.assertEqual(result["command"], "weekly")
+        self.assertEqual(report.call_args.kwargs["actor_user_id"], "77")
+        send.assert_called_once()
+        self.assertEqual(send.call_args.args[0], "📊 Weekly outcome")
 
     def test_fde_jobs_scoped_commands_separate_fit_and_verify_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -247,6 +307,8 @@ class TelegramCommandsTest(unittest.TestCase):
         self.assertIn("/search", sent_text)
         self.assertIn("/analyze", sent_text)
         self.assertIn("/focus", sent_text)
+        self.assertIn("/queue", sent_text)
+        self.assertIn("/weekly", sent_text)
         self.assertEqual(send.call_args.kwargs["chat_id"], "-100123")
         self.assertEqual(send.call_args.kwargs["reply_to_message_id"], 42)
 

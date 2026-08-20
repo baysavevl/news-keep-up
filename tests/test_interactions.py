@@ -24,6 +24,9 @@ class InteractionDomainTest(unittest.TestCase):
     def test_unknown_subject_has_no_allowed_actions(self):
         self.assertEqual(allowed_actions("unknown"), set())
 
+    def test_queue_targets_allow_completion_and_removal(self):
+        self.assertEqual(allowed_actions("news", "queue"), {"done", "dismiss"})
+
     def test_queue_transition_distinguishes_feedback_open_and_close(self):
         self.assertIsNone(queue_transition("useful"))
         self.assertEqual(queue_transition("apply"), ("apply", "open"))

@@ -9,18 +9,27 @@ from news_keep_up.db import connect_database, init_db, upsert_item
 from news_keep_up.interaction_store import (
     mark_engagement_delivered,
     plan_engagement_deliveries,
+    record_interaction,
 )
-from news_keep_up.interactions import EngagementDelivery, InteractionSubject
+from news_keep_up.interactions import (
+    EngagementDelivery,
+    InteractionSubject,
+    QueueEntry,
+    ResolvedQueueEntry,
+)
 from news_keep_up.models import CandidateItem, Settings
 from news_keep_up.telegram_interactions import (
     ACTION_TO_CODE,
     ButtonSpec,
     InteractiveSubject,
+    _queue_entry_text,
     build_inline_keyboard,
     decode_callback,
     encode_callback,
     handle_interaction_callback,
+    send_queue_response,
     send_interactive_message,
+    weekly_report_text,
 )
 from news_keep_up.utils import ICT
 
@@ -487,6 +496,221 @@ class TelegramInteractionsTest(unittest.TestCase):
 
         self.assertEqual(result["reason"], "incompatible_action")
         self.assertEqual(state, "planned")
+
+    def test_queue_response_is_actor_scoped_and_creates_fresh_targets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_ids = []
+            for index in (1, 2):
+                item_id, _ = upsert_item(
+                    conn,
+                    CandidateItem(
+                        source_name="Source",
+                        source_kind="rss",
+                        source_category="ai",
+                        title=f"Article {index}",
+                        url=f"https://example.com/article-{index}",
+                        canonical_url=f"https://example.com/article-{index}",
+                    ),
+                )
+                item_ids.append(item_id)
+            deliveries = plan_engagement_deliveries(
+                conn,
+                "engineer",
+                "-1001",
+                [InteractionSubject("news", item_id) for item_id in item_ids],
+                "content",
+                CREATED,
+            )
+            mark_engagement_delivered(
+                conn,
+                [row.id for row in deliveries],
+                "700",
+                CREATED,
+            )
+            record_interaction(conn, deliveries[0].id, "save", "42", "cb-save-42", CREATED)
+            record_interaction(conn, deliveries[1].id, "save", "84", "cb-save-84", CREATED)
+            conn.close()
+
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 701}],
+            ) as sender:
+                result = send_queue_response(
+                    settings,
+                    profile="engineer",
+                    chat_id="-1001",
+                    actor_user_id="42",
+                    reply_to_message_id=55,
+                    current=datetime(2026, 8, 21, 11, 0, tzinfo=ICT),
+                )
+
+            conn = connect_database(settings)
+            queue_targets = conn.execute(
+                """SELECT subject_id, delivery_kind, telegram_message_id
+                   FROM engagement_deliveries WHERE delivery_kind='queue'"""
+            ).fetchall()
+            conn.close()
+
+        sent_text = sender.call_args.args[0]
+        markup = sender.call_args.kwargs["reply_markup"]
+        self.assertEqual(result["count"], 1)
+        self.assertIn("Article 1", sent_text)
+        self.assertNotIn("Article 2", sent_text)
+        self.assertEqual(
+            [button["text"] for button in markup["inline_keyboard"][0]],
+            ["1 ✅ Xong", "1 🗑 Bỏ"],
+        )
+        self.assertEqual(sender.call_args.kwargs["reply_to_message_id"], 55)
+        self.assertEqual(
+            [(row["subject_id"], row["delivery_kind"], row["telegram_message_id"]) for row in queue_targets],
+            [(str(item_ids[0]), "queue", "701")],
+        )
+
+    def test_queue_response_marks_missing_subject_unavailable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-1001",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            delivery = plan_engagement_deliveries(
+                conn,
+                "engineer",
+                "-1001",
+                [InteractionSubject("news", 999)],
+                "content",
+                CREATED,
+            )[0]
+            mark_engagement_delivered(conn, [delivery.id], "700", CREATED)
+            record_interaction(conn, delivery.id, "save", "42", "cb-missing", CREATED)
+            conn.close()
+
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 701}],
+            ) as sender:
+                result = send_queue_response(
+                    settings,
+                    profile="engineer",
+                    chat_id="-1001",
+                    actor_user_id="42",
+                    current=datetime(2026, 8, 21, 11, 0, tzinfo=ICT),
+                )
+
+            conn = connect_database(settings)
+            status = conn.execute("SELECT status FROM action_queue").fetchone()[0]
+            target_count = conn.execute(
+                "SELECT COUNT(*) FROM engagement_deliveries WHERE delivery_kind='queue'"
+            ).fetchone()[0]
+            conn.close()
+
+        self.assertEqual(result["count"], 0)
+        self.assertEqual(sender.call_args.args[0], "Queue trống.")
+        self.assertNotIn("reply_markup", sender.call_args.kwargs)
+        self.assertEqual(status, "unavailable")
+        self.assertEqual(target_count, 0)
+
+    def test_queue_entry_with_long_escaped_metadata_stays_valid_and_compact(self):
+        queue = QueueEntry(
+            profile="engineer",
+            chat_id="-1001",
+            actor_user_id="42",
+            subject_type="news",
+            subject_id="1",
+            queue_action="save",
+            status="open",
+            created_at=CREATED,
+            updated_at=CREATED,
+            completed_at="",
+        )
+        entry = ResolvedQueueEntry(
+            queue=queue,
+            title="&" * 500,
+            url="https://e.test/?" + ("&" * 160),
+        )
+
+        rendered = _queue_entry_text(1, entry)
+
+        self.assertLessEqual(len(rendered), 350)
+        self.assertEqual(rendered.count("<b>"), rendered.count("</b>"))
+        self.assertEqual(rendered.count("<a "), rendered.count("</a>"))
+
+    def test_weekly_report_text_uses_profile_specific_outcomes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db")
+            conn = connect_database(settings)
+            init_db(conn)
+            fixtures = [
+                ("engineer", InteractionSubject("news", 1), [("useful", "cb-useful"), ("save", "cb-save")]),
+                ("fde-jobs", InteractionSubject("job", "job-1"), [("apply", "cb-apply")]),
+                ("fde-jobs", InteractionSubject("job", "job-2"), [("verify", "cb-verify")]),
+                ("fde-interview", InteractionSubject("interview", "agent-state"), [("done", "cb-done")]),
+                ("fde-interview", InteractionSubject("interview", "tool-boundaries"), [("repeat", "cb-repeat")]),
+            ]
+            for index, (profile, subject, actions) in enumerate(fixtures, start=1):
+                row = plan_engagement_deliveries(
+                    conn,
+                    profile,
+                    "-1001",
+                    [subject],
+                    "content",
+                    "2026-08-20T10:00:00+07:00",
+                )[0]
+                mark_engagement_delivered(
+                    conn,
+                    [row.id],
+                    str(700 + index),
+                    "2026-08-20T10:00:00+07:00",
+                )
+                for action, callback_id in actions:
+                    record_interaction(
+                        conn,
+                        row.id,
+                        action,
+                        "42",
+                        callback_id,
+                        "2026-08-20T11:00:00+07:00",
+                    )
+            conn.close()
+            current = datetime(2026, 8, 24, 9, 0, tzinfo=ICT)
+
+            engineer = weekly_report_text(
+                settings,
+                profile="engineer",
+                chat_id="-1001",
+                actor_user_id="42",
+                current=current,
+            )
+            jobs = weekly_report_text(
+                settings,
+                profile="fde-jobs",
+                chat_id="-1001",
+                actor_user_id="42",
+                current=current,
+            )
+            interview = weekly_report_text(
+                settings,
+                profile="fde-interview",
+                chat_id="-1001",
+                actor_user_id="42",
+                current=current,
+            )
+
+        self.assertIn("17/08–23/08", engineer)
+        self.assertIn("1 useful", engineer)
+        self.assertIn("1 apply", jobs)
+        self.assertIn("1 verify", jobs)
+        self.assertIn("1 practiced", interview)
+        self.assertIn("1 repeat", interview)
 
 
 if __name__ == "__main__":

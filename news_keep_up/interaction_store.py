@@ -271,7 +271,7 @@ def record_interaction(
     delivery = load_engagement_delivery(conn, delivery_id)
     if delivery is None:
         raise ValueError("Interaction delivery does not exist")
-    if action not in allowed_actions(delivery.subject_type):
+    if action not in allowed_actions(delivery.subject_type, delivery.delivery_kind):
         raise ValueError("Action is not allowed for this subject")
 
     actor = str(actor_user_id)

@@ -87,8 +87,12 @@ class ReportPeriod:
     report_week: str
 
 
-def allowed_actions(subject_type: str) -> set[str]:
-    return set(ACTIONS_BY_SUBJECT.get(subject_type, set()))
+def allowed_actions(subject_type: str, delivery_kind: str = "content") -> set[str]:
+    if subject_type not in ACTIONS_BY_SUBJECT:
+        return set()
+    if delivery_kind == "queue":
+        return {"done", "dismiss"}
+    return set(ACTIONS_BY_SUBJECT[subject_type])
 
 
 def queue_transition(action: str) -> tuple[str, str] | None:

@@ -23,7 +23,11 @@ from .job_filters import (
 from .job_alerts import run_fde_job_alerts
 from .models import JobOpportunity, Settings
 from .telegram import send_telegram_message
-from .telegram_interactions import handle_interaction_callback
+from .telegram_interactions import (
+    handle_interaction_callback,
+    send_queue_response,
+    weekly_report_text,
+)
 
 COMMAND_ALIASES = {
     "start": "help",
@@ -69,6 +73,11 @@ COMMAND_ALIASES = {
     "markread": "markread",
     "read": "markread",
     "skip": "markread",
+    "queue": "queue",
+    "saved": "queue",
+    "todo": "queue",
+    "weekly": "weekly",
+    "report": "weekly",
 }
 
 SCHEDULE_LABELS = {
@@ -99,6 +108,8 @@ def handle_telegram_update(
     chat = message.get("chat") or {}
     chat_id = str(chat.get("id") or "")
     message_id = message.get("message_id")
+    actor = message.get("from") or {}
+    actor_user_id = str(actor.get("id") or chat_id)
 
     if not text.startswith("/") or not chat_id:
         return {"ok": True, "ignored": True, "reason": "not_a_command"}
@@ -108,6 +119,20 @@ def handle_telegram_update(
     if command != "chatid" and settings.telegram_chat_id and chat_id != settings.telegram_chat_id:
         return {"ok": True, "ignored": True, "reason": "unauthorized_chat"}
 
+    if command == "queue":
+        queue_result = send_queue_response(
+            settings,
+            profile=slot,
+            chat_id=chat_id,
+            actor_user_id=actor_user_id,
+            reply_to_message_id=int(message_id) if message_id is not None else None,
+        )
+        return {
+            "ok": True,
+            "command": command,
+            "chat_id": chat_id,
+            **queue_result,
+        }
     if command == "chatid":
         saved = _maybe_save_fde_jobs_chat_id(settings, slot, chat)
         response = _chatid_text(chat, saved=saved)
@@ -148,6 +173,13 @@ def handle_telegram_update(
         response = _force_text(settings, slot, sources_path)
     elif command == "markread":
         response = _markread_text(settings, slot, args)
+    elif command == "weekly":
+        response = weekly_report_text(
+            settings,
+            profile=slot,
+            chat_id=chat_id,
+            actor_user_id=actor_user_id,
+        )
     else:
         response = _help_text(slot)
 
@@ -184,6 +216,8 @@ def _help_text(slot: str) -> str:
             "/company name - search by company",
             "/search keyword, /query keyword - multi-keyword search (all words must match)",
             "/sources - show job source coverage",
+            "/queue - show your saved/apply/verify items",
+            "/weekly - show your seven-day outcomes",
             "/status - show schedule and delivery config",
             "/chatid - show this Telegram chat id",
             "/help - show this menu",
@@ -198,6 +232,8 @@ def _help_text(slot: str) -> str:
         "/search keyword - search stored news",
         "/analyze keyword - analyze stored matches through this profile lens",
         "/markread id|keyword|all - mark stored news as read so it will not be sent again",
+        "/queue - show your saved items",
+        "/weekly - show your seven-day outcomes",
         "/interview - show the next FDE interview guideline",
         "/sources - show source coverage",
         "/status - show schedule and config status",
