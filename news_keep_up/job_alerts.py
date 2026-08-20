@@ -26,16 +26,25 @@ from .job_filters import (
 )
 from .job_links import is_specific_job_candidate
 from .job_search_policy import evaluate_job_candidate
+from .interactions import InteractionSubject
 from .models import CandidateItem, JobOpportunity, Settings, Source, SourceFetchLog
 from .scheduler import is_fde_job_alert_send_window
 from .source_health import failed_source_fetch_log, successful_source_fetch_log
 from .sources import fetch_source
-from .telegram import send_telegram_message
+from .telegram_interactions import ButtonSpec, InteractiveSubject, send_interactive_message
 from .utils import ICT, now_ict
 
 DEFAULT_FDE_JOB_SOURCES_PATH = Path("config/fde_job_sources.json")
 USER_AGENT = "news-keep-up/0.1 (+https://github.com/baysavevl/news-keep-up)"
 JOB_ALERT_BATCH_LIMIT = 3
+
+JOB_BUTTONS = (
+    ButtonSpec("📌 Lưu", "save"),
+    ButtonSpec("💼 Apply", "apply"),
+    ButtonSpec("🔎 Verify", "verify"),
+    ButtonSpec("🚫 Bỏ", "dismiss"),
+)
+
 
 def run_fde_job_alerts(
     settings: Settings,
@@ -74,7 +83,21 @@ def run_fde_job_alerts(
                 return ""
             if delivery_configured:
                 for opportunity, message in zip(alerts, messages):
-                    send_telegram_message(message, settings)
+                    send_interactive_message(
+                        conn,
+                        settings,
+                        "fde-jobs",
+                        message,
+                        [
+                            InteractiveSubject(
+                                subject=InteractionSubject("job", opportunity.id),
+                                buttons=JOB_BUTTONS,
+                            )
+                        ],
+                        delivery_kind="content",
+                        numbered=False,
+                        current=current,
+                    )
                     mark_job_alert_delivered(conn, opportunity.id, opportunity.alert_fingerprint)
                 return "\n\n".join(messages)
             return ""

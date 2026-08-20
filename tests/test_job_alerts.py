@@ -32,6 +32,7 @@ from news_keep_up.job_filters import (
 )
 from news_keep_up.job_links import is_specific_job_url
 from news_keep_up.models import CandidateItem, JobOpportunity, Settings, Source
+from news_keep_up.telegram_interactions import decode_callback
 from news_keep_up.utils import ICT
 
 
@@ -608,7 +609,10 @@ class JobAlertsTest(unittest.TestCase):
             with (
                 patch("news_keep_up.job_alerts.fetch_source", return_value=[candidate]),
                 patch("news_keep_up.job_alerts.GeminiClient.classify_job_candidates", classify),
-                patch("news_keep_up.job_alerts.send_telegram_message") as send,
+                patch(
+                    "news_keep_up.telegram_interactions.send_telegram_message",
+                    return_value=[{"message_id": 700}],
+                ) as send,
             ):
                 first_message = run_fde_job_alerts(
                     settings,
@@ -625,6 +629,84 @@ class JobAlertsTest(unittest.TestCase):
             self.assertIn("Wonderful", first_message)
             self.assertEqual(second_message, "")
             self.assertEqual(send.call_count, 1)
+
+    def test_job_alert_uses_contextual_actions_for_long_opportunity_id(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text("[]", encoding="utf-8")
+            settings = Settings(
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+                db_path=Path(tmp) / "test.db",
+            )
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_job_candidate())
+            long_id = "job-" + ("x" * 116)
+            opportunity = JobOpportunity(
+                **{**make_opportunity(item_id).__dict__, "id": long_id}
+            )
+            upsert_job_opportunity(conn, opportunity)
+            conn.close()
+
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 711}],
+            ) as send:
+                run_fde_job_alerts(
+                    settings,
+                    sources_path=sources_path,
+                    force=True,
+                    current=datetime(2026, 8, 21, 10, 0, tzinfo=ICT),
+                )
+
+            conn = connect_database(settings)
+            engagement = conn.execute(
+                """SELECT id, subject_id, delivery_state, telegram_message_id
+                   FROM engagement_deliveries"""
+            ).fetchone()
+            conn.close()
+
+        buttons = send.call_args.kwargs["reply_markup"]["inline_keyboard"][0]
+        self.assertEqual(
+            [button["text"] for button in buttons],
+            ["📌 Lưu", "💼 Apply", "🔎 Verify", "🚫 Bỏ"],
+        )
+        self.assertEqual(
+            [decode_callback(button["callback_data"])[1] for button in buttons],
+            ["save", "apply", "verify", "dismiss"],
+        )
+        self.assertTrue(all(len(button["callback_data"].encode("utf-8")) <= 64 for button in buttons))
+        self.assertEqual(engagement["subject_id"], long_id)
+        self.assertEqual(engagement["delivery_state"], "delivered")
+        self.assertEqual(engagement["telegram_message_id"], "711")
+        self.assertTrue(
+            all(decode_callback(button["callback_data"])[0] == engagement["id"] for button in buttons)
+        )
+
+    def test_job_alert_dry_run_creates_no_engagement_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sources_path = Path(tmp) / "sources.json"
+            sources_path.write_text("[]", encoding="utf-8")
+            settings = Settings(db_path=Path(tmp) / "test.db")
+            conn = connect_database(settings)
+            init_db(conn)
+            item_id, _ = upsert_item(conn, make_job_candidate())
+            upsert_job_opportunity(conn, make_opportunity(item_id))
+            conn.close()
+
+            message = run_fde_job_alerts(
+                settings,
+                dry_run=True,
+                sources_path=sources_path,
+            )
+
+            conn = connect_database(settings)
+            count = conn.execute("SELECT COUNT(*) FROM engagement_deliveries").fetchone()[0]
+            conn.close()
+
+        self.assertIn("Tech Job Alert", message)
+        self.assertEqual(count, 0)
 
     def test_run_fde_job_alerts_blocks_legacy_false_positive_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -724,7 +806,10 @@ class JobAlertsTest(unittest.TestCase):
             with (
                 patch("news_keep_up.job_alerts.fetch_source", return_value=[candidate]),
                 patch("news_keep_up.job_alerts.GeminiClient.classify_job_candidates", classify),
-                patch("news_keep_up.job_alerts.send_telegram_message") as send,
+                patch(
+                    "news_keep_up.telegram_interactions.send_telegram_message",
+                    return_value=[{"message_id": 700}],
+                ) as send,
             ):
                 first_message = run_fde_job_alerts(
                     settings,
@@ -795,7 +880,10 @@ class JobAlertsTest(unittest.TestCase):
                 ))
             conn.close()
 
-            with patch("news_keep_up.job_alerts.send_telegram_message") as send:
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 700}],
+            ) as send:
                 first_message = run_fde_job_alerts(
                     settings,
                     sources_path=sources_path,
@@ -836,7 +924,7 @@ class JobAlertsTest(unittest.TestCase):
             conn.close()
 
             with patch(
-                "news_keep_up.job_alerts.send_telegram_message",
+                "news_keep_up.telegram_interactions.send_telegram_message",
                 side_effect=RuntimeError("telegram unavailable"),
             ):
                 with self.assertRaisesRegex(
@@ -849,9 +937,16 @@ class JobAlertsTest(unittest.TestCase):
             conn = connect_database(settings)
             init_db(conn)
             pending = list_pending_job_alerts(conn)
+            engagement_states = [
+                row["delivery_state"]
+                for row in conn.execute(
+                    "SELECT delivery_state FROM engagement_deliveries"
+                ).fetchall()
+            ]
             conn.close()
 
         self.assertEqual(len(pending), 1)
+        self.assertEqual(engagement_states, ["failed"])
 
     def test_run_fde_job_alerts_dedupes_pending_batch_by_apply_url(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -891,7 +986,10 @@ class JobAlertsTest(unittest.TestCase):
                 ))
             conn.close()
 
-            with patch("news_keep_up.job_alerts.send_telegram_message") as send:
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 700}],
+            ) as send:
                 message = run_fde_job_alerts(
                     settings,
                     sources_path=sources_path,
@@ -916,7 +1014,10 @@ class JobAlertsTest(unittest.TestCase):
             upsert_job_opportunity(conn, make_opportunity(item_id))
             conn.close()
 
-            with patch("news_keep_up.job_alerts.send_telegram_message") as send:
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 700}],
+            ) as send:
                 message = run_fde_job_alerts(
                     settings,
                     sources_path=sources_path,
@@ -941,7 +1042,10 @@ class JobAlertsTest(unittest.TestCase):
             upsert_job_opportunity(conn, make_opportunity(item_id))
             conn.close()
 
-            with patch("news_keep_up.job_alerts.send_telegram_message") as send:
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 700}],
+            ) as send:
                 message = run_fde_job_alerts(
                     settings,
                     sources_path=sources_path,
@@ -1003,7 +1107,10 @@ class JobAlertsTest(unittest.TestCase):
             conn.close()
             outside_window = datetime(2026, 8, 4, 23, 45, tzinfo=ICT)
 
-            with patch("news_keep_up.job_alerts.send_telegram_message") as send:
+            with patch(
+                "news_keep_up.telegram_interactions.send_telegram_message",
+                return_value=[{"message_id": 700}],
+            ) as send:
                 message = run_fde_job_alerts(
                     settings,
                     dry_run=False,
