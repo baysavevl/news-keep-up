@@ -24,6 +24,7 @@ from news_keep_up.digest import (
     select_digest_items,
 )
 from news_keep_up.models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings
+from news_keep_up.telegram_interactions import decode_callback
 from news_keep_up.utils import now_ict
 
 
@@ -922,18 +923,196 @@ class DigestTest(unittest.TestCase):
             with (
                 patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1, 2, 3, 4}),
                 patch("news_keep_up.digest._load_digest_candidates", return_value=rows),
-                patch("news_keep_up.digest.send_telegram_message") as send,
+                patch(
+                    "news_keep_up.telegram_interactions.send_telegram_message",
+                    side_effect=[
+                        [{"message_id": 701}],
+                        [{"message_id": 702}],
+                    ],
+                ) as send,
                 patch("news_keep_up.digest.mark_delivered") as mark,
             ):
-                run_digest(settings, "fde", dry_run=False)
+                run_digest(
+                    settings,
+                    "fde",
+                    dry_run=False,
+                    current=datetime(2026, 8, 24, 9, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")),
+                )
+            conn = connect_database(settings)
+            engagement = conn.execute(
+                """SELECT id, subject_id, telegram_message_id
+                   FROM engagement_deliveries ORDER BY id"""
+            ).fetchall()
+            conn.close()
 
         self.assertEqual(send.call_count, 2)
         self.assertNotIn("FDE News Thread", send.call_args_list[0].args[0])
         self.assertNotIn("Schedule:", send.call_args_list[0].args[0])
         self.assertIn("<b>FDE Digest</b>", send.call_args_list[0].args[0])
+        first_keyboard = send.call_args_list[0].kwargs["reply_markup"]["inline_keyboard"]
+        second_keyboard = send.call_args_list[1].kwargs["reply_markup"]["inline_keyboard"]
+        self.assertEqual(len(first_keyboard), 2)
+        self.assertEqual(len(second_keyboard), 2)
+        self.assertEqual(
+            [[button["text"] for button in row] for row in first_keyboard],
+            [
+                ["1 👍", "1 👎", "1 📌", "1 ✅"],
+                ["2 👍", "2 👎", "2 📌", "2 ✅"],
+            ],
+        )
+        first_ids = [decode_callback(row[0]["callback_data"])[0] for row in first_keyboard]
+        self.assertEqual(
+            [(row["subject_id"], row["telegram_message_id"]) for row in engagement],
+            [("1", "701"), ("2", "701"), ("3", "702"), ("4", "702")],
+        )
+        self.assertEqual(first_ids, [engagement[0]["id"], engagement[1]["id"]])
         self.assertEqual(mark.call_count, 2)
         self.assertEqual(mark.call_args_list[0].args[1], [1, 2])
         self.assertEqual(mark.call_args_list[1].args[1], [3, 4])
+
+    def test_weekly_recap_is_appended_once_without_an_extra_message(self):
+        rows = [candidate(index, 95 - index, "ai-engineering") for index in range(1, 5)]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            with (
+                patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1, 2, 3, 4}),
+                patch("news_keep_up.digest._load_digest_candidates", return_value=rows),
+                patch(
+                    "news_keep_up.telegram_interactions.send_telegram_message",
+                    side_effect=[
+                        [{"message_id": 701}],
+                        [{"message_id": 702}],
+                        [{"message_id": 703}],
+                        [{"message_id": 704}],
+                    ],
+                ) as send,
+                patch("news_keep_up.digest.mark_delivered"),
+            ):
+                current = datetime(2026, 8, 24, 9, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+                run_digest(settings, "engineer", dry_run=False, current=current)
+                run_digest(settings, "engineer", dry_run=False, current=current)
+
+            conn = connect_database(settings)
+            report = conn.execute(
+                "SELECT delivery_state FROM weekly_report_deliveries"
+            ).fetchall()
+            conn.close()
+
+        self.assertEqual(send.call_count, 4)
+        self.assertIn("Weekly outcome", send.call_args_list[0].args[0])
+        self.assertNotIn("Weekly outcome", send.call_args_list[1].args[0])
+        self.assertNotIn("Weekly outcome", send.call_args_list[2].args[0])
+        self.assertNotIn("Weekly outcome", send.call_args_list[3].args[0])
+        self.assertEqual([row["delivery_state"] for row in report], ["delivered"])
+
+    def test_failed_first_digest_send_releases_weekly_reservation(self):
+        rows = [candidate(1, 95, "ai-engineering"), candidate(2, 94, "ai-engineering")]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            with (
+                patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1, 2}),
+                patch("news_keep_up.digest._load_digest_candidates", return_value=rows),
+                patch(
+                    "news_keep_up.telegram_interactions.send_telegram_message",
+                    side_effect=RuntimeError("Telegram unavailable"),
+                ),
+                patch("news_keep_up.digest.mark_delivered") as mark,
+            ):
+                with self.assertRaises(RuntimeError):
+                    run_digest(
+                        settings,
+                        "engineer",
+                        dry_run=False,
+                        current=datetime(2026, 8, 24, 9, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")),
+                    )
+
+            conn = connect_database(settings)
+            reservation_count = conn.execute(
+                "SELECT COUNT(*) FROM weekly_report_deliveries"
+            ).fetchone()[0]
+            engagement_state = conn.execute(
+                "SELECT DISTINCT delivery_state FROM engagement_deliveries"
+            ).fetchone()[0]
+            conn.close()
+
+        self.assertEqual(reservation_count, 0)
+        self.assertEqual(engagement_state, "failed")
+        mark.assert_not_called()
+
+    def test_over_limit_weekly_recap_is_omitted_and_remains_eligible(self):
+        rows = [candidate(1, 95, "ai-engineering"), candidate(2, 94, "ai-engineering")]
+        base_message = "x" * 4000
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(
+                db_path=Path(tmp) / "test.db",
+                telegram_bot_token="token",
+                telegram_chat_id="-100123",
+            )
+            with (
+                patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1, 2}),
+                patch("news_keep_up.digest._load_digest_candidates", return_value=rows),
+                patch("news_keep_up.digest.format_digest_messages", return_value=[base_message]),
+                patch(
+                    "news_keep_up.telegram_interactions.send_telegram_message",
+                    return_value=[{"message_id": 701}],
+                ) as send,
+                patch("news_keep_up.digest.mark_delivered"),
+            ):
+                run_digest(
+                    settings,
+                    "engineer",
+                    dry_run=False,
+                    current=datetime(2026, 8, 24, 9, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")),
+                )
+
+            conn = connect_database(settings)
+            reservation_count = conn.execute(
+                "SELECT COUNT(*) FROM weekly_report_deliveries"
+            ).fetchone()[0]
+            conn.close()
+
+        self.assertEqual(send.call_count, 1)
+        self.assertEqual(send.call_args.args[0], base_message)
+        self.assertEqual(reservation_count, 0)
+
+    def test_dry_run_does_not_create_engagement_or_weekly_state(self):
+        rows = [candidate(1, 95, "ai-engineering"), candidate(2, 94, "ai-engineering")]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = Settings(db_path=Path(tmp) / "test.db")
+            with (
+                patch("news_keep_up.digest._fetch_store_and_enrich", return_value={1, 2}),
+                patch("news_keep_up.digest._load_digest_candidates", return_value=rows),
+            ):
+                message = run_digest(
+                    settings,
+                    "engineer",
+                    dry_run=True,
+                    current=datetime(2026, 8, 24, 9, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh")),
+                )
+
+            conn = connect_database(settings)
+            engagement_count = conn.execute(
+                "SELECT COUNT(*) FROM engagement_deliveries"
+            ).fetchone()[0]
+            report_count = conn.execute(
+                "SELECT COUNT(*) FROM weekly_report_deliveries"
+            ).fetchone()[0]
+            conn.close()
+
+        self.assertIn("Engineer Digest", message)
+        self.assertEqual((engagement_count, report_count), (0, 0))
 
 
 if __name__ == "__main__":

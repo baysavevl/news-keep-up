@@ -333,6 +333,7 @@ def _run_digest_profile(
             profile.slot,
             dry_run=dry_run,
             sources_path=profile.sources_path,
+            current=current,
         )
     return {
         "delivery_configured": delivery_configured,

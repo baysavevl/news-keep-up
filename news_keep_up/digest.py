@@ -22,11 +22,19 @@ from .db import (
     upsert_source,
 )
 from .gemini import GeminiClient, fallback_enrichment
+from .interaction_store import (
+    complete_weekly_report,
+    release_weekly_report,
+    reserve_weekly_report,
+    weekly_metrics,
+)
+from .interactions import InteractionSubject, format_weekly_report, report_period
 from .models import CandidateItem, DigestCandidate, DigestSelection, Enrichment, Settings, Source, SourceFetchLog
 from .prefilter import is_candidate_relevant_for_slot
 from .source_health import failed_source_fetch_log, successful_source_fetch_log
 from .sources import fetch_source
-from .telegram import send_telegram_message
+from .telegram import TELEGRAM_MESSAGE_LIMIT, send_telegram_message
+from .telegram_interactions import ButtonSpec, InteractiveSubject, send_interactive_message
 from .utils import ICT, now_ict
 
 USER_AGENT = "news-keep-up/0.1 (+https://github.com/baysavevl/news-keep-up)"
@@ -71,6 +79,13 @@ DIGEST_SELECTION_POLICIES = {
 
 DIGEST_ITEMS_PER_MESSAGE = 2
 FDE_MIN_RELEVANCE_SCORE = 75
+
+NEWS_BUTTONS = (
+    ButtonSpec("👍", "useful"),
+    ButtonSpec("👎", "noise"),
+    ButtonSpec("📌", "save"),
+    ButtonSpec("✅", "done"),
+)
 
 TOPIC_ICONS = {
     "coding-agents": "🤖",
@@ -776,37 +791,143 @@ def run_digest(
     slot: str,
     dry_run: bool = False,
     sources_path=DEFAULT_SOURCES_PATH,
+    current: datetime | None = None,
 ) -> str:
     conn = connect_database(settings)
-    init_db(conn)
-    sources = load_sources(sources_path)
-    current_item_ids = _fetch_store_and_enrich(conn, settings, slot, sources)
-    min_items, max_items, discussion_limit = _selection_policy(slot)
-    rows = _load_digest_candidates_for_slot(
-        conn,
-        settings,
-        slot,
-        current_item_ids,
-        allowed_source_names={source.name for source in sources},
-        min_items=min_items,
-    )
-    rows = _review_digest_candidates(conn, settings, slot, rows, max_items)
-    selections = select_digest_items(rows, min_items=min_items, max_items=max_items, discussion_limit=discussion_limit)
-    content_messages = format_digest_messages(slot, selections)
-    messages = content_messages if selections or dry_run else []
-    message = "\n\n".join(messages)
-    if not dry_run:
-        if not selections:
+    try:
+        init_db(conn)
+        sources = load_sources(sources_path)
+        current_item_ids = _fetch_store_and_enrich(conn, settings, slot, sources)
+        min_items, max_items, discussion_limit = _selection_policy(slot)
+        rows = _load_digest_candidates_for_slot(
+            conn,
+            settings,
+            slot,
+            current_item_ids,
+            allowed_source_names={source.name for source in sources},
+            min_items=min_items,
+        )
+        rows = _review_digest_candidates(conn, settings, slot, rows, max_items)
+        selections = select_digest_items(
+            rows,
+            min_items=min_items,
+            max_items=max_items,
+            discussion_limit=discussion_limit,
+        )
+        current_value = current or now_ict()
+        if current_value.tzinfo is None:
+            current_value = current_value.replace(tzinfo=ICT)
+        else:
+            current_value = current_value.astimezone(ICT)
+        content_messages = format_digest_messages(slot, selections, now=current_value)
+
+        reserved_week = ""
+        if not dry_run and selections and slot in {"engineer", "fde"}:
+            period = report_period(current_value)
+            try:
+                if reserve_weekly_report(
+                    conn,
+                    slot,
+                    settings.telegram_chat_id,
+                    period.report_week,
+                    current_value.isoformat(),
+                ):
+                    reserved_week = period.report_week
+                    metrics = weekly_metrics(
+                        conn,
+                        slot,
+                        settings.telegram_chat_id,
+                        period.start.isoformat(),
+                        period.end.isoformat(),
+                        actor_user_id=None,
+                    )
+                    recap = format_weekly_report(
+                        metrics,
+                        slot,
+                        compact=True,
+                        period=period,
+                    )
+                    combined = f"{content_messages[0]}\n\n{recap}"
+                    if len(combined) <= TELEGRAM_MESSAGE_LIMIT:
+                        content_messages[0] = combined
+                    else:
+                        release_weekly_report(
+                            conn,
+                            slot,
+                            settings.telegram_chat_id,
+                            reserved_week,
+                        )
+                        reserved_week = ""
+            except Exception:
+                if reserved_week:
+                    try:
+                        release_weekly_report(
+                            conn,
+                            slot,
+                            settings.telegram_chat_id,
+                            reserved_week,
+                        )
+                    except Exception:
+                        pass
+                    reserved_week = ""
+
+        messages = content_messages if selections or dry_run else []
+        message = "\n\n".join(messages)
+        if dry_run or not selections:
             return message
-        for chunk, chunk_message in zip(_selection_chunks(selections, DIGEST_ITEMS_PER_MESSAGE), content_messages):
-            send_telegram_message(chunk_message, settings)
+
+        chunks = _selection_chunks(selections, DIGEST_ITEMS_PER_MESSAGE)
+        for index, (chunk, chunk_message) in enumerate(zip(chunks, content_messages)):
+            interactive_subjects = [
+                InteractiveSubject(
+                    subject=InteractionSubject("news", selection.candidate.item_id),
+                    buttons=NEWS_BUTTONS,
+                )
+                for selection in chunk
+            ]
+            try:
+                send_interactive_message(
+                    conn,
+                    settings,
+                    slot,
+                    chunk_message,
+                    interactive_subjects,
+                    delivery_kind="content",
+                    numbered=True,
+                    current=current_value,
+                )
+            except Exception:
+                if index == 0 and reserved_week:
+                    release_weekly_report(
+                        conn,
+                        slot,
+                        settings.telegram_chat_id,
+                        reserved_week,
+                    )
+                    reserved_week = ""
+                raise
+            if index == 0 and reserved_week:
+                complete_weekly_report(
+                    conn,
+                    slot,
+                    settings.telegram_chat_id,
+                    reserved_week,
+                    current_value.isoformat(),
+                )
+                reserved_week = ""
             mark_delivered(
                 conn,
                 [selection.candidate.item_id for selection in chunk],
                 slot,
-                {selection.candidate.item_id for selection in chunk if selection.candidate.is_backfill},
+                {
+                    selection.candidate.item_id
+                    for selection in chunk
+                    if selection.candidate.is_backfill
+                },
             )
-    return message
+        return message
+    finally:
+        conn.close()
 
 
 def _review_digest_candidates(
